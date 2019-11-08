@@ -102,17 +102,25 @@ export default {
               redirect: '/welcome',
             },
             {
-              path: '/welcome',
-              name: 'welcome',
-              icon: 'smile',
-              component: './Welcome',
-            },
-            {
               path: '/admin',
               name: 'admin',
               icon: 'crown',
               component: './Admin',
               authority: ['admin'],
+            },
+            {
+              path: '/Statistic',
+              name: '统计信息',
+              icon: 'line-chart',
+              component: './Statistic',
+              authority: '',
+            },
+            {
+              path: '/createAccount',
+              name: '新建账户',
+              icon: 'idcard',
+              component: './createAccount',
+              authority: '',
             },
             {
               component: './404',

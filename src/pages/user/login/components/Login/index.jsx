@@ -5,11 +5,14 @@ import LoginContext from './LoginContext';
 import LoginItem from './LoginItem';
 import LoginSubmit from './LoginSubmit';
 import LoginTab from './LoginTab';
+
 import styles from './index.less';
 
 class Login extends Component {
   static Tab = LoginTab;
+
   static Submit = LoginSubmit;
+
   static defaultProps = {
     className: '',
     defaultActiveKey: '',
@@ -34,20 +37,6 @@ class Login extends Component {
     }
   }
 
-  onSwitch = type => {
-    this.setState(
-      {
-        type,
-      },
-      () => {
-        const { onTabChange } = this.props;
-
-        if (onTabChange) {
-          onTabChange(type);
-        }
-      },
-    );
-  };
   getContext = () => {
     const { form } = this.props;
     const { tabs = [] } = this.state;
@@ -80,6 +69,7 @@ class Login extends Component {
       },
     };
   };
+
   handleSubmit = e => {
     e.preventDefault();
     const { active = {}, type = '' } = this.state;
@@ -106,6 +96,8 @@ class Login extends Component {
     const { type, tabs = [] } = this.state;
     const TabChildren = [];
     const otherChildren = [];
+
+    // 把子节点分为 Tab 子组件和其他子组件
     React.Children.forEach(children, child => {
       if (!child) {
         return;
@@ -117,18 +109,14 @@ class Login extends Component {
         otherChildren.push(child);
       }
     });
+
     return (
       <LoginContext.Provider value={this.getContext()}>
         <div className={classNames(className, styles.login)}>
           <Form onSubmit={this.handleSubmit}>
             {tabs.length ? (
               <React.Fragment>
-                <Tabs
-                  animated={false}
-                  className={styles.tabs}
-                  activeKey={type}
-                  onChange={this.onSwitch}
-                >
+                <Tabs animated={false} className={styles.tabs} activeKey={type}>
                   {TabChildren}
                 </Tabs>
                 {otherChildren}
