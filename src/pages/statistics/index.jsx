@@ -1,7 +1,6 @@
-import { Col, Dropdown, Icon, Menu, Row, Card, Statistic, Radio, PageHeader, Descriptions } from 'antd';
-import React, { Component, Suspense } from 'react';
-import { GridContent } from '@ant-design/pro-layout';
-import { connect } from 'dva';
+import { Col, Icon, Row, Card, Statistic, Radio, PageHeader, Descriptions } from 'antd';
+import React, { Component } from 'react';
+// import { connect } from 'dva';
 import styles from './style.less';
 
 class Index extends Component {
