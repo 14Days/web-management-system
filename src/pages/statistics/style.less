@@ -1,0 +1,55 @@
+@import '~antd/es/style/themes/default.less';
+
+.infoHeader {
+  margin: 40px 40px;
+}
+
+.infoCard {
+  margin: 20px 60px;
+}
+
+.infoStatistic {
+  margin: 20px;
+}
+
+.daySelect {
+  margin: 0px 60px;
+}
+
+@media screen and (max-width: @screen-lg) {
+  .salesExtra {
+    display: none;
+  }
+
+  .rankingList {
+    li {
+      span:first-child {
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: @screen-md) {
+  .rankingTitle {
+    margin-top: 16px;
+  }
+
+  .salesCard .salesBar {
+    padding: 16px;
+  }
+}
+
+@media screen and (max-width: @screen-sm) {
+  .salesExtraWrap {
+    display: none;
+  }
+
+  .salesCard {
+    :global {
+      .ant-tabs-content {
+        padding-top: 30px;
+      }
+    }
+  }
+}
