@@ -115,7 +115,6 @@ export default {
               path: '/Account',
               name: '账户管理',
               icon: 'idcard',
-              component: './Account/account',
               authority: '',
               routes: [
                 {
