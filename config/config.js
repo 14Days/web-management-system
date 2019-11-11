@@ -98,15 +98,11 @@ export default {
           authority: ['admin', 'user'],
           routes: [
             {
-              path: '/',
-              redirect: '/welcome',
-            },
-            {
               path: '/admin',
               name: 'admin',
               icon: 'crown',
               component: './Admin',
-              authority: ['admin'],
+              authority: ['admin', 'user'],
             },
             {
               path: '/Statistic',
@@ -116,11 +112,25 @@ export default {
               authority: '',
             },
             {
-              path: '/createAccount',
-              name: '新建账户',
+              path: '/Account',
+              name: '账户管理',
               icon: 'idcard',
-              component: './createAccount',
+              component: './Account/account',
               authority: '',
+              routes: [
+                {
+                  name: '查找账户',
+                  path: '/Account/find',
+                  icon: 'user',
+                  component: './Account/find',
+                },
+                {
+                  name: '新建账户',
+                  path: '/Account/create',
+                  icon: 'user-add',
+                  component: './Account/create',
+                },
+              ],
             },
             {
               component: './404',
