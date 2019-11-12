@@ -9,3 +9,6 @@ export const getAllAccountURL = `${baseURL}/user`;
 
 // 提交删除
 export const commitDeletaURL = `${baseURL}/user/delete`;
+
+// 修改密码
+export const updateUserURL = `${baseURL}/user/update`;

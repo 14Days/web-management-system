@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Table, Button } from 'antd';
+import { Table, Button, Modal, Form, Input } from 'antd';
 import { connect } from 'dva';
 
 @connect(({ account }) => ({
@@ -16,9 +16,44 @@ export default class Find extends Component {
     return data;
   }
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      visible: false,
+      username: '',
+      password: '',
+      userID: 0,
+    };
+    this.handlePopOK = this.handlePopOK.bind(this);
+    this.handlePopCancel = this.handlePopCancel.bind(this);
+  }
+
   componentWillMount() {
     this.props.dispatch({
       type: 'account/handleInit',
+    });
+  }
+
+  handlePopOK() {
+    this.setState({
+      visible: false,
+    });
+
+    const { username, password, userID } = this.state;
+
+    this.props.dispatch({
+      type: 'account/handleUpdate',
+      payload: {
+        userID,
+        username,
+        password,
+      },
+    });
+  }
+
+  handlePopCancel() {
+    this.setState({
+      visible: false,
     });
   }
 
@@ -50,7 +85,18 @@ export default class Find extends Component {
         key: 'action',
         render: item => (
           <div>
-            <Button type="primary" style={{ marginRight: '20px' }}>
+            <Button
+              type="primary"
+              style={{ marginRight: '20px' }}
+              onClick={() => {
+                this.setState({
+                  visible: true,
+                  username: item.username,
+                  password: '',
+                  userID: item.key,
+                });
+              }}
+            >
               修改
             </Button>
             <Button
@@ -72,6 +118,37 @@ export default class Find extends Component {
     ];
     return (
       <PageHeaderWrapper>
+        <Modal
+          title="编辑账户"
+          visible={this.state.visible}
+          onOk={this.handlePopOK}
+          onCancel={this.handlePopCancel}
+        >
+          <Form layout="inline">
+            <Form.Item label="用户名">
+              <Input
+                type="username"
+                value={this.state.username}
+                onChange={e => {
+                  this.setState({
+                    username: e.target.value,
+                  });
+                }}
+              />
+            </Form.Item>
+            <Form.Item label="密码">
+              <Input
+                type="password"
+                value={this.state.password}
+                onChange={e => {
+                  this.setState({
+                    password: e.target.value,
+                  });
+                }}
+              />
+            </Form.Item>
+          </Form>
+        </Modal>
         <Table dataSource={Find.formatData(account.user)} columns={columns} />;
       </PageHeaderWrapper>
     );
