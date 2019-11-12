@@ -94,16 +94,13 @@ export default {
       routes: [
         {
           path: '/',
+          redirect: './Statistic',
+        },
+        {
+          path: '/',
           component: '../layouts/BasicLayout',
           authority: ['admin', 'user'],
           routes: [
-            {
-              path: '/admin',
-              name: 'admin',
-              icon: 'crown',
-              component: './Admin',
-              authority: ['admin', 'user'],
-            },
             {
               path: '/Statistic',
               name: '统计信息',

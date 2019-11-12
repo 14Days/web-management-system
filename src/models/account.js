@@ -1,4 +1,4 @@
-import { fetchtAllAccount, commitDelete, updateUser } from '../services/account';
+import { fetchtAllAccount, commitDelete, updateUser, createAccount } from '../services/account';
 import { showNotification } from '../utils/common';
 
 export default {
@@ -7,6 +7,9 @@ export default {
     pageIndex: 0,
     total: 0,
     user: [],
+    loading: {
+      create: false,
+    },
   },
   reducers: {
     save(state, { payload }) {
@@ -24,13 +27,21 @@ export default {
       };
     },
     update(state, { payload }) {
-      console.log('update');
       const { userID, username } = payload;
       const { user } = state;
       user[userID].username = username;
       return {
         ...state,
         user,
+      };
+    },
+    triggerLoading(state, { payload }) {
+      const { loading } = state;
+      loading[payload.page] = !loading[payload.page];
+      const ret = JSON.parse(JSON.stringify(loading)); // 否则引用没变不渲染
+      return {
+        ...state,
+        loading: ret,
       };
     },
   },
@@ -50,7 +61,7 @@ export default {
     *handleDelete({ payload }, { put }) {
       const { userID } = payload;
       const res = yield commitDelete([userID]); // 这里用数组包起来是为了对接口
-      showNotification(res.status, res.data || res.error);
+      showNotification(res.status, res.data || res.err_msg);
       if (res.status === 'success') {
         yield put({
           type: 'delete',
@@ -64,7 +75,7 @@ export default {
     *handleUpdate({ payload }, { put }) {
       const { userID, username, password } = payload;
       const res = yield updateUser(username, password);
-      showNotification(res.status, res.data || res.error);
+      showNotification(res.status, res.data || res.err_msg);
       if (res.status === 'success') {
         yield put({
           type: 'update',
@@ -74,6 +85,18 @@ export default {
           },
         });
       }
+    },
+    // 新建账户
+    *handleCreate({ payload }, { put }) {
+      const { username, password } = payload;
+      const res = yield createAccount(username, password);
+      showNotification(res.status, res.data || res.err_msg);
+      yield put({
+        type: 'triggerLoading',
+        payload: {
+          page: 'create',
+        },
+      });
     },
   },
 };

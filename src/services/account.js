@@ -1,5 +1,5 @@
 import request from '@/utils/request';
-import { getAllAccountURL, commitDeletaURL, updateUserURL } from '../utils/url';
+import { getAllAccountURL, commitDeletaURL, updateUserURL, createAccountURL } from '../utils/url';
 
 export async function fetchtAllAccount() {
   return request.get(getAllAccountURL);
@@ -13,6 +13,13 @@ export async function commitDelete(userID) {
 
 export async function updateUser(username, password) {
   return request.post(updateUserURL, {
+    username,
+    password,
+  });
+}
+
+export async function createAccount(username, password) {
+  return request.post(createAccountURL, {
     username,
     password,
   });
