@@ -3,6 +3,7 @@ import { stringify } from 'querystring';
 import { fakeAccountLogin, getFakeCaptcha } from '@/services/login';
 import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
+
 const Model = {
   namespace: 'login',
   state: {
@@ -62,7 +63,11 @@ const Model = {
   reducers: {
     changeLoginStatus(state, { payload }) {
       setAuthority(payload.currentAuthority);
-      return { ...state, status: payload.status, type: payload.type };
+      return {
+        ...state,
+        status: payload.status,
+        type: payload.type,
+      };
     },
   },
 };

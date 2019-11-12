@@ -112,7 +112,7 @@ export default {
               authority: '',
             },
             {
-              path: '/Account',
+              path: '/account',
               name: '账户管理',
               icon: 'idcard',
               authority: '',
@@ -121,11 +121,11 @@ export default {
                   name: '查找账户',
                   path: '/Account/find',
                   icon: 'user',
-                  component: './Account/find',
+                  component: './account/find',
                 },
                 {
                   name: '新建账户',
-                  path: '/Account/create',
+                  path: '/account/create',
                   icon: 'user-add',
                   component: './Account/create',
                 },
