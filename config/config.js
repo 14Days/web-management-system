@@ -94,25 +94,39 @@ export default {
       routes: [
         {
           path: '/',
+          redirect: './Statistic',
+        },
+        {
+          path: '/',
           component: '../layouts/BasicLayout',
           authority: ['admin', 'user'],
           routes: [
             {
-              path: '/',
-              redirect: '/welcome',
+              path: '/Statistic',
+              name: '统计信息',
+              icon: 'line-chart',
+              component: './Statistic',
+              authority: '',
             },
             {
-              path: '/welcome',
-              name: 'welcome',
-              icon: 'smile',
-              component: './Welcome',
-            },
-            {
-              path: '/admin',
-              name: 'admin',
-              icon: 'crown',
-              component: './Admin',
-              authority: ['admin'],
+              path: '/account',
+              name: '账户管理',
+              icon: 'idcard',
+              authority: '',
+              routes: [
+                {
+                  name: '查找账户',
+                  path: '/Account/find',
+                  icon: 'user',
+                  component: './account/find',
+                },
+                {
+                  name: '新建账户',
+                  path: '/account/create',
+                  icon: 'user-add',
+                  component: './Account/create',
+                },
+              ],
             },
             {
               component: './404',
