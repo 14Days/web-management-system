@@ -15,3 +15,6 @@ export const updateUserURL = `${baseURL}/user/update`;
 
 // 新建账号
 export const createAccountURL = `${baseURL}/user/add`;
+
+// 获取统计信息
+export const getRecordURL = `${baseURL}/record`;

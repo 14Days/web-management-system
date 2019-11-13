@@ -1,3 +1,5 @@
+import { getRecord } from '../services/statistics'
+
 const StatisticsModel = {
   namespace: 'statistics',
   state: {
@@ -31,7 +33,7 @@ const StatisticsModel = {
   },
   effects: {
     // 根据state请求并更新state（刷新时使用
-    *refresh(_, { put }) {
+    *refresh(_, { put, call, select }) {
       yield put({
         type: 'save',
         payload: {
@@ -39,17 +41,45 @@ const StatisticsModel = {
         },
       });
       // call api
+      const dateNow = Date();
+      const { interval } = yield select(state => state.statistics);
+      const dateEnd = dateNow + interval;
+      console.log('daend:', dateEnd);
+      const res = yield call(getRecord, {
+        start_date: dateNow,
+        end_date: dateEnd,
+      });
+      if (res.status === 'success') {
+        console.log('okk');
+      }
       // yield call(() => {
       //   return new Promise(resolve => {
       //     setTimeout(resolve, 1000);
       //   });
       // });
       // set date
+      console.log(res);
       yield put({
         type: 'save',
         payload: {
-          last: Date(),
+          last: dateNow,
           loading: false,
+          numNewuser: res.data.register,
+          numNewrecommend: res.data.recommend,
+          nameStylelike: res.data.style.like.tag,
+          numStylelike: res.data.style.like.num,
+          nameStylecollect: res.data.style.collect.tag,
+          numStylecollect: res.data.style.collect.num,
+          nameStylecomment: res.data.style.comment.tag,
+          numStylecomment: res.data.style.comment.num,
+          nameDesignpost: res.data.designer.post.name,
+          numDesignpost: res.data.designer.post.num,
+          nameDesignfollow: res.data.designer.follow.name,
+          numDesignfollow: res.data.designer.follow.num,
+          nameDesigncomment: res.data.designer.comment.name,
+          numDesigncomment: res.data.designer.comment.num,
+          nameDesignlike: res.data.designer.like.name,
+          numDesignlike: res.data.designer.like.num,
         },
       });
     },
