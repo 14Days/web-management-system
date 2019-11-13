@@ -39,12 +39,12 @@ const menuDataRender = menuList =>
 
 const defaultFooterDom = (
   <DefaultFooter
-    copyright="2019 cxk队出品"
+    copyright="2019 14Days 出品"
     links={[
       {
         key: 'github',
         title: <Icon type="github" />,
-        href: 'https://www.baidu.com',
+        href: 'https://github.com/14Days',
         blankTarget: true,
       },
     ]}

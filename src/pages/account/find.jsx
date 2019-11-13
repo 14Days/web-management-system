@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Table, Button, Modal, Form, Input } from 'antd';
+import { Table, Button, Modal, Form, Input, Spin } from 'antd';
 import { connect } from 'dva';
 
 @connect(({ account }) => ({
-  account,
+  ...account,
 }))
 export default class Find extends Component {
   // 传入所有的 user 信息, 返回符合 Table 格式的数据
@@ -26,11 +26,30 @@ export default class Find extends Component {
     };
     this.handlePopOK = this.handlePopOK.bind(this);
     this.handlePopCancel = this.handlePopCancel.bind(this);
+    this.search = this.search.bind(this);
   }
 
   componentWillMount() {
     this.props.dispatch({
       type: 'account/handleInit',
+    });
+  }
+
+  search(key) {
+    const { dispatch } = this.props;
+    // 显示加载中
+    dispatch({
+      type: 'account/triggerLoading',
+      payload: {
+        page: 'find',
+      },
+    });
+
+    dispatch({
+      type: 'account/handleSearch',
+      payload: {
+        key,
+      },
     });
   }
 
@@ -58,7 +77,10 @@ export default class Find extends Component {
   }
 
   render() {
-    const { account } = this.props;
+    const {
+      loading: { find },
+      user,
+    } = this.props;
     const columns = [
       {
         title: '用户名',
@@ -118,38 +140,49 @@ export default class Find extends Component {
     ];
     return (
       <PageHeaderWrapper>
-        <Modal
-          title="编辑账户"
-          visible={this.state.visible}
-          onOk={this.handlePopOK}
-          onCancel={this.handlePopCancel}
-        >
-          <Form layout="inline">
-            <Form.Item label="用户名">
-              <Input
-                type="username"
-                value={this.state.username}
-                onChange={e => {
-                  this.setState({
-                    username: e.target.value,
-                  });
-                }}
-              />
-            </Form.Item>
-            <Form.Item label="密码">
-              <Input
-                type="password"
-                value={this.state.password}
-                onChange={e => {
-                  this.setState({
-                    password: e.target.value,
-                  });
-                }}
-              />
-            </Form.Item>
-          </Form>
-        </Modal>
-        <Table dataSource={Find.formatData(account.user)} columns={columns} />;
+        <Spin spinning={find}>
+          {/* 弹出的编辑框 */}
+          <Modal
+            title="编辑账户"
+            visible={this.state.visible}
+            onOk={this.handlePopOK}
+            onCancel={this.handlePopCancel}
+          >
+            <Form layout="inline">
+              <Form.Item label="用户名">
+                <Input
+                  type="username"
+                  value={this.state.username}
+                  onChange={e => {
+                    this.setState({
+                      username: e.target.value,
+                    });
+                  }}
+                />
+              </Form.Item>
+              <Form.Item label="密码">
+                <Input
+                  type="password"
+                  value={this.state.password}
+                  onChange={e => {
+                    this.setState({
+                      password: e.target.value,
+                    });
+                  }}
+                />
+              </Form.Item>
+            </Form>
+          </Modal>
+          {/* 查找用户 */}
+          <Input.Search
+            placeholder="请输入要查找的用户名, 为空则列出所有用户。"
+            enterButton="Search"
+            size="large"
+            style={{ marginBottom: '20px' }}
+            onSearch={this.search}
+          />
+          <Table dataSource={Find.formatData(user)} columns={columns} />
+        </Spin>
       </PageHeaderWrapper>
     );
   }
