@@ -7,7 +7,7 @@ import styles from './style.less';
 @connect(({ statistics }) => ({
   statistics,
 }))
-class Index extends Component {
+class Statistics extends Component {
   state = {};
 
   componentWillMount() {
@@ -261,6 +261,4 @@ class Index extends Component {
   }
 }
 
-connect(state => state.work)(Index);
-
-export default Index;
+export default connect(state => state.work)(Statistics);

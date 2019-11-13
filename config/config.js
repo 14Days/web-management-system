@@ -94,7 +94,7 @@ export default {
       routes: [
         {
           path: '/',
-          redirect: './Statistic',
+          redirect: './statistics/index',
         },
         {
           path: '/',
@@ -102,10 +102,10 @@ export default {
           authority: ['admin', 'user'],
           routes: [
             {
-              path: '/Statistic',
+              path: '/statistics/index',
               name: '统计信息',
               icon: 'line-chart',
-              component: './Statistic',
+              component: './statistics/index',
               authority: '',
             },
             {
