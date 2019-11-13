@@ -15,3 +15,6 @@ export const updateUserURL = `${baseURL}/user/update`;
 
 // 新建账号
 export const createAccountURL = `${baseURL}/user/add`;
+
+// 登录
+export const loginURL = `${baseURL}/login`;

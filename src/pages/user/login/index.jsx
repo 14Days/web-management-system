@@ -1,117 +1,61 @@
-import { Alert } from 'antd';
-import { FormattedMessage, formatMessage } from 'umi-plugin-react/locale';
 import React, { Component } from 'react';
+import { Button, Form, Input, Spin } from 'antd';
 import { connect } from 'dva';
-import LoginComponents from './components/Login';
+
 import styles from './style.less';
 
-const { Tab, UserName, Password, Submit } = LoginComponents;
-
-@connect(({ login, loading }) => ({
-  userLogin: login,
-  submitting: loading.effects['login/login'],
-}))
 class Login extends Component {
-  loginForm = undefined;
-
-  state = {
-    type: 'account',
+  commit = () => {
+    this.props.form.validateFields(err => {
+      if (!err) {
+        this.props.dispatch({
+          type: 'login/save',
+          payload: {
+            loading: true,
+          },
+        });
+        const account = this.props.form.getFieldsValue();
+        this.props.dispatch({
+          type: 'login/handleLogin',
+          payload: account,
+        });
+        this.props.form.resetFields();
+      }
+    });
   };
-
-  // 登录
-  handleSubmit = (err, values) => {
-    const { type } = this.state;
-
-    if (!err) {
-      const { dispatch } = this.props;
-      dispatch({
-        type: 'login/login',
-        payload: { ...values, type },
-      });
-    }
-  };
-
-  renderMessage = content => (
-    <Alert
-      style={{
-        marginBottom: 24,
-      }}
-      message={content}
-      type="error"
-      showIcon
-    />
-  );
 
   render() {
-    const { userLogin, submitting } = this.props;
-    const { status, type: loginType } = userLogin;
-    const { type } = this.state;
+    const { getFieldDecorator } = this.props.form;
     return (
       <div className={styles.main}>
-        <LoginComponents
-          defaultActiveKey={type}
-          onSubmit={this.handleSubmit}
-          onCreate={form => {
-            this.loginForm = form;
-          }}
-        >
-          <Tab
-            key="account"
-            tab={formatMessage({
-              id: 'user-login.login.tab-login-credentials',
-            })}
-          >
-            {status === 'error' &&
-              loginType === 'account' &&
-              !submitting &&
-              this.renderMessage(
-                formatMessage({
-                  id: 'user-login.login.message-invalid-credentials',
-                }),
-              )}
-            <UserName
-              name="userName"
-              placeholder={`${formatMessage({
-                id: 'user-login.login.userName',
-              })}: admin or user`}
-              rules={[
+        <Spin spinning={this.props.loading} style={{ alignItems: 'center' }}>
+          <Form.Item>
+            {getFieldDecorator('username', {
+              rules: [
                 {
                   required: true,
-                  message: formatMessage({
-                    id: 'user-login.userName.required',
-                  }),
+                  message: '请输入用户名！',
                 },
-              ]}
-            />
-            <Password
-              name="password"
-              placeholder={`${formatMessage({
-                id: 'user-login.login.password',
-              })}: ant.design`}
-              rules={[
+              ],
+            })(<Input type="username" placeholder="请输入用户名" />)}
+          </Form.Item>
+          <Form.Item>
+            {getFieldDecorator('password', {
+              rules: [
                 {
                   required: true,
-                  message: formatMessage({
-                    id: 'user-login.password.required',
-                  }),
+                  message: '请输入密码！',
                 },
-              ]}
-              onPressEnter={e => {
-                e.preventDefault();
-
-                if (this.loginForm) {
-                  this.loginForm.validateFields(this.handleSubmit);
-                }
-              }}
-            />
-          </Tab>
-          <Submit loading={submitting}>
-            <FormattedMessage id="user-login.login.login" />
-          </Submit>
-        </LoginComponents>
+              ],
+            })(<Input type="password" placeholder="请输入密码" />)}
+          </Form.Item>
+          <Button className={styles.button} type="primary" onClick={this.commit}>
+            登录
+          </Button>
+        </Spin>
       </div>
     );
   }
 }
 
-export default Login;
+export default Form.create()(connect(state => state.login)(Login));
