@@ -99,7 +99,13 @@ export default {
           routes: [
             {
               path: '/',
-              redirect: '/welcome',
+              redirect: '/statistics',
+            },
+            {
+              name: '统计',
+              icon: 'area-chart',
+              path: '/statistics',
+              component: './statistics',
             },
             {
               path: '/welcome',
@@ -113,12 +119,6 @@ export default {
               icon: 'crown',
               component: './Admin',
               authority: ['admin'],
-            },
-            {
-              name: '统计',
-              icon: 'area-chart',
-              path: '/statistics',
-              component: './statistics',
             },
             {
               component: './404',
