@@ -13,8 +13,6 @@ import Authorized from '@/utils/Authorized';
 import RightContent from '@/components/GlobalHeader/RightContent';
 import { getAuthorityFromRouter } from '@/utils/utils';
 
-import logo from '../assets/logo.svg';
-
 const noMatch = (
   <Result
     status="403"
@@ -94,7 +92,11 @@ const BasicLayout = props => {
   };
   return (
     <ProLayout
-      logo={logo}
+      logo={
+        <span role="img" aria-label="" style={{ fontSize: '20px' }}>
+          👿
+        </span>
+      }
       onCollapse={handleMenuCollapse}
       menuItemRender={(menuItemProps, defaultDom) => {
         if (menuItemProps.isUrl) {

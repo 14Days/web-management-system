@@ -129,6 +129,12 @@ export default {
               ],
             },
             {
+              name: '推荐消息管理',
+              path: '/messageManage',
+              icon: 'picture',
+              component: './messageManage',
+            },
+            {
               component: './404',
             },
           ],
