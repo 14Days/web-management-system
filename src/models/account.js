@@ -1,4 +1,10 @@
-import { fetchtAllAccount, commitDelete, updateUser, createAccount } from '../services/account';
+import {
+  commitDelete,
+  createAccount,
+  fetchSearInfo,
+  fetchtAllAccount,
+  updateUser,
+} from '../services/account';
 import { showNotification } from '../utils/common';
 
 export default {
@@ -9,6 +15,7 @@ export default {
     user: [],
     loading: {
       create: false,
+      find: false,
     },
   },
   reducers: {
@@ -21,18 +28,20 @@ export default {
     delete(state, { payload }) {
       const { user } = state;
       user.splice(payload.userID, 1);
+      const ret = JSON.parse(JSON.stringify(user)); // 否则引用没变不渲染
       return {
         ...state,
-        user,
+        user: ret,
       };
     },
     update(state, { payload }) {
       const { userID, username } = payload;
       const { user } = state;
       user[userID].username = username;
+      const ret = JSON.parse(JSON.stringify(user)); // 否则引用没变不渲染
       return {
         ...state,
-        user,
+        user: ret,
       };
     },
     triggerLoading(state, { payload }) {
@@ -54,6 +63,15 @@ export default {
         payload: {
           total: res.data.total,
           user: res.data.user,
+        },
+      });
+      yield put({
+        type: 'save',
+        payload: {
+          loading: {
+            create: false,
+            find: false,
+          },
         },
       });
     },
@@ -95,6 +113,28 @@ export default {
         type: 'triggerLoading',
         payload: {
           page: 'create',
+        },
+      });
+    },
+    // 查找用户
+    *handleSearch({ payload }, { put }) {
+      const { key } = payload;
+      const res = yield fetchSearInfo(key);
+
+      showNotification(res.status, res.status === 'success' ? '查询成功' : '查询失败');
+      if (res.status === 'success') {
+        yield put({
+          type: 'save',
+          payload: {
+            total: res.data.total,
+            user: res.data.user,
+          },
+        });
+      }
+      yield put({
+        type: 'triggerLoading',
+        payload: {
+          page: 'find',
         },
       });
     },

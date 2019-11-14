@@ -1,5 +1,5 @@
 import request from '@/utils/request';
-import { getAllAccountURL, commitDeletaURL, updateUserURL, createAccountURL } from '../utils/url';
+import { commitDeletaURL, createAccountURL, getAllAccountURL, updateUserURL } from '../utils/url';
 
 export async function fetchtAllAccount() {
   return request.get(getAllAccountURL);
@@ -22,5 +22,11 @@ export async function createAccount(username, password) {
   return request.post(createAccountURL, {
     username,
     password,
+  });
+}
+
+export async function fetchSearInfo(key) {
+  return request.get(getAllAccountURL, {
+    username: key,
   });
 }

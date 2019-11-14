@@ -1,23 +1,47 @@
 import { routerRedux } from 'dva/router';
 import { stringify } from 'querystring';
-import { fakeAccountLogin, getFakeCaptcha } from '@/services/login';
+// import { fakeAccountLogin } from '@/services/login';
 import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
+import { login } from '../services/login';
+import { showNotification } from '../utils/common';
 
 const Model = {
   namespace: 'login',
   state: {
     status: undefined,
+    loading: false,
   },
   effects: {
-    *login({ payload }, { call, put }) {
-      const response = yield call(fakeAccountLogin, payload);
+    *handleLogin({ payload }, { call, put }) {
+      // const response = yield call(fakeAccountLogin, payload);
+      const { username, password } = payload;
+      const {
+        status,
+        data: { type: currentAuthority },
+      } = yield call(login, username, password);
+
+      showNotification(status, currentAuthority);
+
       yield put({
         type: 'changeLoginStatus',
-        payload: response,
+        payload: {
+          status,
+          currentAuthority,
+        },
       }); // Login successfully
 
-      if (response.status === 'ok') {
+      if (status === 'success') {
+        yield put({
+          type: 'user/saveCurrentUser',
+          payload: {
+            name: username,
+            userid: username,
+            // 头像获取APT
+            avatar:
+              'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
+          },
+        });
         const urlParams = new URL(window.location.href);
         const params = getPageQuery();
         let { redirect } = params;
@@ -36,13 +60,16 @@ const Model = {
             return;
           }
         }
-
+        // 跳转到统计信息
         yield put(routerRedux.replace(redirect || '/'));
       }
-    },
 
-    *getCaptcha({ payload }, { call }) {
-      yield call(getFakeCaptcha, payload);
+      yield put({
+        type: 'save',
+        payload: {
+          loading: false,
+        },
+      });
     },
 
     *logout(_, { put }) {
@@ -61,6 +88,12 @@ const Model = {
     },
   },
   reducers: {
+    save(state, { payload }) {
+      return {
+        ...state,
+        ...payload,
+      };
+    },
     changeLoginStatus(state, { payload }) {
       setAuthority(payload.currentAuthority);
       return {

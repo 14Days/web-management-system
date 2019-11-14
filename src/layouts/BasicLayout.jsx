@@ -11,7 +11,7 @@ import { Icon, Result, Button } from 'antd';
 import { formatMessage } from 'umi-plugin-react/locale';
 import Authorized from '@/utils/Authorized';
 import RightContent from '@/components/GlobalHeader/RightContent';
-import { isAntDesignPro, getAuthorityFromRouter } from '@/utils/utils';
+import { getAuthorityFromRouter } from '@/utils/utils';
 
 import logo from '../assets/logo.svg';
 
@@ -39,43 +39,19 @@ const menuDataRender = menuList =>
 
 const defaultFooterDom = (
   <DefaultFooter
-    copyright="2019 cxk队出品"
+    copyright="2019 14Days 出品"
     links={[
       {
         key: 'github',
         title: <Icon type="github" />,
-        href: 'https://www.baidu.com',
+        href: 'https://github.com/14Days',
         blankTarget: true,
       },
     ]}
   />
 );
 
-const footerRender = () => {
-  if (!isAntDesignPro()) {
-    return defaultFooterDom;
-  }
-
-  return (
-    <>
-      {defaultFooterDom}
-      <div
-        style={{
-          padding: '0px 24px 24px',
-          textAlign: 'center',
-        }}
-      >
-        <a href="https://www.netlify.com" target="_blank" rel="noopener noreferrer">
-          <img
-            src="https://www.netlify.com/img/global/badges/netlify-color-bg.svg"
-            width="82px"
-            alt="netlify logo"
-          />
-        </a>
-      </div>
-    </>
-  );
-};
+const footerRender = () => defaultFooterDom;
 
 const BasicLayout = props => {
   const {
@@ -137,14 +113,6 @@ const BasicLayout = props => {
         },
         ...routers,
       ]}
-      itemRender={(route, params, routes, paths) => {
-        const first = routes.indexOf(route) === 0;
-        return first ? (
-          <Link to={paths.join('/')}>{route.breadcrumbName}</Link>
-        ) : (
-          <span>{route.breadcrumbName}</span>
-        );
-      }}
       footerRender={footerRender}
       menuDataRender={menuDataRender}
       formatMessage={formatMessage}
