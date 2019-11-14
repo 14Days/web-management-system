@@ -32,6 +32,16 @@ const Model = {
       }); // Login successfully
 
       if (status === 'success') {
+        yield put({
+          type: 'user/saveCurrentUser',
+          payload: {
+            name: username,
+            userid: username,
+            // 头像获取APT
+            avatar:
+              'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
+          },
+        });
         const urlParams = new URL(window.location.href);
         const params = getPageQuery();
         let { redirect } = params;
@@ -52,13 +62,6 @@ const Model = {
         }
         // 跳转到统计信息
         yield put(routerRedux.replace(redirect || '/'));
-        // 更改当前用户
-        // yield put({
-        //   type: 'user/saveCurrentUser',
-        //   payload: {
-        //     name: username,
-        //   },
-        // });
       }
 
       yield put({
