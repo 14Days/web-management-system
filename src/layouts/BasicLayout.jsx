@@ -11,7 +11,7 @@ import { Icon, Result, Button } from 'antd';
 import { formatMessage } from 'umi-plugin-react/locale';
 import Authorized from '@/utils/Authorized';
 import RightContent from '@/components/GlobalHeader/RightContent';
-import { isAntDesignPro, getAuthorityFromRouter } from '@/utils/utils';
+import { getAuthorityFromRouter } from '@/utils/utils';
 
 import logo from '../assets/logo.svg';
 
@@ -51,31 +51,7 @@ const defaultFooterDom = (
   />
 );
 
-const footerRender = () => {
-  if (!isAntDesignPro()) {
-    return defaultFooterDom;
-  }
-
-  return (
-    <>
-      {defaultFooterDom}
-      <div
-        style={{
-          padding: '0px 24px 24px',
-          textAlign: 'center',
-        }}
-      >
-        <a href="https://www.netlify.com" target="_blank" rel="noopener noreferrer">
-          <img
-            src="https://www.netlify.com/img/global/badges/netlify-color-bg.svg"
-            width="82px"
-            alt="netlify logo"
-          />
-        </a>
-      </div>
-    </>
-  );
-};
+const footerRender = () => defaultFooterDom;
 
 const BasicLayout = props => {
   const {

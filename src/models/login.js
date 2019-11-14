@@ -31,7 +31,7 @@ const Model = {
         },
       }); // Login successfully
 
-      if (status === 'ok') {
+      if (status === 'success') {
         const urlParams = new URL(window.location.href);
         const params = getPageQuery();
         let { redirect } = params;
@@ -50,8 +50,15 @@ const Model = {
             return;
           }
         }
-
+        // 跳转到统计信息
         yield put(routerRedux.replace(redirect || '/'));
+        // 更改当前用户
+        // yield put({
+        //   type: 'user/saveCurrentUser',
+        //   payload: {
+        //     name: username,
+        //   },
+        // });
       }
 
       yield put({

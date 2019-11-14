@@ -112,7 +112,7 @@ export default {
               path: '/account',
               name: '账户管理',
               icon: 'idcard',
-              authority: '',
+              authority: ['root', 'admin'],
               routes: [
                 {
                   name: '查找账户',
