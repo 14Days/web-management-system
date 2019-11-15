@@ -18,3 +18,6 @@ export const createAccountURL = `${baseURL}/user/add`;
 
 // 登录
 export const loginURL = `${baseURL}/login`;
+
+// 获取统计信息
+export const getRecordURL = `${baseURL}/record`;
