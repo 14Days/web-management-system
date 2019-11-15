@@ -21,3 +21,9 @@ export const loginURL = `${baseURL}/login`;
 
 // 获取统计信息
 export const getRecordURL = `${baseURL}/record`;
+
+// 获取公告信息
+export const getNoticeURL = `${baseURL}/notice`;
+
+// 发布新公告
+export const commitNoticeURL = `${baseURL}/notice`;
