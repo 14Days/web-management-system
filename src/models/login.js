@@ -35,7 +35,7 @@ const Model = {
         yield put({
           type: 'user/saveCurrentUser',
           payload: {
-            name: username,
+            name: `${username}<${currentAuthority}>`,
             userid: username,
             // 头像获取APT
             avatar:

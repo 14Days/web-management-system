@@ -1,8 +1,9 @@
-import { Col, Icon, Row, Card, Statistic, Radio, Tooltip, Descriptions } from 'antd';
+import { Col, Icon, Row, Card, Statistic, Radio, Tooltip, Descriptions, Table } from 'antd';
 import React, { Component } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { connect } from 'dva';
 import styles from './style.less';
+import Rank from './Rank';
 
 @connect(({ statistics }) => ({
   statistics,
@@ -25,21 +26,148 @@ class Statistics extends Component {
       interval,
       numNewuser,
       numNewrecommend,
-      nameStylelike,
-      numStylelike,
-      nameStylecollect,
-      numStylecollect,
-      nameStylecomment,
-      numStylecomment,
-      nameDesignpost,
-      numDesignpost,
-      nameDesignfollow,
-      numDesignfollow,
-      nameDesigncomment,
-      numDesigncomment,
-      nameDesignlike,
-      numDesignlike,
+      styleLike,
+      styleCollect,
+      styleComment,
+      designerPost,
+      designerFollow,
+      designerComment,
+      designerLike,
     } = statistics; // 抽取数据
+
+    // 列参数
+    const styleLikeColumns = [
+      {
+        title: '排名',
+        dataIndex: 'key',
+        key: 'rank',
+        render: text => <span>{`# ${text}`}</span>,
+      },
+      {
+        title: '风格',
+        dataIndex: 'tag',
+        key: 'name',
+      },
+      {
+        title: '点赞数',
+        dataIndex: 'num',
+        key: 'num',
+      },
+    ];
+
+    const styleCommentColumns = [
+      {
+        title: '排名',
+        dataIndex: 'key',
+        key: 'rank',
+        render: text => <span>{`# ${text}`}</span>,
+      },
+      {
+        title: '风格',
+        dataIndex: 'tag',
+        key: 'name',
+      },
+      {
+        title: '评论数',
+        dataIndex: 'num',
+        key: 'num',
+      },
+    ];
+
+    const styleCollectColumns = [
+      {
+        title: '排名',
+        dataIndex: 'key',
+        key: 'rank',
+        render: text => <span>{`# ${text}`}</span>,
+      },
+      {
+        title: '风格',
+        dataIndex: 'tag',
+        key: 'name',
+      },
+      {
+        title: '收藏数',
+        dataIndex: 'num',
+        key: 'num',
+      },
+    ];
+
+    const designerPostColumns = [
+      {
+        title: '排名',
+        dataIndex: 'key',
+        key: 'rank',
+        render: text => <span>{`# ${text}`}</span>,
+      },
+      {
+        title: '设计师昵称',
+        dataIndex: 'name',
+        key: 'name',
+      },
+      {
+        title: '新增推荐数',
+        dataIndex: 'num',
+        key: 'num',
+      },
+    ];
+
+    const designerLikeColumns = [
+      {
+        title: '排名',
+        dataIndex: 'key',
+        key: 'rank',
+        render: text => <span>{`# ${text}`}</span>,
+      },
+      {
+        title: '设计师昵称',
+        dataIndex: 'name',
+        key: 'name',
+      },
+      {
+        title: '新增被点赞数',
+        dataIndex: 'num',
+        key: 'num',
+      },
+    ];
+
+    const designerFollowColumns = [
+      {
+        title: '排名',
+        dataIndex: 'key',
+        key: 'rank',
+        render: text => <span>{`# ${text}`}</span>,
+      },
+      {
+        title: '设计师昵称',
+        dataIndex: 'name',
+        key: 'name',
+      },
+      {
+        title: '新增被关注数',
+        dataIndex: 'num',
+        key: 'num',
+      },
+    ];
+
+    const designerCommentColumns = [
+      {
+        title: '排名',
+        dataIndex: 'key',
+        key: 'rank',
+        render: text => <span>{`# ${text}`}</span>,
+      },
+      {
+        title: '设计师昵称',
+        dataIndex: 'name',
+        key: 'name',
+      },
+      {
+        title: '新增被评论数',
+        dataIndex: 'num',
+        key: 'num',
+      },
+    ];
 
     return (
       <PageHeaderWrapper
@@ -108,6 +236,8 @@ class Statistics extends Component {
           </Descriptions>,
         ]}
       >
+        {/* 页头声明结束 */}
+        {/* 具体内容开始 */}
         <Row gutter={24} type="flex">
           {/* 每个分组是一个card */}
           <Col xl={24} lg={24} md={24} sm={24} xs={24}>
@@ -131,128 +261,112 @@ class Statistics extends Component {
                 </Col>
               </Row>
             </Card>
-            <Card title="热门风格" className={styles.infoCard} loading={loading} bordered={false}>
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Statistic
-                    title="最高点赞风格"
-                    value={nameStylelike}
-                    className={styles.infoStatistic}
-                  />
-                </Col>
-                <Col span={12}>
-                  <Statistic
-                    title="该风格受点赞数"
-                    value={numStylelike}
-                    prefix={<Icon type="like" />}
-                    className={styles.infoStatistic}
-                  />
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Statistic
-                    title="最高收藏风格"
-                    value={nameStylecollect}
-                    className={styles.infoStatistic}
-                  />
-                </Col>
-                <Col span={12}>
-                  <Statistic
-                    title="该风格受收藏数"
-                    value={numStylecollect}
-                    prefix={<Icon type="star" />}
-                    className={styles.infoStatistic}
-                  />
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Statistic
-                    title="最多评论风格"
-                    value={nameStylecomment}
-                    className={styles.infoStatistic}
-                  />
-                </Col>
-                <Col span={12}>
-                  <Statistic
-                    title="该风格受评论数"
-                    value={numStylecomment}
-                    prefix={<Icon type="message" />}
-                    className={styles.infoStatistic}
-                  />
-                </Col>
-              </Row>
+          </Col>
+          {/* 每一卡片 Rank展示前三 Table展示后七 */}
+          <Col xl={8} lg={24} md={24} sm={24} xs={24}>
+            <Card
+              title="风格点赞排名"
+              className={styles.infoCard}
+              loading={loading}
+              bordered={false}
+            >
+              {/* Rank：主体type 0风格 1设计师; 类型kind 内容类型 */}
+              <Rank type={0} data={styleLike} kind="like" />
+              <Table
+                columns={styleLikeColumns}
+                dataSource={styleLike.slice(3, 10)}
+                pagination={false}
+              />
             </Card>
-            <Card title="热门设计师" className={styles.infoCard} loading={loading} bordered={false}>
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Statistic
-                    title="最多发布设计师"
-                    value={nameDesignpost}
-                    className={styles.infoStatistic}
-                  />
-                </Col>
-                <Col span={12}>
-                  <Statistic
-                    title="该设计师发布数"
-                    value={numDesignpost}
-                    prefix={<Icon type="carry-out" />}
-                    className={styles.infoStatistic}
-                  />
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Statistic
-                    title="最多被关注设计师"
-                    value={nameDesignfollow}
-                    className={styles.infoStatistic}
-                  />
-                </Col>
-                <Col span={12}>
-                  <Statistic
-                    title="该设计师受关注数"
-                    value={numDesignfollow}
-                    prefix={<Icon type="eye" />}
-                    className={styles.infoStatistic}
-                  />
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Statistic
-                    title="最多被评论设计师"
-                    value={nameDesigncomment}
-                    className={styles.infoStatistic}
-                  />
-                </Col>
-                <Col span={12}>
-                  <Statistic
-                    title="该设计师受评论数"
-                    value={numDesigncomment}
-                    prefix={<Icon type="message" />}
-                    className={styles.infoStatistic}
-                  />
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Statistic
-                    title="最多被点赞设计师"
-                    value={nameDesignlike}
-                    className={styles.infoStatistic}
-                  />
-                </Col>
-                <Col span={12}>
-                  <Statistic
-                    title="该设计师受点赞数"
-                    value={numDesignlike}
-                    prefix={<Icon type="like" />}
-                    className={styles.infoStatistic}
-                  />
-                </Col>
-              </Row>
+          </Col>
+          <Col xl={8} lg={24} md={24} sm={24} xs={24}>
+            <Card
+              title="风格收藏排名"
+              className={styles.infoCard}
+              loading={loading}
+              bordered={false}
+            >
+              <Rank type={0} data={styleCollect} kind="collect" />
+              <Table
+                columns={styleCollectColumns}
+                dataSource={styleCollect.slice(3, 10)}
+                pagination={false}
+              />
+            </Card>
+          </Col>
+          <Col xl={8} lg={24} md={24} sm={24} xs={24}>
+            <Card
+              title="风格评论排名"
+              className={styles.infoCard}
+              loading={loading}
+              bordered={false}
+            >
+              <Rank type={0} data={styleComment} kind="comment" />
+              <Table
+                columns={styleCommentColumns}
+                dataSource={styleComment.slice(3, 10)}
+                pagination={false}
+              />
+            </Card>
+          </Col>
+          <Col xl={12} lg={24} md={24} sm={24} xs={24}>
+            <Card
+              title="设计师点赞排名"
+              className={styles.infoCard}
+              loading={loading}
+              bordered={false}
+            >
+              <Rank type={1} data={designerLike} kind="like" />
+              <Table
+                columns={designerLikeColumns}
+                dataSource={designerLike.slice(3, 10)}
+                pagination={false}
+              />
+            </Card>
+          </Col>
+          <Col xl={12} lg={24} md={24} sm={24} xs={24}>
+            <Card
+              title="设计师发布排名"
+              className={styles.infoCard}
+              loading={loading}
+              bordered={false}
+            >
+              <Rank type={1} data={designerPost} kind="post" />
+              <Table
+                columns={designerPostColumns}
+                dataSource={designerPost.slice(3, 10)}
+                pagination={false}
+              />
+            </Card>
+          </Col>
+          <Col xl={12} lg={24} md={24} sm={24} xs={24}>
+            <Card
+              title="设计师关注排名"
+              className={styles.infoCard}
+              loading={loading}
+              bordered={false}
+            >
+              <Rank type={1} data={designerFollow} kind="follow" />
+              <Table
+                columns={designerFollowColumns}
+                dataSource={designerFollow.slice(3, 10)}
+                pagination={false}
+              />
+            </Card>
+          </Col>
+          <Col xl={12} lg={24} md={24} sm={24} xs={24}>
+            <Card
+              title="设计师评论排名"
+              className={styles.infoCard}
+              loading={loading}
+              bordered={false}
+            >
+              <Rank type={1} data={designerComment} kind="comment" />
+              <Table
+                columns={designerCommentColumns}
+                dataSource={designerComment.slice(3, 10)}
+                pagination={false}
+              />
             </Card>
           </Col>
         </Row>
@@ -261,4 +375,4 @@ class Statistics extends Component {
   }
 }
 
-export default connect(state => state.work)(Statistics);
+export default Statistics;
