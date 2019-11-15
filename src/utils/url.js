@@ -21,3 +21,9 @@ export const loginURL = `${baseURL}/login`;
 
 // 获取统计信息
 export const getRecordURL = `${baseURL}/record`;
+
+// 获取推荐消息
+export const getMessageURL = `${baseURL}/img`;
+
+// 删除推荐消息
+export const deleteMessageURL = `${baseURL}/img/delete`;
