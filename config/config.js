@@ -135,6 +135,12 @@ export default {
               component: './message/messageManage',
             },
             {
+              name: '公告信息管理',
+              path: '/notice',
+              icon: 'message',
+              component: './notice',
+            },
+            {
               component: './404',
             },
           ],

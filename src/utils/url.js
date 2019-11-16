@@ -27,3 +27,9 @@ export const getMessageURL = `${baseURL}/img`;
 
 // 删除推荐消息
 export const deleteMessageURL = `${baseURL}/img/delete`;
+
+// 获取公告信息
+export const getNoticeURL = `${baseURL}/notice`;
+
+// 发布新公告
+export const commitNoticeURL = `${baseURL}/notice`;
