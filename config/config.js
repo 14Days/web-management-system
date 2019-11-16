@@ -130,9 +130,15 @@ export default {
             },
             {
               name: '推荐消息管理',
-              path: '/messageManage',
+              path: '/message/messageManage',
               icon: 'picture',
-              component: './messageManage',
+              component: './message/messageManage',
+            },
+            {
+              name: '公告信息管理',
+              path: '/notice',
+              icon: 'message',
+              component: './notice',
             },
             {
               component: './404',
