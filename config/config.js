@@ -108,6 +108,12 @@ export default {
               component: './statistics/index',
               authority: '',
             },
+            // {
+            //   name: '个人设置',
+            //   path: '/account/settings',
+            //   icon: 'control',
+            //   component: './account/settings',
+            // },
             {
               path: '/account',
               name: '账户管理',
@@ -116,7 +122,7 @@ export default {
               routes: [
                 {
                   name: '查找账户',
-                  path: '/Account/find',
+                  path: '/account/find',
                   icon: 'user',
                   component: './account/find',
                 },
@@ -125,6 +131,9 @@ export default {
                   path: '/account/create',
                   icon: 'user-add',
                   component: './Account/create',
+                },
+                {
+                  component: './account/settings',
                 },
               ],
             },

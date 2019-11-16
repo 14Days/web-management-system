@@ -66,7 +66,7 @@ class Message extends React.Component {
                   <div>
                     <Carousel autoplay style={{ width: '450px' }}>
                       {item.img_url.map(url => (
-                        <img src={url} alt={url} />
+                        <img src={url} alt={url} width={300} height={300} />
                       ))}
                     </Carousel>
                   </div>
