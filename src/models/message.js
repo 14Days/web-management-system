@@ -6,6 +6,7 @@ export default {
   state: {
     message: [],
     loading: true,
+    currentURL: '',
   },
   reducers: {
     save(state, { payload }) {
