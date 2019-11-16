@@ -30,6 +30,10 @@ const NoticeModels = {
     content: '', // 发送公告内容
     data: [], // 获取到的公告信息
     count: 0, // 获取到的公告条数
+    currentNotice: 0, // 当前公告
+    currentView: false, // 公告详情显示状态
+    searchDrawer: false, // 搜索抽屉显示状态
+    searchWord: '', // 搜索词
   },
   reducers: {
     save(prev, { payload }) {

@@ -6,11 +6,12 @@ import {
   Descriptions,
   Icon,
   Input,
-  List,
   Modal,
   Radio,
   Row,
   Tooltip,
+  Empty,
+  Drawer,
 } from 'antd';
 import React, { Component } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
@@ -31,9 +32,22 @@ class Notice extends Component {
   }
 
   render() {
-    const { TextArea } = Input;
+    const { TextArea, Search } = Input;
     const { notice, dispatch } = this.props;
-    const { data, loading, last, postType, postLoading, postView, content, count } = notice;
+    const {
+      data,
+      loading,
+      last,
+      postType,
+      postLoading,
+      postView,
+      content,
+      count,
+      currentView,
+      currentNotice,
+      searchDrawer,
+      searchWord,
+    } = notice;
 
     // 发布公告对话框中的提示内容
     let tipsWord = (
@@ -65,77 +79,196 @@ class Notice extends Component {
       // 当获取到的data为长度不为0时（历史上存在公告）
       contentReal = (
         <React.Fragment>
-          <Row gutter={24}>
-            <Col xl={24} lg={24} md={24} sm={24} xs={24}>
-              <Card title="当前公告" bordered={false} className={styles.infoCard} loading={loading}>
+          <Row gutter={[24, 20]} align="top">
+            <Col xl={16} lg={24} md={24} sm={24} xs={24}>
+              <Card bordered={false} loading={loading} className={styles.topCard}>
                 <Row gutter={24}>
-                  <Col xl={4} lg={4} md={4} sm={4} xs={4}>
+                  <Col xl={6} lg={6} md={6} sm={6} xs={6}>
                     <Row type="flex" justify="center" align="middle">
                       <Col xl={24} lg={24} md={24} sm={24} xs={24}>
                         <div className={styles.time}>
                           <div className={styles.year}>
-                            <span>{data[0].create_at.slice(12, 16)}</span>
+                            <span>{last.slice(11, 15)}</span>
                           </div>
                           <div className={styles.date}>
-                            <span className={styles.month}>{data[0].create_at.slice(8, 11)}</span>
-                            <span className={styles.day}>{data[0].create_at.slice(5, 7)}</span>
+                            <span className={styles.month}>{last.slice(4, 7)}</span>
+                            <span className={styles.day}>{last.slice(8, 10)}</span>
                           </div>
                         </div>
                       </Col>
                     </Row>
                   </Col>
-                  <Col xl={20} lg={20} md={20} sm={20} xs={20}>
-                    <div className={styles.mainContent}>
-                      <p>{data[0].title}</p>
+                  <Col xl={18} lg={18} md={18} sm={18} xs={18}>
+                    <div className={styles.lastNoticeWord}>
+                      <p>最新公告</p>
                     </div>
-                    <div>
-                      <p>{`${data[0].user} 发布于 ${data[0].create_at}`}</p>
+                    <div
+                      className={styles.lastNotice}
+                      onClick={() => {
+                        dispatch({
+                          type: 'notice/save',
+                          payload: {
+                            currentNotice: 0,
+                            currentView: true,
+                          },
+                        })
+                      }}
+                    >
+                      <div className={styles.noticeContent}>
+                        <p>{data[0].title}</p>
+                      </div>
+                      <div className={styles.noticeTime}>
+                        <p>{`${data[0].user} 发布于 ${data[0].create_at}`}</p>
+                      </div>
                     </div>
                   </Col>
                 </Row>
               </Card>
             </Col>
-          </Row>
-          <Row gutter={24}>
-            <Col xl={16} lg={24} md={24} sm={24} xs={24}>
-              <Card title="历史公告" bordered={false} loading={loading} extra={<span className={styles.tip}>{`共 ${count} 条公告`}</span>}>
-                <List
-                  itemLayout="horizontal"
-                  dataSource={data}
-                  renderItem={item => (
-                    <List.Item>
-                      <List.Item.Meta title={`${item.user} 发布于 ${item.create_at}`} description={item.title} />
-                    </List.Item>
-                  )}
-                />
+            <Col xl={8} lg={24} md={24} sm={24} xs={24}>
+              <Affix offsetTop={20}>
+              <Card className={styles.searchCard}>
+                <Row>
+                  <Col xl={24} lg={24} md={24} sm={24} xs={24} className={styles.send}>
+                    <div>
+                      <div>
+                        <span style={{ fontSize: '16px' }}>{`共${count}条公告可供搜索`}</span>
+                      </div>
+                      <div>
+                        <Search
+                          placeholder="搜索公告内容..."
+                          onSearch={value => console.log(value)}
+                          style={{ margin: '15px auto', maxWidth: '250px' }}
+                          enterButton
+                          onFocus={() => {
+                              dispatch({
+                                type: 'notice/save',
+                                payload: {
+                                  searchDrawer: true,
+                                },
+                              })
+                            }
+                          }
+                        />
+                      </div>
+                    </div>
+                  </Col>
+                </Row>
               </Card>
+              </Affix>
             </Col>
             <Col xl={8} lg={24} md={24} sm={24} xs={24}>
-              <Affix offsetTop={10} offsetBottom={10}>
-                <Card bordered={false}>
-                  <Row>
-                    <Col xl={24} lg={24} md={24} sm={24} xs={24} className={styles.send}>
-                      <div>
-                        <p>有新情况？发布一下吧</p>
-                        <Button
-                          type="primary"
-                          icon="form"
-                          onClick={() => {
-                            dispatch({
-                              type: 'notice/save',
-                              payload: {
-                                postView: true,
-                              },
-                            });
-                          }}
-                        >
-                          发布公告
-                        </Button>
-                      </div>
-                    </Col>
-                  </Row>
-                </Card>
-              </Affix>
+              <Card bordered={false} className={styles.postCard}>
+                <Row>
+                  <Col xl={24} lg={24} md={24} sm={24} xs={24} className={styles.send}>
+                    <div>
+                      <p>有新情况？发布一下吧</p>
+                      <Button
+                        type="primary"
+                        icon="form"
+                        onClick={() => {
+                          dispatch({
+                            type: 'notice/save',
+                            payload: {
+                              postView: true,
+                            },
+                          });
+                        }}
+                      >
+                        发布公告
+                      </Button>
+                    </div>
+                  </Col>
+                </Row>
+              </Card>
+            </Col>
+            <Col xl={6} lg={24} md={24} sm={24} xs={24}>
+              <Card bordered={false} loading={loading} className={styles.moreCard}>
+                <div className={styles.moreNotice}>
+                  <div className={styles.noticeContent}>
+                    <p>{data[0].title}</p>
+                  </div>
+                  <div className={styles.noticeTime}>
+                    <p>{`${data[0].user} 发布于 ${data[0].create_at}`}</p>
+                  </div>
+                </div>
+              </Card>
+            </Col>
+            <Col xl={6} lg={24} md={24} sm={24} xs={24}>
+              <Card bordered={false} loading={loading} className={styles.moreCard}>
+                <div className={styles.moreNotice}>
+                  <div className={styles.noticeContent}>
+                    <p>{data[0].title}</p>
+                  </div>
+                  <div className={styles.noticeTime}>
+                    <p>{`${data[0].user} 发布于 ${data[0].create_at}`}</p>
+                  </div>
+                </div>
+              </Card>
+            </Col>
+            <Col xl={6} lg={24} md={24} sm={24} xs={24}>
+              <Card bordered={false} loading={loading} className={styles.moreCard}>
+                <div className={styles.moreNotice}>
+                  <div className={styles.noticeContent}>
+                    <p>{data[0].title}</p>
+                  </div>
+                  <div className={styles.noticeTime}>
+                    <p>{`${data[0].user} 发布于 ${data[0].create_at}`}</p>
+                  </div>
+                </div>
+              </Card>
+            </Col>
+            <Col xl={6} lg={24} md={24} sm={24} xs={24}>
+              <Card bordered={false} loading={loading} className={styles.moreCard}>
+                <div className={styles.moreNotice}>
+                  <div className={styles.noticeContent}>
+                    <p>{data[0].title}</p>
+                  </div>
+                  <div className={styles.noticeTime}>
+                    <p>{`${data[0].user} 发布于 ${data[0].create_at}`}</p>
+                  </div>
+                </div>
+              </Card>
+            </Col>
+            <Col xl={6} lg={24} md={24} sm={24} xs={24}>
+              <Card bordered={false} loading={loading} className={styles.moreCard}>
+                <div className={styles.moreNotice}>
+                  <div className={styles.noticeContent}>
+                    <p>{data[0].title}</p>
+                  </div>
+                  <div className={styles.noticeTime}>
+                    <p>{`${data[0].user} 发布于 ${data[0].create_at}`}</p>
+                  </div>
+                </div>
+              </Card>
+            </Col>
+            <Col xl={6} lg={24} md={24} sm={24} xs={24}>
+              <Card bordered={false} loading={loading} className={styles.moreCard}>
+                <div className={styles.moreNotice}>
+                  <div className={styles.noticeContent}>
+                    <p>{data[0].title}</p>
+                  </div>
+                  <div className={styles.noticeTime}>
+                    <p>{`${data[0].user} 发布于 ${data[0].create_at}`}</p>
+                  </div>
+                </div>
+              </Card>
+            </Col>
+            <Col xl={6} lg={24} md={24} sm={24} xs={24}>
+              <Card bordered={false} loading={loading} className={styles.moreCard}>
+                <div>
+                  <Empty description="没有更多的公告了"/>
+                </div>
+              </Card>
+            </Col>
+          </Row>
+          <Row gutter={[24, 20]}>
+            <Col xl={24} lg={24} md={24} sm={24} xs={24}>
+              <Card>
+                <div className={styles.moreTip}>
+                <Icon type="down-circle" style={{ margin: 'auto 5px' }}/><span>加载更多</span>
+                </div>
+              </Card>
             </Col>
           </Row>
         </React.Fragment>
@@ -275,6 +408,51 @@ class Notice extends Component {
           />
           {/* 以上：输入框类型未选择时禁用，实时存储内容到state */}
         </Modal>
+        {/* 公告详情对话框 */}
+        <Modal
+          visible={currentView}
+          centered
+          closable={false}
+          title="公告详情"
+          footer={[
+            <Button>修改</Button>,
+          ]}
+          width={800}
+          onCancel={() => {
+            dispatch({
+              type: 'notice/save',
+              payload: {
+                currentView: false,
+              },
+            });
+          }}
+        >
+          {data.length === 0 ? '??' : data[currentNotice].title}
+        </Modal>
+        {/* 搜索抽屉 */}
+        <Drawer
+          title="公告搜索"
+          width={720}
+          maskClosable={searchWord === ''}
+          onClose={() => {
+            dispatch({
+              type: 'notice/save',
+              payload: {
+                searchDrawer: false,
+              },
+            })
+          }}
+          visible={searchDrawer}
+        >
+          <Search placeholder="搜索公告内容..." enterButton onChange={e => {
+            dispatch({
+              type: 'notice/save',
+              payload: {
+                searchWord: e.target.value,
+              },
+            })
+          }}/>
+        </Drawer>
         {/* 下面的是页面主体内容 */}
         {contentReal}
       </PageHeaderWrapper>
