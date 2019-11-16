@@ -33,7 +33,7 @@ class Notice extends Component {
   render() {
     const { TextArea } = Input;
     const { notice, dispatch } = this.props;
-    const { data, loading, last, postType, postLoading, postView, content } = notice;
+    const { data, loading, last, postType, postLoading, postView, content, count } = notice;
 
     // 发布公告对话框中的提示内容
     let tipsWord = (
@@ -86,10 +86,10 @@ class Notice extends Component {
                   </Col>
                   <Col xl={20} lg={20} md={20} sm={20} xs={20}>
                     <div className={styles.mainContent}>
-                      <p>{data[0].content}</p>
+                      <p>{data[0].title}</p>
                     </div>
                     <div>
-                      <p>{data[0].create_at}</p>
+                      <p>{`${data[0].user} 发布于 ${data[0].create_at}`}</p>
                     </div>
                   </Col>
                 </Row>
@@ -98,13 +98,13 @@ class Notice extends Component {
           </Row>
           <Row gutter={24}>
             <Col xl={16} lg={24} md={24} sm={24} xs={24}>
-              <Card title="历史公告" bordered={false} loading={loading}>
+              <Card title="历史公告" bordered={false} loading={loading} extra={<span className={styles.tip}>{`共 ${count} 条公告`}</span>}>
                 <List
                   itemLayout="horizontal"
                   dataSource={data}
                   renderItem={item => (
                     <List.Item>
-                      <List.Item.Meta title={item.create_at} description={item.content} />
+                      <List.Item.Meta title={`${item.user} 发布于 ${item.create_at}`} description={item.title} />
                     </List.Item>
                   )}
                 />

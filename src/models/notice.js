@@ -29,6 +29,7 @@ const NoticeModels = {
     postType: 0, // 发送公告类型
     content: '', // 发送公告内容
     data: [], // 获取到的公告信息
+    count: 0, // 获取到的公告条数
   },
   reducers: {
     save(prev, { payload }) {
@@ -83,12 +84,14 @@ const NoticeModels = {
         },
       });
       const res = yield call(getNotice);
+      console.log(res);
       yield put({
         type: 'notice/save',
         payload: {
           last: Date(),
           loading: false,
-          data: res.data,
+          data: res.data.notice,
+          count: res.data.count,
         },
       });
     },
