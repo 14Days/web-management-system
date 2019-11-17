@@ -1,14 +1,18 @@
 import React from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { connect } from 'dva';
-import { Button, Carousel, List, Spin } from 'antd';
-
+import { Button, Carousel, Form, Icon, Input, List, Modal, Spin, Upload } from 'antd';
+import { showNotification } from '../../utils/common';
 import './message.less';
 
 class Message extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      visible: false,
+    };
+    this.handleOk = this.handleOk.bind(this);
+    this.handleCancel = this.handleCancel.bind(this);
   }
 
   componentWillMount() {
@@ -17,7 +21,72 @@ class Message extends React.Component {
     });
   }
 
+  handleCancel = () => {
+    this.setState({ visible: false });
+  };
+
+  handleUpload = action => {
+    const { file } = action;
+    this.props.dispatch({
+      type: 'message/handleUpload',
+      payload: {
+        file,
+      },
+    });
+  };
+
+  handleChange = ({ fileList }) => {
+    if (this.props.upload.img.length > fileList.length) {
+      this.props.dispatch({
+        type: 'message/save',
+        payload: {
+          upload: {
+            img: fileList,
+          },
+        },
+      });
+    }
+  };
+
+  handleOk() {
+    // 检查上传的推荐消息是否填写
+    if (this.props.upload.img.length === 0) {
+      showNotification('error', '没有上传图片哦😯');
+      return;
+    }
+    // 发送上传请求
+    const { content } = this.props.form.getFieldsValue();
+    const { img: imgs } = this.props.upload;
+    const img = [];
+    const url = [];
+    imgs.forEach(item => {
+      img.push(item.imgID);
+      url.push(item.url);
+    });
+    this.props.dispatch({
+      type: 'message/handleUploadMessage',
+      payload: {
+        content,
+        img,
+        url,
+      },
+    });
+    // 隐藏弹出框
+    this.setState({ visible: false });
+
+    // 上传成功后要把 state 清空
+    this.props.form.resetFields();
+  }
+
   render() {
+    const { getFieldDecorator } = this.props.form;
+    const uploadButton = (
+      <div>
+        <Icon type="plus" />
+        <div className="ant-upload-text">Upload</div>
+      </div>
+    );
+
     return (
       <PageHeaderWrapper
         content={[
@@ -32,9 +101,48 @@ class Message extends React.Component {
           >
             刷新
           </Button>,
+          <Button
+            type="primary"
+            onClick={() => {
+              this.setState({ visible: true });
+            }}
+            style={{ marginLeft: '20px' }}
+          >
+            发布推荐消息
+          </Button>,
         ]}
       >
-        <Spin spinning={this.props.loading}>
+        {/* 弹出的推荐消息上传窗口 */}
+        <Spin spinning={this.props.loading.upload}>
+          <Modal
+            title="Basic Modal"
+            visible={this.state.visible}
+            onOk={this.handleOk}
+            onCancel={this.handleCancel}
+          >
+            <Form.Item label="推荐内容(按住右下角下拉可扩大文本输入框)">
+              {getFieldDecorator('content', {
+                rules: [
+                  {
+                    required: true,
+                    message: '推荐内容不能为空',
+                  },
+                ],
+              })(<Input.TextArea placeholder="请在这里输入推荐内容" />)}
+            </Form.Item>
+            {/* 上传图片 */}
+            <Upload
+              customRequest={this.handleUpload}
+              method="post"
+              listType="picture-card"
+              fileList={this.props.upload.img}
+              onChange={this.handleChange}
+            >
+              {uploadButton}
+            </Upload>
+          </Modal>
+        </Spin>
+        <Spin spinning={this.props.loading.page}>
           <List
             itemLayout="vertical"
             size="large"
@@ -83,4 +191,4 @@ class Message extends React.Component {
   }
 }
 
-export default connect(state => state.message)(Message);
+export default Form.create()(connect(state => state.message)(Message));

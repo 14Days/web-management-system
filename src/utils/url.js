@@ -33,3 +33,9 @@ export const getNoticeURL = `${baseURL}/notice`;
 
 // 发布新公告
 export const commitNoticeURL = `${baseURL}/notice`;
+
+// 上传图片
+export const uploadImgURL = `${baseURL}/img/add`;
+
+// 上传推荐消息
+export const uploadMessageURL = `${baseURL}/img/message`;
