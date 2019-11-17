@@ -12,6 +12,7 @@ import {
   Tooltip,
   Empty,
   Drawer,
+  Divider,
 } from 'antd';
 import React, { Component } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
@@ -47,6 +48,8 @@ class Notice extends Component {
       currentNotice,
       searchDrawer,
       searchWord,
+      pageNow,
+      moreLoading,
     } = notice;
 
     // 发布公告对话框中的提示内容
@@ -102,6 +105,7 @@ class Notice extends Component {
                     <div className={styles.lastNoticeWord}>
                       <p>最新公告</p>
                     </div>
+                    <Tooltip title="查看完整公告" >
                     <div
                       className={styles.lastNotice}
                       onClick={() => {
@@ -121,6 +125,7 @@ class Notice extends Component {
                         <p>{`${data[0].user} 发布于 ${data[0].create_at}`}</p>
                       </div>
                     </div>
+                    </Tooltip>
                   </Col>
                 </Row>
               </Card>
@@ -182,91 +187,49 @@ class Notice extends Component {
                 </Row>
               </Card>
             </Col>
-            <Col xl={6} lg={24} md={24} sm={24} xs={24}>
-              <Card bordered={false} loading={loading} className={styles.moreCard}>
-                <div className={styles.moreNotice}>
-                  <div className={styles.noticeContent}>
-                    <p>{data[0].title}</p>
-                  </div>
-                  <div className={styles.noticeTime}>
-                    <p>{`${data[0].user} 发布于 ${data[0].create_at}`}</p>
-                  </div>
-                </div>
-              </Card>
+            <Col xl={24} lg={24} md={24} sm={24} xs={24}>
+              <Divider>所有公告</Divider>
             </Col>
-            <Col xl={6} lg={24} md={24} sm={24} xs={24}>
-              <Card bordered={false} loading={loading} className={styles.moreCard}>
-                <div className={styles.moreNotice}>
-                  <div className={styles.noticeContent}>
-                    <p>{data[0].title}</p>
-                  </div>
-                  <div className={styles.noticeTime}>
-                    <p>{`${data[0].user} 发布于 ${data[0].create_at}`}</p>
-                  </div>
-                </div>
-              </Card>
-            </Col>
-            <Col xl={6} lg={24} md={24} sm={24} xs={24}>
-              <Card bordered={false} loading={loading} className={styles.moreCard}>
-                <div className={styles.moreNotice}>
-                  <div className={styles.noticeContent}>
-                    <p>{data[0].title}</p>
-                  </div>
-                  <div className={styles.noticeTime}>
-                    <p>{`${data[0].user} 发布于 ${data[0].create_at}`}</p>
-                  </div>
-                </div>
-              </Card>
-            </Col>
-            <Col xl={6} lg={24} md={24} sm={24} xs={24}>
-              <Card bordered={false} loading={loading} className={styles.moreCard}>
-                <div className={styles.moreNotice}>
-                  <div className={styles.noticeContent}>
-                    <p>{data[0].title}</p>
-                  </div>
-                  <div className={styles.noticeTime}>
-                    <p>{`${data[0].user} 发布于 ${data[0].create_at}`}</p>
-                  </div>
-                </div>
-              </Card>
-            </Col>
-            <Col xl={6} lg={24} md={24} sm={24} xs={24}>
-              <Card bordered={false} loading={loading} className={styles.moreCard}>
-                <div className={styles.moreNotice}>
-                  <div className={styles.noticeContent}>
-                    <p>{data[0].title}</p>
-                  </div>
-                  <div className={styles.noticeTime}>
-                    <p>{`${data[0].user} 发布于 ${data[0].create_at}`}</p>
-                  </div>
-                </div>
-              </Card>
-            </Col>
-            <Col xl={6} lg={24} md={24} sm={24} xs={24}>
-              <Card bordered={false} loading={loading} className={styles.moreCard}>
-                <div className={styles.moreNotice}>
-                  <div className={styles.noticeContent}>
-                    <p>{data[0].title}</p>
-                  </div>
-                  <div className={styles.noticeTime}>
-                    <p>{`${data[0].user} 发布于 ${data[0].create_at}`}</p>
-                  </div>
-                </div>
-              </Card>
-            </Col>
-            <Col xl={6} lg={24} md={24} sm={24} xs={24}>
-              <Card bordered={false} loading={loading} className={styles.moreCard}>
-                <div>
-                  <Empty description="没有更多的公告了"/>
-                </div>
-              </Card>
-            </Col>
+            {data.map((item, index) => (
+              <Col xl={6} lg={24} md={24} sm={24} xs={24}>
+                <Card bordered={false} loading={loading} className={styles.moreCard}>
+                  <Tooltip title="查看完整公告">
+                    <div className={styles.moreNotice}
+                      onClick={() => {
+                        dispatch({
+                          type: 'notice/save',
+                          payload: {
+                            currentNotice: index,
+                            currentView: true,
+                          },
+                        })
+                      }}
+                    >
+                      <div className={styles.noticeContent}>
+                        <p>{item.title}</p>
+                      </div>
+                      <div className={styles.noticeTime}>
+                        <p>{`${item.user} 发布于 ${item.create_at}`}</p>
+                      </div>
+                    </div>
+                  </Tooltip>
+                </Card>
+              </Col>
+            ))}
           </Row>
           <Row gutter={[24, 20]}>
             <Col xl={24} lg={24} md={24} sm={24} xs={24}>
-              <Card>
-                <div className={styles.moreTip}>
-                <Icon type="down-circle" style={{ margin: 'auto 5px' }}/><span>加载更多</span>
+              <Card >
+                <div className={styles.moreTip} onClick={() => {
+                dispatch({
+                  type: 'notice/fetchMore',
+                })
+              }}>
+                { (pageNow + 1) * 8 < count ? (
+                  <div>{ moreLoading ? <Icon type="loading" style={{ margin: 'auto 5px' }}/> : <Icon type="down-circle" style={{ margin: 'auto 5px' }}/> }<span>加载更多</span></div>
+                ) : (
+                  <div><Icon type="check-square" style={{ margin: 'auto 5px' }}/><span>全部公告已加载，没有更多了哦~</span></div>
+                ) }
                 </div>
               </Card>
             </Col>

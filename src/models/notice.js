@@ -34,6 +34,9 @@ const NoticeModels = {
     currentView: false, // 公告详情显示状态
     searchDrawer: false, // 搜索抽屉显示状态
     searchWord: '', // 搜索词
+    pageNow: 0, // 当前已加载的页数
+    endTime: '', // 当次请求的最后时间（refresh算一次，而fetchMore不算）
+    moreLoading: false, // fetchMore状态
   },
   reducers: {
     save(prev, { payload }) {
@@ -79,16 +82,29 @@ const NoticeModels = {
         type: 'notice/refresh',
       });
     },
-    // 获取公告信息
+    // 初始化公告信息
     *refresh(_, { call, put }) {
+      // 得到截止时间， 初始化状态
+      const date = new Date();
+      const endTime = `${date.getFullYear().toString()}-${(date.getMonth() + 1).toString()}-${date.getDate().toString()}`;
       yield put({
         type: 'notice/save',
         payload: {
           loading: true,
+          pageNow: 0,
+          endTime,
         },
       });
-      const res = yield call(getNotice);
+      // api请求流程与fetchmore不同，这里不用查验count
+      const param = {
+        start_time: '1970-1-1',
+        end_time: endTime,
+        page: 0,
+        limit: 8,
+      }
+      const res = yield call(getNotice, param);
       console.log(res);
+      // 将结果直接替换旧的结果
       yield put({
         type: 'notice/save',
         payload: {
@@ -98,6 +114,37 @@ const NoticeModels = {
           count: res.data.count,
         },
       });
+    },
+    // 加载下一页
+    * fetchMore(_, { call, put, select }) {
+      const { pageNow, count, endTime, data } = yield select(state => state.notice);
+      if ((pageNow + 1) * 8 < count) {
+        // 按现在的页数中的内容，还未加载完全时
+        yield put({
+          type: 'save',
+          payload: {
+            moreLoading: true,
+          },
+        })
+        const param = {
+          start_time: '1970-1-1',
+          end_time: endTime,
+          page: pageNow + 1, // 请求新一页
+          limit: 8,
+        }
+        const res = yield call(getNotice, param);
+        console.log('wahtthe hell');
+        Array.prototype.push.apply(data, res.data.notice)
+        console.log(data);
+        yield put({
+          type: 'save',
+          payload: {
+            data,
+            pageNow: pageNow + 1,
+            moreLoading: false,
+          },
+        })
+      }
     },
   },
 };
