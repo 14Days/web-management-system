@@ -163,6 +163,16 @@ export default {
             id: res.data.id,
           },
         });
+        // 清空已上传图片列表
+        yield put({
+          type: 'save',
+          payload: {
+            upload: {
+              content: '',
+              img: [],
+            },
+          },
+        });
       }
       yield put({
         type: 'save',
