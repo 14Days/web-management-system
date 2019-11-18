@@ -2,11 +2,11 @@ import { Modal } from 'antd';
 import { getNotice, commitNotice } from '../services/notice';
 
 // 模拟请求过程
-// function timecount() {
-//   return new Promise((resolve, reject) => {
-//     setTimeout(resolve, 1000);
-//   });
-// }
+function fetchSearch() {
+  return new Promise((resolve, reject) => {
+    setTimeout(resolve, 1000);
+  });
+}
 
 // 用于成功后在页面上调出成功弹窗提示
 function showSuccess() {
@@ -34,6 +34,8 @@ const NoticeModels = {
     currentView: false, // 公告详情显示状态
     searchDrawer: false, // 搜索抽屉显示状态
     searchWord: '', // 搜索词
+    searchRes: [], // 搜索结果
+    searchLoading: false, // 搜索加载状态
     pageNow: 0, // 当前已加载的页数
     endTime: '', // 当次请求的最后时间（refresh算一次，而fetchMore不算）
     moreLoading: false, // fetchMore状态
@@ -142,6 +144,27 @@ const NoticeModels = {
             data,
             pageNow: pageNow + 1,
             moreLoading: false,
+          },
+        })
+      }
+    },
+    * search(_, { call, put, select }) {
+      const { searchWord, searchLoading } = yield select(state => state.notice);
+      if ((!searchLoading) && searchWord.length >= 2) {
+        yield put({
+          type: 'save',
+          payload: {
+            searchLoading: true,
+          },
+        })
+        const param = {
+          searchWord,
+        }
+        const res = yield call(fetchSearch, param);
+        yield put({
+          type: 'save',
+          payload: {
+            searchLoading: false,
           },
         })
       }

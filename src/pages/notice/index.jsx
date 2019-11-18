@@ -10,7 +10,7 @@ import {
   Radio,
   Row,
   Tooltip,
-  Empty,
+  Spin,
   Drawer,
   Divider,
 } from 'antd';
@@ -50,6 +50,7 @@ class Notice extends Component {
       searchWord,
       pageNow,
       moreLoading,
+      searchLoading,
     } = notice;
 
     // 发布公告对话框中的提示内容
@@ -407,14 +408,53 @@ class Notice extends Component {
           }}
           visible={searchDrawer}
         >
-          <Search placeholder="搜索公告内容..." enterButton onChange={e => {
+          <Search placeholder="搜索公告内容..." loading={searchLoading} enterButton onChange={e => {
             dispatch({
               type: 'notice/save',
               payload: {
                 searchWord: e.target.value,
               },
+            });
+            if (count <= 200) {
+              dispatch({
+                type: 'notice/search',
+              })
+            }
+          }}
+          onPressEnter={() => {
+            dispatch({
+              type: 'notice/search',
             })
-          }}/>
+          }}
+          />
+          <div style={{ textAlign: 'center' }}>
+          <span className={styles.tip}>{count > 200 ? '总公告条数过多，已关闭自动搜索' : '已开启自动搜索' }</span>
+          </div>
+          <Divider>搜索结果</Divider>
+          <Spin spinning={searchLoading}>
+            <div style={{ width: '672px', minHeight: '300px', margin: 'auto' }}>
+              <div>
+                <div className={styles.searchNotice}
+                      onClick={() => {
+                        dispatch({
+                          type: 'notice/save',
+                          payload: {
+                            currentNotice: 0,
+                            currentView: true,
+                          },
+                        })
+                      }}
+                    >
+                      <div className={styles.noticeContent}>
+                        <p>{'aeuefhuiwpewpvnkdkpjfmckhgr'}</p>
+                      </div>
+                      <div className={styles.noticeTime}>
+                        <p>{`fvsdivbilligb 发布于 hdsfhoigieuidsoiodsiv`}</p>
+                      </div>
+                    </div>
+              </div>
+            </div>
+          </Spin>
         </Drawer>
         {/* 下面的是页面主体内容 */}
         {contentReal}
