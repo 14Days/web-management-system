@@ -50,12 +50,17 @@ class Message extends React.Component {
 
   handleOk() {
     // 检查上传的推荐消息是否填写
+    const { content } = this.props.form.getFieldsValue();
+    if (content === '') {
+      showNotification('error', '没有写推荐内容哦😯');
+      return;
+    }
     if (this.props.upload.img.length === 0) {
       showNotification('error', '没有上传图片哦😯');
       return;
     }
+
     // 发送上传请求
-    const { content } = this.props.form.getFieldsValue();
     const { img: imgs } = this.props.upload;
     const img = [];
     const url = [];
@@ -132,6 +137,7 @@ class Message extends React.Component {
             </Form.Item>
             {/* 上传图片 */}
             <Upload
+              accept=".png,.jpg,.jpeg"
               customRequest={this.handleUpload}
               method="post"
               listType="picture-card"
