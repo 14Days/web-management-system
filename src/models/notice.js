@@ -39,6 +39,8 @@ const NoticeModels = {
     pageNow: 0, // 当前已加载的页数
     endTime: '', // 当次请求的最后时间（refresh算一次，而fetchMore不算）
     moreLoading: false, // fetchMore状态
+    editNotice: '', // 正在编辑的内容
+    editView: false, // 编辑对话框显示
   },
   reducers: {
     save(prev, { payload }) {
