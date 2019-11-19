@@ -1,11 +1,11 @@
-let baseURL = 'https://wghtstudio.cn/back';
-
-if (process.env.NODE_ENV === 'development') {
-  baseURL = 'http://yapi.wghtstudio.cn/mock/21';
-}
+const baseURL = 'https://wghtstudio.cn/back';
+//
+// if (process.env.NODE_ENV === 'development') {
+//   baseURL = 'http://yapi.wghtstudio.cn/mock/21';
+// }
 
 // 获取所有的管理员用户信息
-export const getAllAccountURL = `${baseURL}/user`;
+export const getUserURL = `${baseURL}/user`;
 
 // 提交删除
 export const commitDeletaURL = `${baseURL}/user/delete`;
@@ -33,3 +33,12 @@ export const getNoticeURL = `${baseURL}/notice`;
 
 // 发布新公告
 export const commitNoticeURL = `${baseURL}/notice`;
+
+// 上传图片
+export const uploadImgURL = `${baseURL}/img/add`;
+
+// 上传推荐消息
+export const uploadMessageURL = `${baseURL}/img/message`;
+
+// 上传头像
+export const uploadAvatarURL = `${baseURL}/user/upload`;

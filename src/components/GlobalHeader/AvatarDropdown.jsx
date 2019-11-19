@@ -41,24 +41,29 @@ class AvatarDropdown extends React.Component {
             <FormattedMessage id="menu.account.center" defaultMessage="account center" />
           </Menu.Item>
         )}
-        {menu && (
+        {
           <Menu.Item key="settings">
             <Icon type="setting" />
-            <FormattedMessage id="menu.account.settings" defaultMessage="account settings" />
+            <FormattedMessage id="menu.account.settings" defaultMessage="个人设置" />
           </Menu.Item>
-        )}
+        }
         {menu && <Menu.Divider />}
 
         <Menu.Item key="logout">
           <Icon type="logout" />
-          <FormattedMessage id="menu.account.logout" defaultMessage="logout" />
+          <FormattedMessage id="menu.account.logout" defaultMessage="退出登录" />
         </Menu.Item>
       </Menu>
     );
     return currentUser && currentUser.name ? (
       <HeaderDropdown overlay={menuHeaderDropdown}>
         <span className={`${styles.action} ${styles.account}`}>
-          <Avatar size="small" className={styles.avatar} src={currentUser.avatar} alt="avatar" />
+          <Avatar
+            size="small"
+            className={styles.avatar}
+            src={currentUser.avatar.name}
+            alt="avatar"
+          />
           <span className={styles.name}>{currentUser.name}</span>
         </span>
       </HeaderDropdown>
