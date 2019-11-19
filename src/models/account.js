@@ -28,7 +28,7 @@ export default {
     },
     delete(state, { payload }) {
       const { user } = state;
-      user.splice(payload.userID, 1);
+      user.splice(payload.index, 1);
       const ret = JSON.parse(JSON.stringify(user)); // 否则引用没变不渲染
       return {
         ...state,
@@ -36,6 +36,7 @@ export default {
       };
     },
     update(state, { payload }) {
+      console.log('update reducers');
       const { userID, username } = payload;
       const { user } = state;
       user[userID].username = username;
@@ -78,29 +79,30 @@ export default {
     },
     // 提交删除
     *handleDelete({ payload }, { put }) {
-      const { userID } = payload;
+      const { userID, index } = payload;
       const res = yield commitDelete([userID]); // 这里用数组包起来是为了对接口
       showNotification(res.status, res.data || res.err_msg);
       if (res.status === 'success') {
         yield put({
           type: 'delete',
           payload: {
-            userID,
+            index,
           },
         });
       }
     },
     // 修改密码
     *handleUpdate({ payload }, { put }) {
-      const { userID, username, password } = payload;
-      const res = yield updateUser(username, password);
+      console.log(payload);
+      const { index, password, selectID } = payload;
+      const res = yield updateUser(selectID, password);
       showNotification(res.status, res.data || res.err_msg);
       if (res.status === 'success') {
         yield put({
           type: 'update',
           payload: {
-            userID,
-            username,
+            index,
+            password,
           },
         });
       }

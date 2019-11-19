@@ -8,10 +8,10 @@ const baseURL = 'https://wghtstudio.cn/back';
 export const getUserURL = `${baseURL}/user`;
 
 // 提交删除
-export const commitDeletaURL = `${baseURL}/user/delete`;
+export const commitDeletaURL = `${baseURL}/user`;
 
 // 修改密码
-export const updateUserURL = `${baseURL}/user/update`;
+export const updateUserURL = `${baseURL}/user/password`;
 
 // 新建账号
 export const createAccountURL = `${baseURL}/user/add`;

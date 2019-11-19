@@ -13,19 +13,19 @@ export async function fetchtAllAccount() {
 
 export async function commitDelete(userID) {
   return request(commitDeletaURL, {
-    method: 'post',
+    method: 'delete',
     data: {
       user_id: userID,
     },
   });
 }
 
-export async function updateUser(username, password) {
-  return request(updateUserURL, {
-    method: 'post',
+export async function updateUser(userID, newPassword) {
+  return request(`${updateUserURL}/${userID}`, {
+    method: 'put',
     data: {
-      username,
-      password,
+      old_password: '',
+      new_password: newPassword,
     },
   });
 }
