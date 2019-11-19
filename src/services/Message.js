@@ -11,9 +11,7 @@ export async function deleteMessage(id) {
 }
 
 export async function upload(img) {
-  return request.post(uploadImgURL, {
-    img,
-  });
+  return request.post(uploadImgURL, img);
 }
 
 export async function uploadMessage(content, img) {

@@ -124,9 +124,12 @@ export default {
         });
       }
     },
+    // 上传图片
     *handleUpload({ payload }, { put, call }) {
-      const res = yield call(upload, payload.file);
-      console.log(res);
+      const { file } = payload;
+      const img = new FormData();
+      img.append('img', file);
+      const res = yield call(upload, img);
       yield put({
         type: 'uploadSuccess',
         payload: {

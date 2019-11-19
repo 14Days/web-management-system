@@ -21,10 +21,12 @@ class Message extends React.Component {
     });
   }
 
+  // Modal 取消按钮
   handleCancel = () => {
     this.setState({ visible: false });
   };
 
+  // 上传图片
   handleUpload = action => {
     const { file } = action;
     this.props.dispatch({
@@ -35,6 +37,7 @@ class Message extends React.Component {
     });
   };
 
+  // 上传组件变化时触发
   handleChange = ({ fileList }) => {
     if (this.props.upload.img.length > fileList.length) {
       this.props.dispatch({
@@ -48,6 +51,7 @@ class Message extends React.Component {
     }
   };
 
+  // Modal 确定按钮
   handleOk() {
     // 检查上传的推荐消息是否填写
     const { content } = this.props.form.getFieldsValue();

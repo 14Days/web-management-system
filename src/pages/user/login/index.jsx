@@ -58,4 +58,9 @@ class Login extends Component {
   }
 }
 
-export default Form.create()(connect(state => state.login)(Login));
+export default Form.create()(
+  connect(state => {
+    console.log(state);
+    return state.login;
+  })(Login),
+);
