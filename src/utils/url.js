@@ -14,7 +14,7 @@ export const commitDeletaURL = `${baseURL}/user`;
 export const updateUserURL = `${baseURL}/user/password`;
 
 // 新建账号
-export const createAccountURL = `${baseURL}/user/add`;
+export const createAccountURL = `${baseURL}/user`;
 
 // 登录
 export const loginURL = `${baseURL}/login`;
