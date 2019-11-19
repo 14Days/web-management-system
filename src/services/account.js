@@ -41,8 +41,11 @@ export async function createAccount(username, password) {
 }
 
 export async function fetchSearInfo(key) {
-  return request.get(getUserURL, {
-    username: key,
+  return request(getUserURL, {
+    method: 'get',
+    params: {
+      username: key,
+    },
   });
 }
 
