@@ -34,14 +34,14 @@ export const getNoticeURL = `${baseURL}/notice`;
 // 发布新公告
 export const commitNoticeURL = `${baseURL}/notice`;
 
-// 获取公告详情
-export const detailNoticeURL = `${baseURL}/notice/:notice_id`;
+// 获取公告详情（/必要）
+export const detailNoticeURL = `${baseURL}/notice/`;
 
 // 删除公告
 export const deleteNoticeURL = `${baseURL}/notice`;
 
-// 修改公告
-export const changeNoticeURL = `${baseURL}/notice/:notice_id`;
+// 修改公告(/必要)
+export const changeNoticeURL = `${baseURL}/notice/`;
 
 // 上传图片
 export const uploadImgURL = `${baseURL}/img/add`;

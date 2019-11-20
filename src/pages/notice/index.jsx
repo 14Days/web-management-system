@@ -12,8 +12,7 @@ import {
   Radio,
   Row,
   Spin,
-  Drawer,
-  Divider,
+  Tooltip,
   Popconfirm,
   Switch,
 } from 'antd';
@@ -53,7 +52,6 @@ class Notice extends Component {
       content,
       isTop,
       currentView,
-      currentId,
       currentNotice,
       currentLoading,
       deleteLoading,
@@ -88,7 +86,7 @@ class Notice extends Component {
         break;
       case 3:
         tipsWord = (
-          <span className={styles.tip}>把通知发送给App应用，App应用的用户将看到这则通知</span>
+          <span className={styles.tip}>把通知发送给App应用，只有App应用的用户才能看到这则通知</span>
         );
         break;
       default:
@@ -117,35 +115,41 @@ class Notice extends Component {
                             <span className={styles.month}>{last.slice(4, 7)}</span>
                             <span className={styles.day}>{last.slice(8, 10)}</span>
                           </div>
+                          <div className={styles.tipsWord}>
+                            <span>最新通知</span>
+                          </div>
                         </div>
                       </Col>
                     </Row>
                   </Col>
                   {/* 最新通知栏 */}
                   <Col xl={18} lg={18} md={18} sm={18} xs={18}>
-                    <div className={styles.lastNoticeWord}>
-                      <p>最新通知</p>
-                    </div>
                     {/* 最新通知内容 */}
                     <Tooltip title="查看完整通知">
                       <div
                         className={styles.lastNotice}
-                        style={
-                          data[0].is_top > 0 ? { backgroundColor: 'rgba(173, 226, 255, 0.32)' } : {}
-                        }
                         onClick={() => {
+                          console.log(data[0].id);
                           dispatch({
                             type: 'notice/fetchInfo',
                             payload: {
-                              currentId: data[0].notice_id,
+                              currentId: data[0].id,
                             },
                           });
                         }}
                       >
-                        <div className={styles.noticeContent}>
+                        <div className={styles.noticeTitle}>
                           <p>{data[0].title}</p>
                         </div>
+                        <div className={styles.noticeContent}>
+                          <p>{data[0].content}</p>
+                        </div>
                         <div className={styles.noticeTime}>
+                          <p>
+                            {data[0].user_type === 1
+                              ? '由超级管理员发布的通知'
+                              : '由管理员发布的通知'}
+                          </p>
                           <p>{`${data[0].user} 发布于 ${data[0].create_at}`}</p>
                         </div>
                       </div>
@@ -162,11 +166,11 @@ class Notice extends Component {
                     <Col xl={24} lg={24} md={24} sm={24} xs={24} className={styles.send}>
                       <div>
                         <div>
-                          <span style={{ fontSize: '16px' }}>{`共${count}条公告可供搜索`}</span>
+                          <span style={{ fontSize: '16px' }}>{`共${count}条通知可供搜索`}</span>
                         </div>
                         <div>
                           <Search
-                            placeholder="搜索公告内容..."
+                            placeholder="搜索通知内容..."
                             onSearch={value => console.log(value)}
                             style={{
                               margin: '15px auto',
@@ -243,18 +247,23 @@ class Notice extends Component {
                     <div
                       className={styles.moreNotice}
                       onClick={() => {
+                        console.log(item.id);
                         dispatch({
                           type: 'notice/fetchInfo',
                           payload: {
-                            currentId: item.notice_id,
+                            currentId: item.id,
                           },
                         });
                       }}
                     >
-                      <div className={styles.noticeContent}>
+                      <div className={styles.noticeTitle}>
                         <p>{item.title}</p>
                       </div>
+                      <div className={styles.noticeContent}>
+                        <p>{item.content}</p>
+                      </div>
                       <div className={styles.noticeTime}>
+                        <p>{item.user_type === 1 ? '超级管理员发布' : '管理员发布'}</p>
                         <p>{`${item.user} 发布于 ${item.create_at}`}</p>
                       </div>
                     </div>
@@ -307,20 +316,32 @@ class Notice extends Component {
                   <Col xl={24} lg={24} md={24} sm={24} xs={24} className={styles.send}>
                     <div>
                       <p>一条通知都没有哦，发布一下吧</p>
-                      <Button
-                        type="primary"
-                        icon="form"
-                        onClick={() => {
-                          dispatch({
-                            type: 'notice/save',
-                            payload: {
-                              postView: true,
-                            },
-                          });
-                        }}
+                      {/* 分权限亮起按钮 */}
+                      <Authorized
+                        authority={['admin', 'root']}
+                        noMatch={
+                          <Tooltip title="没有权限😜">
+                            <Button type="primary" icon="form" disabled>
+                              发布通知
+                            </Button>
+                          </Tooltip>
+                        }
                       >
-                        发布通知
-                      </Button>
+                        <Button
+                          type="primary"
+                          icon="form"
+                          onClick={() => {
+                            dispatch({
+                              type: 'notice/save',
+                              payload: {
+                                postView: true,
+                              },
+                            });
+                          }}
+                        >
+                          发布通知
+                        </Button>
+                      </Authorized>
                     </div>
                   </Col>
                 </Row>
@@ -364,7 +385,7 @@ class Notice extends Component {
           footer={
             <Button
               loading={postLoading}
-              disabled={postType === 0 || content === ''}
+              disabled={postType === 0 || title === ''}
               onClick={() => {
                 dispatch({
                   type: 'notice/send',
@@ -440,6 +461,7 @@ class Notice extends Component {
           <Input
             placeholder="标题"
             disabled={postType === 0}
+            value={title}
             onChange={e => {
               dispatch({
                 type: 'notice/save',
@@ -468,15 +490,15 @@ class Notice extends Component {
           />
           <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
             <span className={styles.tip} style={{ margin: 'auto 12px' }}>
-              {isTop ? '该条通知将被置顶' : '该条通知不会被置顶'}
+              {isTop === 1 ? '该条通知将被置顶' : '该条通知不会被置顶'}
             </span>
             <Switch
-              checked={isTop}
+              checked={isTop === 1}
               onChange={check => {
                 dispatch({
                   type: 'notice/save',
                   payload: {
-                    isTop: check,
+                    isTop: check ? 1 : 0,
                   },
                 });
               }}
@@ -511,9 +533,11 @@ class Notice extends Component {
         >
           <p>
             <span className={styles.tip}>{`正在修改${currentNotice.user}发布的通知，${
-              currentNotice.type === 0
-                ? '这是一条Web后台通知，将只向设计师和管理员开放。'
-                : '这是一条设计师通知，将只向您旗下的设计师开放。'
+              currentNotice.type === 1
+                ? '这是一条管理员通知，将只管理员开放。'
+                : currentNotice.type === 2
+                ? '这是一条设计师通知，将只向您旗下的设计师开放。'
+                : '这是一条用户通知，将只向App端的用户开放。'
             }`}</span>
           </p>
           <Input
@@ -567,7 +591,6 @@ class Notice extends Component {
           centered
           title={[
             <span>通知详情</span>,
-
             <span>
               {currentNotice.is_top > 0 ? (
                 <span className={styles.tip} style={{ color: 'red', margin: 'auto 8px' }}>
@@ -609,10 +632,7 @@ class Notice extends Component {
                   title="确定要删除这条通知吗？"
                   onConfirm={() => {
                     dispatch({
-                      type: 'notice/save',
-                      payload: {
-                        deleteLoading: true,
-                      },
+                      type: 'notice/handleDelete',
                     });
                   }}
                 >
@@ -634,7 +654,7 @@ class Notice extends Component {
           }}
         >
           <p style={{ fontWeight: '500', fontSize: '24px' }}>{currentNotice.title}</p>
-          {currentNotice.content}
+          <div>{currentNotice.content}</div>
         </Modal>
         {/* 搜索抽屉 */}
         <Drawer
@@ -651,7 +671,7 @@ class Notice extends Component {
           visible={searchDrawer}
         >
           <Search
-            placeholder="搜索通知内容..."
+            placeholder="搜索通知标题..."
             loading={searchLoading}
             value={searchWord}
             enterButton
@@ -664,7 +684,7 @@ class Notice extends Component {
               });
               if (count <= 200) {
                 dispatch({
-                  type: 'notice/search',
+                  type: 'notice/fastSearch',
                 });
               }
             }}
@@ -676,7 +696,7 @@ class Notice extends Component {
           />
           <div style={{ textAlign: 'center' }}>
             <span className={styles.tip}>
-              {count > 200 ? '总通知条数过多，已关闭自动搜索' : '已开启自动搜索'}
+              {count > 200 ? '总通知条数过多，已关闭实时搜索' : '已开启实时搜索'}
             </span>
           </div>
           <Divider>搜索结果</Divider>
@@ -688,27 +708,34 @@ class Notice extends Component {
                 margin: 'auto',
               }}
             >
-              <div>
-                <div
-                  className={styles.searchNotice}
-                  onClick={() => {
-                    dispatch({
-                      type: 'notice/save',
-                      payload: {
-                        currentId: 0,
-                        currentView: true,
-                      },
-                    });
-                  }}
-                >
-                  <div className={styles.noticeContent}>
-                    <p>{'aeuefhuiwpewpvnkdkpjfmckhgr'}</p>
+              {searchRes.map(item => (
+                <Tooltip title="查看完整通知">
+                  <div
+                    className={styles.searchNotice}
+                    onClick={() => {
+                      dispatch({
+                        type: 'notice/fetchInfo',
+                        payload: {
+                          currentId: item.id,
+                        },
+                      });
+                    }}
+                  >
+                    <div className={styles.noticeTitle}>
+                      <p>{item.title}</p>
+                    </div>
+                    <div className={styles.noticeContent}>
+                      <p>{item.content}</p>
+                    </div>
+                    <div className={styles.noticeTime}>
+                      <p>
+                        {item.user_type === 1 ? '由超级管理员发布的通知' : '由管理员发布的通知'}
+                      </p>
+                      <p>{`${item.user} 发布于 ${item.create_at}`}</p>
+                    </div>
                   </div>
-                  <div className={styles.noticeTime}>
-                    <p>{`fvsdivbilligb 发布于 hdsfhoigieuidsoiodsiv`}</p>
-                  </div>
-                </div>
-              </div>
+                </Tooltip>
+              ))}
             </div>
           </Spin>
         </Drawer>
