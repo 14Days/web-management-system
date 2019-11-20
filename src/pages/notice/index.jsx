@@ -4,12 +4,13 @@ import {
   Card,
   Col,
   Descriptions,
+  Divider,
+  Drawer,
   Icon,
   Input,
   Modal,
   Radio,
   Row,
-  Tooltip,
   Spin,
   Drawer,
   Divider,
@@ -161,13 +162,16 @@ class Notice extends Component {
                     <Col xl={24} lg={24} md={24} sm={24} xs={24} className={styles.send}>
                       <div>
                         <div>
-                          <span style={{ fontSize: '16px' }}>{`共${count}条通知可供搜索`}</span>
+                          <span style={{ fontSize: '16px' }}>{`共${count}条公告可供搜索`}</span>
                         </div>
                         <div>
                           <Search
-                            placeholder="搜索通知内容..."
+                            placeholder="搜索公告内容..."
                             onSearch={value => console.log(value)}
-                            style={{ margin: '15px auto', maxWidth: '250px' }}
+                            style={{
+                              margin: '15px auto',
+                              maxWidth: '250px',
+                            }}
                             enterButton
                             onFocus={() => {
                               dispatch({
@@ -677,7 +681,13 @@ class Notice extends Component {
           </div>
           <Divider>搜索结果</Divider>
           <Spin spinning={searchLoading}>
-            <div style={{ width: '672px', minHeight: '300px', margin: 'auto' }}>
+            <div
+              style={{
+                width: '672px',
+                minHeight: '300px',
+                margin: 'auto',
+              }}
+            >
               <div>
                 <div
                   className={styles.searchNotice}

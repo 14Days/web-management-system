@@ -1,5 +1,5 @@
 import request from '@/utils/request';
-import { loginURL } from '../utils/url';
+import { getUserURL, loginURL } from '../utils/url';
 
 export async function fakeAccountLogin(params) {
   return request('/api/login/account', {
@@ -13,8 +13,15 @@ export async function getFakeCaptcha(mobile) {
 }
 
 export async function login(username, password) {
-  return request.post(loginURL, {
-    username,
-    password,
+  return request(loginURL, {
+    method: 'post',
+    data: {
+      username,
+      password,
+    },
   });
+}
+
+export async function getUserInfo(userID) {
+  return request.get(`${getUserURL}/${userID}`);
 }

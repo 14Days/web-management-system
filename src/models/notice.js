@@ -3,7 +3,7 @@ import { getNotice, commitNotice, detailNotice, deleteNotcie, changeNotice } fro
 
 // 模拟请求过程
 function fetchSearch() {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     setTimeout(resolve, 1000);
   });
 }
@@ -135,7 +135,7 @@ const NoticeModels = {
       });
     },
     // 加载下一页
-    * fetchMore(_, { call, put, select }) {
+    *fetchMore(_, { call, put, select }) {
       const { pageNow, count, endTime, data } = yield select(state => state.notice);
       if ((pageNow + 1) * 8 < count) {
         // 按现在的页数中的内容，还未加载完全时
@@ -158,29 +158,30 @@ const NoticeModels = {
             pageNow: pageNow + 1,
             moreLoading: false,
           },
-        })
+        });
       }
     },
     // 获得搜索结果
-    * search(_, { call, put, select }) {
+    *search(_, { call, put, select }) {
       const { searchWord, searchLoading } = yield select(state => state.notice);
-      if ((!searchLoading) && searchWord.length >= 2) {
+      if (!searchLoading && searchWord.length >= 2) {
         yield put({
           type: 'save',
           payload: {
             searchLoading: true,
           },
-        })
+        });
         const param = {
           searchWord,
-        }
+        };
         const res = yield call(fetchSearch, param);
+        console.log(res);
         yield put({
           type: 'save',
           payload: {
             searchLoading: false,
           },
-        })
+        });
       }
     },
     // 获取公告详情

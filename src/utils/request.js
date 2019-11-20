@@ -31,9 +31,9 @@ const errorHandler = error => {
 
   if (response && response.status) {
     const errorText = codeMessage[response.status] || response.statusText;
-    const { status, url } = response;
+    const { status } = response;
     notification.error({
-      message: `请求错误 ${status}: ${url}`,
+      message: `请求错误 ${status}`,
       description: errorText,
     });
   } else if (!response) {
@@ -43,7 +43,7 @@ const errorHandler = error => {
     });
   }
 
-  return response;
+  throw error;
 };
 /**
  * 配置request请求时的默认参数

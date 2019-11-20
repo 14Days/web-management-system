@@ -4,6 +4,7 @@ import {
   fetchSearInfo,
   fetchtAllAccount,
   updateUser,
+  // uploadAvatar,
 } from '../services/account';
 import { showNotification } from '../utils/common';
 
@@ -138,5 +139,25 @@ export default {
         },
       });
     },
+    // // 提交修改信息
+    // *handleSettings({ payload }, { put, call }) {
+    //   const { file } = payload;
+    //   // 先上传图片获取 id
+    //   const avaForm = new FormData();
+    //   avaForm.append('avatar', file);
+    //   const avaRes = yield call(uploadAvatar, avaForm);
+    //   // 上传成功之后得到 id
+    //   if (avaRes === 'success') {
+    //     const new_id = avaRes.avatar_id;
+    //     /**
+    //      * TODO {我不知道 old_id}
+    //      * TODO 之前的上传推荐消息的也要改 1 fileReader 预览   2 File提交
+    //      */
+    //   } else {
+    //     // TODO 头像上传失败
+    //   }
+    //
+    //   // TODO 完成后要更新当前用户信息 currentUser
+    // },
   },
 };
