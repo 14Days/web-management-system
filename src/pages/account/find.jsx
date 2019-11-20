@@ -21,7 +21,6 @@ export default class Find extends Component {
     super(props);
     this.state = {
       visible: false,
-      username: '',
       password: '',
       index: 0,
       selectID: 0,
@@ -60,14 +59,13 @@ export default class Find extends Component {
       visible: false,
     });
 
-    const { username, password, index, selectID } = this.state;
+    const { password, index, selectID } = this.state;
 
     this.props.dispatch({
       type: 'account/handleUpdate',
       payload: {
         index,
         selectID,
-        username,
         password,
       },
     });
@@ -116,7 +114,6 @@ export default class Find extends Component {
               onClick={() => {
                 this.setState({
                   visible: true,
-                  username: item.username,
                   password: '',
                   index: item.key,
                   selectID: item.id,
@@ -154,17 +151,6 @@ export default class Find extends Component {
             onCancel={this.handlePopCancel}
           >
             <Form layout="inline">
-              <Form.Item label="用户名">
-                <Input
-                  type="username"
-                  value={this.state.username}
-                  onChange={e => {
-                    this.setState({
-                      username: e.target.value,
-                    });
-                  }}
-                />
-              </Form.Item>
               <Form.Item label="密码">
                 <Input
                   type="password"

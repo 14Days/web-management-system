@@ -93,7 +93,6 @@ export default {
     },
     // 修改密码
     *handleUpdate({ payload }, { put }) {
-      console.log(payload);
       const { index, password, selectID } = payload;
       const res = yield updateUser(selectID, password);
       showNotification(res.status, res.data || res.err_msg);
