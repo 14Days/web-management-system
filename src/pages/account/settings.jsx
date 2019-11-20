@@ -6,6 +6,7 @@ import { connect } from 'dva';
 class Create extends Component {
   constructor(props) {
     super(props);
+    // file 是已经上传的图像的 File 对象
     this.state = {
       file: undefined,
     };
@@ -15,11 +16,34 @@ class Create extends Component {
   commit = () => {
     console.log('props', this.props);
     console.log('state', this.state);
-    console.log(this.props.form.getFieldsValue());
 
-    // TODO 提交信息
+    console.log(this.props.form.getFieldsValue());
+    const commitData = this.props.form.getFieldsValue();
+    // 如果上传了的话，添加这个属性
+    commitData.avatarFile = this.state.file;
+    commitData.avatar = {
+      old_id: this.props.currentUser.avatar.id,
+      new_id: this.props.currentUser.avatar.id,
+    };
+
+    const { userid } = this.props.currentUser;
+    console.log('commitData', commitData);
+    // 提交所有表单信息 {nickname, sex<number>, email, phone, avatar<File>, old_avatar_id}
+    // avatar 需要判断是否上传了新的头像，其他的不需要
+    this.props.dispatch({
+      type: 'account/handleSettings',
+      payload: {
+        userid,
+        info: commitData,
+      },
+    });
   };
 
+  /**
+   * 上传动作触发
+   * 将文件对象放在 state 里面
+   * 上传后 pop 掉上次上传的然后调用 getBase64 使页面上显示当前图像。
+   */
   normFile = e => {
     this.setState({
       file: e.file.originFileObj,
@@ -28,11 +52,10 @@ class Create extends Component {
     this.getBase64(t.originFileObj);
   };
 
-  handleUploadAvatar = () => {};
-
   getBase64 = img => {
     const reader = new FileReader();
     reader.readAsDataURL(img);
+    // 将表单中的 avatar 设置为 reader 后的 database64，显示在页面上.
     reader.onload = () => {
       this.props.form.setFieldsValue({ avatar: reader.result });
     };
@@ -57,7 +80,6 @@ class Create extends Component {
                 accept=".png,.jpg,jpeg"
                 listType="picture-card"
                 showUploadList={false}
-                customRequest={this.handleUploadAvatar}
                 onChange={this.normFile}
               >
                 {/* 未上传时显示已有头像，上传后显示上传图片 */}
@@ -72,7 +94,7 @@ class Create extends Component {
             )}
           </Form.Item>
           <Form.Item label="用户名">
-            <Input type="username" placeholder={currentUser.name} disabled />
+            <Input type="username" placeholder={currentUser.username} disabled />
           </Form.Item>
           <Form.Item label="姓名">
             {getFieldDecorator('nickname', {
@@ -87,11 +109,11 @@ class Create extends Component {
           </Form.Item>
           <Form.Item label="性别">
             {getFieldDecorator('sex', {
-              initialValue: '男',
+              initialValue: currentUser.sex,
             })(
               <Radio.Group>
-                <Radio value="男">男</Radio>
-                <Radio value="女">女</Radio>
+                <Radio value={1}>男</Radio>
+                <Radio value={0}>女</Radio>
               </Radio.Group>,
             )}
           </Form.Item>

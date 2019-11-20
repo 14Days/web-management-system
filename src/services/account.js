@@ -3,8 +3,9 @@ import {
   commitDeletaURL,
   createAccountURL,
   getUserURL,
-  updateUserURL,
+  changePwdURL,
   uploadAvatarURL,
+  updateUserInfoUrl,
 } from '../utils/url';
 
 export async function fetchtAllAccount() {
@@ -21,7 +22,7 @@ export async function commitDelete(userID) {
 }
 
 export async function updateUser(userID, newPassword) {
-  return request(`${updateUserURL}/${userID}`, {
+  return request(`${changePwdURL}/${userID}`, {
     method: 'put',
     data: {
       old_password: '',
@@ -49,11 +50,16 @@ export async function fetchSearInfo(key) {
   });
 }
 
-export async function putSettings(formData) {
-  const userID = formData.get('userID');
-  return request.put(`${getUserURL}/${userID}`, formData);
+export async function putSettings(userID, userInfoObj) {
+  return request(`${updateUserInfoUrl}/${userID}`, {
+    method: 'put',
+    data: userInfoObj,
+  });
 }
 
 export async function uploadAvatar(formData) {
-  return request.post(uploadAvatarURL, formData);
+  return request(uploadAvatarURL, {
+    method: 'post',
+    data: formData,
+  });
 }

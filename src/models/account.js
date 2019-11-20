@@ -3,9 +3,11 @@ import {
   createAccount,
   fetchSearInfo,
   fetchtAllAccount,
+  putSettings,
   updateUser,
-  // uploadAvatar,
+  uploadAvatar,
 } from '../services/account';
+import { getUserInfo } from '../services/login';
 import { showNotification } from '../utils/common';
 
 export default {
@@ -140,25 +142,57 @@ export default {
         },
       });
     },
-    // // 提交修改信息
-    // *handleSettings({ payload }, { put, call }) {
-    //   const { file } = payload;
-    //   // 先上传图片获取 id
-    //   const avaForm = new FormData();
-    //   avaForm.append('avatar', file);
-    //   const avaRes = yield call(uploadAvatar, avaForm);
-    //   // 上传成功之后得到 id
-    //   if (avaRes === 'success') {
-    //     const new_id = avaRes.avatar_id;
-    //     /**
-    //      * TODO {我不知道 old_id}
-    //      * TODO 之前的上传推荐消息的也要改 1 fileReader 预览   2 File提交
-    //      */
-    //   } else {
-    //     // TODO 头像上传失败
-    //   }
-    //
-    //   // TODO 完成后要更新当前用户信息 currentUser
-    // },
+    // 提交修改信息
+    *handleSettings({ payload }, { put, call }) {
+      const { userid, info } = payload;
+      const { avatarFile, ...other } = info;
+      let avaRes;
+      if (avatarFile) {
+        try {
+          // 获取头像 id
+          const avaForm = new FormData();
+          avaForm.append('avatar', avatarFile);
+          avaRes = yield call(uploadAvatar, avaForm);
+          console.log('avaRes', avaRes);
+          if (avaRes.status === 'success') {
+            other.avatar.new_id = avaRes.data.avatar_id;
+          }
+        } catch (e) {
+          console.log(e);
+          showNotification('error', '头像上传失败');
+        }
+      } else {
+        avaRes = true;
+      }
+
+      if (avaRes) {
+        console.log(other);
+        try {
+          const putRes = yield call(putSettings, userid, other);
+          if (putRes) {
+            showNotification('success', '修改成功');
+          }
+        } catch (e) {
+          console.log(e);
+          showNotification('error', '修改失败');
+        }
+      }
+
+      // 完成后要更新当前用户信息 currentUser
+      // 获取个人详细信息
+      const { data } = yield call(getUserInfo, userid);
+      // 在这里拼好头像的url
+      data.avatar.name = `http://pull.wghtstudio.cn/avatar/web/${data.avatar.name}`;
+      // 保存个人信息
+      yield put({
+        type: 'user/saveCurrentUser',
+        payload: {
+          name: `${data.nickname}`,
+          userid,
+          // 在这里展开所有的个人详细信息，保存在 user model 里面
+          ...data,
+        },
+      });
+    },
   },
 };

@@ -14,8 +14,11 @@ export const commitDeletaURL = userURL;
 // 新建账号
 export const createAccountURL = userURL;
 
+// 修改个人信息
+export const updateUserInfoUrl = userURL;
+
 // 修改密码
-export const updateUserURL = `${userURL}/password`;
+export const changePwdURL = `${userURL}/password`;
 
 // 登录
 export const loginURL = `${baseURL}/login`;
@@ -42,4 +45,4 @@ export const uploadImgURL = `${baseURL}/img/add`;
 export const uploadMessageURL = `${baseURL}/img/message`;
 
 // 上传头像
-export const uploadAvatarURL = `${baseURL}/user/upload`;
+export const uploadAvatarURL = `${baseURL}/user/avatar`;
