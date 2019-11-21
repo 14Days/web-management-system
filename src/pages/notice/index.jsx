@@ -13,10 +13,13 @@ import {
   Row,
   Spin,
   Tooltip,
+  Popconfirm,
+  Switch,
 } from 'antd';
 import React, { Component } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { connect } from 'dva';
+import Authorized from '../../utils/Authorized';
 import styles from './style.less';
 
 @connect(({ notice }) => ({
@@ -36,41 +39,54 @@ class Notice extends Component {
     const { TextArea, Search } = Input;
     const { notice, dispatch } = this.props;
     const {
-      data,
-      loading,
       last,
+      loading,
+      count,
+      data,
+      pageNow,
+      moreLoading,
       postType,
       postLoading,
       postView,
+      title,
       content,
-      count,
+      isTop,
       currentView,
       currentNotice,
+      currentLoading,
+      deleteLoading,
       searchDrawer,
       searchWord,
-      pageNow,
-      moreLoading,
       searchLoading,
+      searchRes,
+      editTitle,
+      editContent,
+      editIsTop,
+      editView,
+      editLoading,
     } = notice;
 
-    // 发布公告对话框中的提示内容
+    // 发布通知对话框中的提示内容
     let tipsWord = (
       <span className={styles.tip} style={{ color: 'red' }}>
         <Icon type="exclamation-circle" style={{ margin: '0 5px' }} />
-        请先选择发送的公告类型
+        请先选择发送的通知类型
       </span>
     );
     switch (postType) {
       case 1:
         tipsWord = (
-          <span className={styles.tip}>
-            把公告发送给Web后台，只有Web后台的设计师和管理员能看到这则公告
-          </span>
+          <span className={styles.tip}>把通知发送给Web后台，所有设计师和管理员将看到这则通知</span>
         );
         break;
       case 2:
         tipsWord = (
-          <span className={styles.tip}>把公告发送给App应用，App应用的用户将看到这则公告</span>
+          <span className={styles.tip}>把通知发送给设计师，您旗下的设计师将看到这则通知</span>
+        );
+        break;
+      case 3:
+        tipsWord = (
+          <span className={styles.tip}>把通知发送给App应用，只有App应用的用户才能看到这则通知</span>
         );
         break;
       default:
@@ -80,13 +96,14 @@ class Notice extends Component {
     // 显示的主体内容
     let contentReal = <div />;
     if (data.length !== 0) {
-      // 当获取到的data为长度不为0时（历史上存在公告）
+      // 当获取到的data为长度不为0时（历史上存在通知）
       contentReal = (
         <React.Fragment>
           <Row gutter={[24, 20]} align="top">
             <Col xl={16} lg={24} md={24} sm={24} xs={24}>
               <Card bordered={false} loading={loading} className={styles.topCard}>
                 <Row gutter={24}>
+                  {/* 日期显示 */}
                   <Col xl={6} lg={6} md={6} sm={6} xs={6}>
                     <Row type="flex" justify="center" align="middle">
                       <Col xl={24} lg={24} md={24} sm={24} xs={24}>
@@ -98,31 +115,41 @@ class Notice extends Component {
                             <span className={styles.month}>{last.slice(4, 7)}</span>
                             <span className={styles.day}>{last.slice(8, 10)}</span>
                           </div>
+                          <div className={styles.tipsWord}>
+                            <span>最新通知</span>
+                          </div>
                         </div>
                       </Col>
                     </Row>
                   </Col>
+                  {/* 最新通知栏 */}
                   <Col xl={18} lg={18} md={18} sm={18} xs={18}>
-                    <div className={styles.lastNoticeWord}>
-                      <p>最新公告</p>
-                    </div>
-                    <Tooltip title="查看完整公告">
+                    {/* 最新通知内容 */}
+                    <Tooltip title="查看完整通知">
                       <div
                         className={styles.lastNotice}
                         onClick={() => {
+                          console.log(data[0].id);
                           dispatch({
-                            type: 'notice/save',
+                            type: 'notice/fetchInfo',
                             payload: {
-                              currentNotice: 0,
-                              currentView: true,
+                              currentId: data[0].id,
                             },
                           });
                         }}
                       >
-                        <div className={styles.noticeContent}>
+                        <div className={styles.noticeTitle}>
                           <p>{data[0].title}</p>
                         </div>
+                        <div className={styles.noticeContent}>
+                          <p>{data[0].content}</p>
+                        </div>
                         <div className={styles.noticeTime}>
+                          <p>
+                            {data[0].user_type === 1
+                              ? '由超级管理员发布的通知'
+                              : '由管理员发布的通知'}
+                          </p>
                           <p>{`${data[0].user} 发布于 ${data[0].create_at}`}</p>
                         </div>
                       </div>
@@ -131,6 +158,7 @@ class Notice extends Component {
                 </Row>
               </Card>
             </Col>
+            {/* 搜索栏 */}
             <Col xl={8} lg={24} md={24} sm={24} xs={24}>
               <Affix offsetTop={20}>
                 <Card className={styles.searchCard}>
@@ -138,11 +166,11 @@ class Notice extends Component {
                     <Col xl={24} lg={24} md={24} sm={24} xs={24} className={styles.send}>
                       <div>
                         <div>
-                          <span style={{ fontSize: '16px' }}>{`共${count}条公告可供搜索`}</span>
+                          <span style={{ fontSize: '16px' }}>{`共${count}条通知可供搜索`}</span>
                         </div>
                         <div>
                           <Search
-                            placeholder="搜索公告内容..."
+                            placeholder="搜索通知内容..."
                             onSearch={value => console.log(value)}
                             style={{
                               margin: '15px auto',
@@ -165,54 +193,77 @@ class Notice extends Component {
                 </Card>
               </Affix>
             </Col>
+            {/* 发布栏 */}
             <Col xl={8} lg={24} md={24} sm={24} xs={24}>
               <Card bordered={false} className={styles.postCard}>
                 <Row>
                   <Col xl={24} lg={24} md={24} sm={24} xs={24} className={styles.send}>
                     <div>
                       <p>有新情况？发布一下吧</p>
-                      <Button
-                        type="primary"
-                        icon="form"
-                        onClick={() => {
-                          dispatch({
-                            type: 'notice/save',
-                            payload: {
-                              postView: true,
-                            },
-                          });
-                        }}
+                      {/* 分权限亮起按钮 */}
+                      <Authorized
+                        authority={['admin', 'root']}
+                        noMatch={
+                          <Tooltip title="没有权限😜">
+                            <Button type="primary" icon="form" disabled>
+                              发布通知
+                            </Button>
+                          </Tooltip>
+                        }
                       >
-                        发布公告
-                      </Button>
+                        <Button
+                          type="primary"
+                          icon="form"
+                          onClick={() => {
+                            dispatch({
+                              type: 'notice/save',
+                              payload: {
+                                postView: true,
+                              },
+                            });
+                          }}
+                        >
+                          发布通知
+                        </Button>
+                      </Authorized>
                     </div>
                   </Col>
                 </Row>
               </Card>
             </Col>
             <Col xl={24} lg={24} md={24} sm={24} xs={24}>
-              <Divider>所有公告</Divider>
+              <Divider>所有通知</Divider>
             </Col>
-            {data.map((item, index) => (
+            {/* 所有通知贴纸内容 */}
+            {data.map(item => (
               <Col xl={6} lg={24} md={24} sm={24} xs={24}>
-                <Card bordered={false} loading={loading} className={styles.moreCard}>
-                  <Tooltip title="查看完整公告">
+                <Card
+                  bordered={false}
+                  loading={loading}
+                  className={styles.moreCard}
+                  style={item.is_top > 0 ? { backgroundColor: 'rgba(173, 226, 255, 0.32)' } : {}}
+                >
+                  <Tooltip title="查看完整通知">
                     <div
                       className={styles.moreNotice}
                       onClick={() => {
+                        console.log(item.id);
                         dispatch({
-                          type: 'notice/save',
+                          type: 'notice/fetchInfo',
                           payload: {
-                            currentNotice: index,
-                            currentView: true,
+                            currentId: item.id,
                           },
                         });
                       }}
                     >
-                      <div className={styles.noticeContent}>
+                      <div className={styles.noticeTitle}>
                         <p>{item.title}</p>
                       </div>
+                      <div className={styles.noticeContent}>
+                        <p>{item.content}</p>
+                      </div>
                       <div className={styles.noticeTime}>
+                        <p>{item.user_type === 1 ? '超级管理员发布' : '管理员发布'}</p>
                         <p>{`${item.user} 发布于 ${item.create_at}`}</p>
                       </div>
                     </div>
@@ -221,6 +272,7 @@ class Notice extends Component {
               </Col>
             ))}
           </Row>
+          {/* 加载更多栏 */}
           <Row gutter={[24, 20]}>
             <Col xl={24} lg={24} md={24} sm={24} xs={24}>
               <Card>
@@ -244,7 +296,7 @@ class Notice extends Component {
                   ) : (
                     <div>
                       <Icon type="check-square" style={{ margin: 'auto 5px' }} />
-                      <span>全部公告已加载，没有更多了哦~</span>
+                      <span>全部通知已加载，没有更多了哦~</span>
                     </div>
                   )}
                 </div>
@@ -254,7 +306,7 @@ class Notice extends Component {
         </React.Fragment>
       );
     } else {
-      // 当获取到的data为长度为0时（历史上没有任何公告）
+      // 当获取到的data为长度为0时（历史上没有任何通知）
       contentReal = (
         <React.Fragment>
           <Row gutter={24}>
@@ -263,21 +315,33 @@ class Notice extends Component {
                 <Row>
                   <Col xl={24} lg={24} md={24} sm={24} xs={24} className={styles.send}>
                     <div>
-                      <p>一条公告都没有哦，发布一下吧</p>
-                      <Button
-                        type="primary"
-                        icon="form"
-                        onClick={() => {
-                          dispatch({
-                            type: 'notice/save',
-                            payload: {
-                              postView: true,
-                            },
-                          });
-                        }}
+                      <p>一条通知都没有哦，发布一下吧</p>
+                      {/* 分权限亮起按钮 */}
+                      <Authorized
+                        authority={['admin', 'root']}
+                        noMatch={
+                          <Tooltip title="没有权限😜">
+                            <Button type="primary" icon="form" disabled>
+                              发布通知
+                            </Button>
+                          </Tooltip>
+                        }
                       >
-                        发布公告
-                      </Button>
+                        <Button
+                          type="primary"
+                          icon="form"
+                          onClick={() => {
+                            dispatch({
+                              type: 'notice/save',
+                              payload: {
+                                postView: true,
+                              },
+                            });
+                          }}
+                        >
+                          发布通知
+                        </Button>
+                      </Authorized>
                     </div>
                   </Col>
                 </Row>
@@ -290,8 +354,8 @@ class Notice extends Component {
 
     return (
       <PageHeaderWrapper
-        title="公告信息"
-        subTitle="查看并发布公告信息"
+        title="通知信息"
+        subTitle="查看并发布通知信息"
         content={[
           // 最后更新时间行
           <Descriptions size="small" column={1}>
@@ -311,17 +375,17 @@ class Notice extends Component {
           </Descriptions>,
         ]}
       >
-        {/* 公告发布对话框 */}
+        {/* 通知发布对话框 */}
         <Modal
           visible={postView}
           centered
           maskClosable={false}
           closable={!postLoading}
-          title="发布公告"
+          title="发布通知"
           footer={
             <Button
               loading={postLoading}
-              disabled={postType === 0 || content === ''}
+              disabled={postType === 0 || title === ''}
               onClick={() => {
                 dispatch({
                   type: 'notice/send',
@@ -341,19 +405,29 @@ class Notice extends Component {
           {/* 以上：自定义框底组件（发布按钮），退出时清空相关变量， 发送时不允许关闭对话框 */}
           {/* 发布类型选择 */}
           <Radio.Group value={postType} className={styles.typeSelect}>
-            <Radio.Button
-              value={1}
-              onClick={() => {
-                dispatch({
-                  type: 'notice/save',
-                  payload: {
-                    postType: 1,
-                  },
-                });
-              }}
+            {/* 管理员通知需要权限判定 */}
+            <Authorized
+              authority={['root']}
+              noMatch={
+                <Tooltip title="没有权限😜">
+                  <Radio.Button disabled>管理员通知</Radio.Button>
+                </Tooltip>
+              }
             >
-              Web后台公告
-            </Radio.Button>
+              <Radio.Button
+                value={1}
+                onClick={() => {
+                  dispatch({
+                    type: 'notice/save',
+                    payload: {
+                      postType: 1,
+                    },
+                  });
+                }}
+              >
+                管理员通知
+              </Radio.Button>
+            </Authorized>
             <Radio.Button
               value={2}
               onClick={() => {
@@ -365,14 +439,42 @@ class Notice extends Component {
                 });
               }}
             >
-              App公告
+              设计师通知
+            </Radio.Button>
+            <Radio.Button
+              value={3}
+              onClick={() => {
+                dispatch({
+                  type: 'notice/save',
+                  payload: {
+                    postType: 3,
+                  },
+                });
+              }}
+            >
+              用户通知
             </Radio.Button>
           </Radio.Group>
           {/* 下面的是提示词 */}
           {tipsWord}
+          <br />
+          <Input
+            placeholder="标题"
+            disabled={postType === 0}
+            value={title}
+            onChange={e => {
+              dispatch({
+                type: 'notice/save',
+                payload: {
+                  title: e.target.value,
+                },
+              });
+            }}
+            style={{ marginBottom: '20px' }}
+          ></Input>
           <TextArea
+            placeholder="内容"
             autoSize={{
-              maxRows: 5,
               minRows: 5,
             }}
             disabled={postType === 0}
@@ -386,15 +488,161 @@ class Notice extends Component {
               });
             }}
           />
+          <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
+            <span className={styles.tip} style={{ margin: 'auto 12px' }}>
+              {isTop === 1 ? '该条通知将被置顶' : '该条通知不会被置顶'}
+            </span>
+            <Switch
+              checked={isTop === 1}
+              onChange={check => {
+                dispatch({
+                  type: 'notice/save',
+                  payload: {
+                    isTop: check ? 1 : 0,
+                  },
+                });
+              }}
+            />
+          </div>
           {/* 以上：输入框类型未选择时禁用，实时存储内容到state */}
         </Modal>
-        {/* 公告详情对话框 */}
+        {/* 编辑对话框显示 */}
         <Modal
+          zIndex={9999}
+          title="修改通知"
+          width={800}
+          visible={editView}
+          centered
+          onCancel={() => {
+            dispatch({
+              type: 'notice/save',
+              payload: {
+                editView: false,
+                editTitle: '',
+                editContent: '',
+              },
+            });
+          }}
+          onOk={() => {
+            dispatch({
+              type: 'notice/handleChange',
+            });
+          }}
+          confirmLoading={editLoading}
+          maskClosable={editContent === ''}
+        >
+          <p>
+            <span className={styles.tip}>{`正在修改${currentNotice.user}发布的通知，${
+              currentNotice.type === 1
+                ? '这是一条管理员通知，将只管理员开放。'
+                : currentNotice.type === 2
+                ? '这是一条设计师通知，将只向您旗下的设计师开放。'
+                : '这是一条用户通知，将只向App端的用户开放。'
+            }`}</span>
+          </p>
+          <Input
+            placeholder="标题"
+            value={editTitle}
+            onChange={e => {
+              dispatch({
+                type: 'notice/save',
+                payload: {
+                  editTitle: e.target.value,
+                },
+              });
+            }}
+            style={{ marginBottom: '20px' }}
+          ></Input>
+          <TextArea
+            autoSize={{
+              minRows: 5,
+            }}
+            value={editContent}
+            onChange={e => {
+              dispatch({
+                type: 'notice/save',
+                payload: {
+                  editContent: e.target.value,
+                },
+              });
+            }}
+          />
+          <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
+            <span className={styles.tip} style={{ margin: 'auto 12px' }}>
+              {editIsTop > 0 ? '该条通知将被置顶' : '该条通知不会被置顶'}
+            </span>
+            <Switch
+              checked={editIsTop > 0}
+              onChange={check => {
+                dispatch({
+                  type: 'notice/save',
+                  payload: {
+                    editIsTop: check === false ? 0 : 1,
+                  },
+                });
+              }}
+            />
+          </div>
+        </Modal>
+        {/* 通知详情对话框 包含对修改删除按钮的权限管控 */}
+        <Modal
+          zIndex={9900}
           visible={currentView}
           centered
-          closable={false}
-          title="公告详情"
-          footer={[<Button>修改</Button>]}
+          title={[
+            <span>通知详情</span>,
+            <span>
+              {currentNotice.is_top > 0 ? (
+                <span className={styles.tip} style={{ color: 'red', margin: 'auto 8px' }}>
+                  <Icon type="fire" />
+                  置顶通知
+                </span>
+              ) : (
+                ''
+              )}
+            </span>,
+          ]}
+          loading={currentLoading}
+          footer={[
+            <div loading>
+              <span className={styles.tip} style={{ margin: 'auto 10px' }}>
+                {`${currentNotice.user} 发布于 
+                ${currentNotice.create_at}
+              `}
+              </span>
+              <Authorized authority={['admin', 'root']} noMatch={<div></div>}>
+                <Button
+                  onClick={() => {
+                    dispatch({
+                      type: 'notice/save',
+                      payload: {
+                        editView: true,
+                        editTitle: currentNotice.title,
+                        editContent: currentNotice.content,
+                        editIsTop: currentNotice.is_top,
+                        currentView: false,
+                      },
+                    });
+                  }}
+                >
+                  修改
+                </Button>
+                <Popconfirm
+                  zIndex={9950}
+                  title="确定要删除这条通知吗？"
+                  onConfirm={() => {
+                    dispatch({
+                      type: 'notice/handleDelete',
+                    });
+                  }}
+                >
+                  <Button type="danger" loading={deleteLoading}>
+                    删除
+                  </Button>
+                </Popconfirm>
+              </Authorized>
+            </div>,
+          ]}
           width={800}
           onCancel={() => {
             dispatch({
@@ -405,13 +653,13 @@ class Notice extends Component {
             });
           }}
         >
-          {data.length === 0 ? '??' : data[currentNotice].title}
+          <p style={{ fontWeight: '500', fontSize: '24px' }}>{currentNotice.title}</p>
+          <div>{currentNotice.content}</div>
         </Modal>
         {/* 搜索抽屉 */}
         <Drawer
-          title="公告搜索"
+          title="通知搜索"
           width={720}
-          maskClosable={searchWord === ''}
           onClose={() => {
             dispatch({
               type: 'notice/save',
@@ -423,8 +671,9 @@ class Notice extends Component {
           visible={searchDrawer}
         >
           <Search
-            placeholder="搜索公告内容..."
+            placeholder="搜索通知标题..."
             loading={searchLoading}
+            value={searchWord}
             enterButton
             onChange={e => {
               dispatch({
@@ -435,7 +684,7 @@ class Notice extends Component {
               });
               if (count <= 200) {
                 dispatch({
-                  type: 'notice/search',
+                  type: 'notice/fastSearch',
                 });
               }
             }}
@@ -447,7 +696,7 @@ class Notice extends Component {
           />
           <div style={{ textAlign: 'center' }}>
             <span className={styles.tip}>
-              {count > 200 ? '总公告条数过多，已关闭自动搜索' : '已开启自动搜索'}
+              {count > 200 ? '总通知条数过多，已关闭实时搜索' : '已开启实时搜索'}
             </span>
           </div>
           <Divider>搜索结果</Divider>
@@ -459,27 +708,34 @@ class Notice extends Component {
                 margin: 'auto',
               }}
             >
-              <div>
-                <div
-                  className={styles.searchNotice}
-                  onClick={() => {
-                    dispatch({
-                      type: 'notice/save',
-                      payload: {
-                        currentNotice: 0,
-                        currentView: true,
-                      },
-                    });
-                  }}
-                >
-                  <div className={styles.noticeContent}>
-                    <p>aeuefhuiwpewpvnkdkpjfmckhgr</p>
+              {searchRes.map(item => (
+                <Tooltip title="查看完整通知">
+                  <div
+                    className={styles.searchNotice}
+                    onClick={() => {
+                      dispatch({
+                        type: 'notice/fetchInfo',
+                        payload: {
+                          currentId: item.id,
+                        },
+                      });
+                    }}
+                  >
+                    <div className={styles.noticeTitle}>
+                      <p>{item.title}</p>
+                    </div>
+                    <div className={styles.noticeContent}>
+                      <p>{item.content}</p>
+                    </div>
+                    <div className={styles.noticeTime}>
+                      <p>
+                        {item.user_type === 1 ? '由超级管理员发布的通知' : '由管理员发布的通知'}
+                      </p>
+                      <p>{`${item.user} 发布于 ${item.create_at}`}</p>
+                    </div>
                   </div>
-                  <div className={styles.noticeTime}>
-                    <p>fvsdivbilligb 发布于 hdsfhoigieuidsoiodsiv</p>
-                  </div>
-                </div>
-              </div>
+                </Tooltip>
+              ))}
             </div>
           </Spin>
         </Drawer>

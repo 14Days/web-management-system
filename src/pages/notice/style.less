@@ -21,14 +21,26 @@
 }
 
 .moreCard {
-  height: 330px;
+  height: 340px; 
+}
+
+.moreCard:hover {
+  box-shadow: 0px 0px 10px #888888;
 }
 
 .lastNotice {
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-left: 1px solid rgba(0, 0, 0, 0.1);
   cursor: pointer;
+  .noticeTitle {
+    margin: 20px 0 0 24px;
+    p {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 0;
+    }
+  }
   .noticeContent {
-    margin: 10px 16px;
+    margin: 10px 24px;
     height: 110px;
     line-height: 25px;
     max-height: 100px;
@@ -39,20 +51,31 @@
   }
   .noticeTime {
     text-align: right;
-    margin: 10px 16px;
+    margin: 10px 24px;
+    display: flex;
+    justify-content: space-between;
     p {
       color: rgba(0, 0, 0, 0.45);
+      margin-bottom: 6px;
     }
   }
 }
 
 .moreNotice {
   cursor: pointer;
+  .noticeTitle {
+    margin: 12px 0 0 16px;
+    p {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 0;
+    }
+  }
   .noticeContent {
     margin: 10px 16px;
     height: 300px;
     line-height: 25px;
-    max-height: 225px;
+    max-height: 200px;
     overflow: hidden;
     p {
       font-size: 16px;
@@ -61,6 +84,8 @@
   .noticeTime {
     text-align: right;
     margin: 10px 16px;
+    display: flex;
+    justify-content: space-between;
     p {
       color: rgba(0, 0, 0, 0.45);
     }
@@ -70,24 +95,35 @@
 .searchNotice {
   cursor: pointer;
   border: 1px solid rgba(0, 0, 0, 0.1);
-  margin: auto;
+  margin: 12px auto;
+  .noticeTitle {
+    margin: 12px 0 0 16px;
+    p {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 0;
+    }
+  }
   .noticeContent {
     margin: 10px 16px;
-    height: 100px;
     line-height: 25px;
     max-height: 100px;
     overflow: hidden;
     p {
+      margin-bottom: 0;
       font-size: 16px;
     }
   }
   .noticeTime {
     text-align: right;
     margin: 10px 16px;
+    display: flex;
+    justify-content: space-between;
     p {
       color: rgba(0, 0, 0, 0.45);
     }
   }
+  
 }
 
 .moreTip {
@@ -133,6 +169,12 @@
       margin: auto 8px;
       font-size: 60px;
     }
+  }
+  .tipsWord {
+    margin-top: -8px;
+    font-weight: 100;
+    font-size: 24px;
+    text-align: center;
   }
   p {
     margin-bottom: 0;
