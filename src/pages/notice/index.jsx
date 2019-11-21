@@ -83,7 +83,6 @@ class Notice extends Component {
                       <div
                         className={styles.lastNotice}
                         onClick={() => {
-                          console.log(data[0].id);
                           dispatch({
                             type: 'notice/fetchInfo',
                             payload: {
@@ -125,7 +124,6 @@ class Notice extends Component {
                         <div>
                           <Search
                             placeholder="搜索通知标题..."
-                            onSearch={value => console.log(value)}
                             style={{
                               margin: '15px auto',
                               maxWidth: '250px',
@@ -201,7 +199,6 @@ class Notice extends Component {
                     <div
                       className={styles.moreNotice}
                       onClick={() => {
-                        console.log(item.id);
                         dispatch({
                           type: 'notice/fetchInfo',
                           payload: {

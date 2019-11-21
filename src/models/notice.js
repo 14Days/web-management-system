@@ -149,7 +149,7 @@ const NoticeModels = {
         const limit = 8;
         const res = yield call(getNotice, limit, pageNow + 1);
         // 拼接data
-        Array.prototype.push.apply(data, res.data.notice)
+        Array.prototype.push.apply(data, res.data.notice);
         console.log(data);
         yield put({
           type: 'save',
@@ -188,6 +188,7 @@ const NoticeModels = {
     *fastSearch(_, { put, call, select }) {
       let { searchWord, searchLoading } = yield select(state => state.notice);
       if (!searchLoading && searchWord.length >= 2) {
+        // 0.7s后若搜索词不变则自动搜索
         yield call(delayWaiting, 700);
         const oldWord = searchWord;
         searchWord = yield select(state => state.notice.searchWord);
@@ -209,9 +210,8 @@ const NoticeModels = {
           currentView: true,
           currentId,
         },
-      })
+      });
       const res = yield call(detailNotice, currentId);
-      console.log('infoo')
       console.log(res.data);
       yield put({
         type: 'save',
@@ -219,7 +219,7 @@ const NoticeModels = {
           currentLoading: false,
           currentNotice: res.data,
         },
-      })
+      });
     },
     // 编辑公告详情
     *handleChange(_, { call, put, select }) {
@@ -257,7 +257,10 @@ const NoticeModels = {
       }
       yield put({
         type: 'refresh',
-      })
+      });
+      yield put({
+        type: 'fastSearch',
+      });
     },
     // 删除公告
     *handleDelete(_, { call, put, select }) {
@@ -267,7 +270,7 @@ const NoticeModels = {
           deleteLoading: true,
         },
       });
-      const { currentId } = yield select(state => state.notice)
+      const { currentId } = yield select(state => state.notice);
       const res = yield call(deleteNotcie, currentId);
       console.log(res);
       yield put({
