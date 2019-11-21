@@ -4,17 +4,21 @@ const baseURL = 'https://wghtstudio.cn/back';
 //   baseURL = 'http://yapi.wghtstudio.cn/mock/21';
 // }
 
+const userURL = `${baseURL}/user`;
 // 获取所有的管理员用户信息
-export const getUserURL = `${baseURL}/user`;
+export const getUserURL = userURL;
 
 // 提交删除
-export const commitDeletaURL = `${baseURL}/user/delete`;
-
-// 修改密码
-export const updateUserURL = `${baseURL}/user/update`;
+export const commitDeletaURL = userURL;
 
 // 新建账号
-export const createAccountURL = `${baseURL}/user/add`;
+export const createAccountURL = userURL;
+
+// 修改个人信息
+export const updateUserInfoUrl = userURL;
+
+// 修改密码
+export const changePwdURL = `${userURL}/password`;
 
 // 登录
 export const loginURL = `${baseURL}/login`;
@@ -50,4 +54,4 @@ export const uploadImgURL = `${baseURL}/img/add`;
 export const uploadMessageURL = `${baseURL}/img/message`;
 
 // 上传头像
-export const uploadAvatarURL = `${baseURL}/user/upload`;
+export const uploadAvatarURL = `${baseURL}/user/avatar`;

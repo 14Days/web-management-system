@@ -9,6 +9,7 @@ import { connect } from 'dva';
 export default class Find extends Component {
   // 传入所有的 user 信息, 返回符合 Table 格式的数据
   static formatData(data) {
+    console.log(data);
     data.forEach((e, index) => {
       e.key = index;
       e.sex = e.sex === 0 ? '女' : '男';
@@ -20,9 +21,9 @@ export default class Find extends Component {
     super(props);
     this.state = {
       visible: false,
-      username: '',
       password: '',
-      userID: 0,
+      index: 0,
+      selectID: 0,
     };
     this.handlePopOK = this.handlePopOK.bind(this);
     this.handlePopCancel = this.handlePopCancel.bind(this);
@@ -58,13 +59,13 @@ export default class Find extends Component {
       visible: false,
     });
 
-    const { username, password, userID } = this.state;
+    const { password, index, selectID } = this.state;
 
     this.props.dispatch({
       type: 'account/handleUpdate',
       payload: {
-        userID,
-        username,
+        index,
+        selectID,
         password,
       },
     });
@@ -93,7 +94,7 @@ export default class Find extends Component {
         key: 'nickname',
       },
       {
-        title: '创建者',
+        title: '创建时间',
         dataIndex: 'create_at',
         key: 'create_at',
       },
@@ -113,9 +114,9 @@ export default class Find extends Component {
               onClick={() => {
                 this.setState({
                   visible: true,
-                  username: item.username,
                   password: '',
-                  userID: item.key,
+                  index: item.key,
+                  selectID: item.id,
                 });
               }}
             >
@@ -127,7 +128,8 @@ export default class Find extends Component {
                 this.props.dispatch({
                   type: 'account/handleDelete',
                   payload: {
-                    userID: item.key,
+                    userID: item.id,
+                    index: item.key,
                   },
                 });
               }}
@@ -149,17 +151,6 @@ export default class Find extends Component {
             onCancel={this.handlePopCancel}
           >
             <Form layout="inline">
-              <Form.Item label="用户名">
-                <Input
-                  type="username"
-                  value={this.state.username}
-                  onChange={e => {
-                    this.setState({
-                      username: e.target.value,
-                    });
-                  }}
-                />
-              </Form.Item>
               <Form.Item label="密码">
                 <Input
                   type="password"
