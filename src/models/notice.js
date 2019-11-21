@@ -1,6 +1,13 @@
 import { Modal } from 'antd';
 import { getNotice, commitNotice, detailNotice, deleteNotcie, changeNotice, searchNotice } from '../services/notice';
 
+// 用于快速搜索计算延时
+function delayWaiting(ms) {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
+  });
+}
+
 // 用于成功后在页面上调出成功弹窗提示
 function showSuccess(message) {
   return new Promise(resolve => {
@@ -178,12 +185,18 @@ const NoticeModels = {
         });
     },
     // 快速搜索
-    *fastSearch(_, { put, select }) {
-      const { searchWord, searchLoading } = yield select(state => state.notice);
+    *fastSearch(_, { put, call, select }) {
+      let { searchWord, searchLoading } = yield select(state => state.notice);
       if (!searchLoading && searchWord.length >= 2) {
-        yield put({
-          type: 'search',
-        });
+        yield call(delayWaiting, 700);
+        const oldWord = searchWord;
+        searchWord = yield select(state => state.notice.searchWord);
+        searchLoading = yield select(state => state.notice.searchLoading);
+        if (!searchLoading && searchWord === oldWord) {
+          yield put({
+            type: 'search',
+          });
+        }
       }
     },
     // 获取公告详情
