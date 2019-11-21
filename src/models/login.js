@@ -42,8 +42,8 @@ const Model = {
           yield put({
             type: 'user/saveCurrentUser',
             payload: {
-              name: `${username}<${authority[type - 1]}>`,
-              userid: username,
+              name: `${getInfo.data.nickname}`,
+              userid: userID,
               // 在这里展开所有的个人详细信息，保存在 user model 里面
               ...getInfo.data,
             },
