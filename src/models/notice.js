@@ -50,6 +50,7 @@ const NoticeModels = {
     searchRes: [], // 搜索结果
     searchResWord: '', // 正在展示的结果的搜索词
     searchLoading: false, // 搜索加载状态
+    searchPageLoading: false, // 搜索下一页状态
     // 编辑对话框
     editTitle: '',
     editContent: '', // 正在编辑的内容
@@ -164,25 +165,27 @@ const NoticeModels = {
     // 获得搜索结果
     *search(_, { call, put, select }) {
       const { searchWord } = yield select(state => state.notice);
-        yield put({
-          type: 'save',
-          payload: {
-            searchLoading: true,
-          },
-        });
-        const limit = 8;
-        const page = 0;
-        const res = yield call(searchNotice, limit, page, searchWord);
-        console.log(res);
-        yield put({
-          type: 'save',
-          payload: {
-            searchCount: res.data.count,
-            searchLoading: false,
-            searchRes: res.data.notice,
-            searchResWord: searchWord,
-          },
-        });
+      if (searchWord.length < 2) return;
+      yield put({
+        type: 'save',
+        payload: {
+          searchLoading: true,
+        },
+      });
+      const limit = 8;
+      const page = 0;
+      const res = yield call(searchNotice, limit, page, searchWord);
+      console.log(res);
+      yield put({
+        type: 'save',
+        payload: {
+          searchCount: res.data.count,
+          searchLoading: false,
+          searchRes: res.data.notice,
+          searchResWord: searchWord,
+          searchPage: 0,
+        },
+      });
     },
     // 快速搜索
     *fastSearch(_, { put, call, select }) {
@@ -198,6 +201,31 @@ const NoticeModels = {
             type: 'search',
           });
         }
+      }
+    },
+    // 搜索结果下一页
+    *searchNextPage(_, { put, call, select }) {
+      const { searchResWord, searchCount, searchPage } = yield select(state => state.notice);
+      if ((searchPage + 1) * 8 < searchCount) {
+        yield put({
+          type: 'save',
+          payload: {
+            searchLoading: true,
+          },
+        });
+        const limit = 8;
+        const page = searchPage + 1;
+        const res = yield call(searchNotice, limit, page, searchResWord);
+        const { searchRes } = yield select(state => state.notice);
+        Array.prototype.push.apply(searchRes, res.data.notice);
+        yield put({
+          type: 'save',
+          payload: {
+            searchPage: page,
+            searchLoading: false,
+            searchRes,
+          },
+        });
       }
     },
     // 获取公告详情

@@ -11,12 +11,28 @@ class SearchDrawer extends Component {
     const { Search } = Input;
     const { notice, dispatch } = this.props;
     const {
+      searchCount,
+      searchPage,
       searchLoading,
       searchWord,
       count,
       searchRes,
+      searchResWord,
       searchDrawer,
-     } = notice;
+      searchPageLoading,
+    } = notice;
+    let moreTip = '';
+    if (searchResWord === '') {
+      moreTip = '';
+    } else if (searchPageLoading) {
+      moreTip = '加载中';
+    } else if ((searchPage + 1) * 8 < searchCount) {
+      moreTip = '点击加载更多...';
+    } else if (searchRes.length === 0) {
+      moreTip = '暂无结果哦😜~';
+    } else {
+      moreTip = '已全部加载😜~';
+    }
     return (
       <Drawer
         title="通知搜索"
@@ -57,7 +73,7 @@ class SearchDrawer extends Component {
         />
         <div style={{ textAlign: 'center' }}>
           <span className={styles.tip}>
-            {count > 200 ? '总通知条数过多，已关闭实时搜索' : '已开启实时搜索'}
+            {count > 200 ? '总通知条数过多，已关闭自动搜索' : '已开启自动搜索'}
           </span>
         </div>
         <Divider>搜索结果</Divider>
@@ -65,7 +81,6 @@ class SearchDrawer extends Component {
           <div
             style={{
               width: '672px',
-              minHeight: '300px',
               margin: 'auto',
             }}
           >
@@ -95,6 +110,16 @@ class SearchDrawer extends Component {
                 </div>
               </Tooltip>
             ))}
+          </div>
+          <div
+            className={styles.moreTip}
+            onClick={() => {
+              dispatch({
+                type: 'notice/searchNextPage',
+              });
+            }}
+          >
+            <p className={styles.tip}>{moreTip}</p>
           </div>
         </Spin>
       </Drawer>
