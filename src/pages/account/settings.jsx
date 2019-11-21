@@ -18,6 +18,8 @@ class Create extends Component {
     console.log('state', this.state);
 
     console.log(this.props.form.getFieldsValue());
+    //  TODO 没有权限？？带头像的时候
+    //  TODO 上传的时候太慢了，最好带个 loading
     const commitData = this.props.form.getFieldsValue();
     // 如果上传了的话，添加这个属性
     commitData.avatarFile = this.state.file;
