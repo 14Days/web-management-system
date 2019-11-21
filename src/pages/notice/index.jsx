@@ -1,15 +1,4 @@
-import {
-  Affix,
-  Button,
-  Card,
-  Col,
-  Descriptions,
-  Divider,
-  Icon,
-  Input,
-  Row,
-  Tooltip,
-} from 'antd';
+import { Affix, Button, Card, Col, Descriptions, Divider, Icon, Input, Row, Tooltip } from 'antd';
 import React, { Component } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { connect } from 'dva';
@@ -38,14 +27,7 @@ class Notice extends Component {
   render() {
     const { Search } = Input;
     const { notice, dispatch } = this.props;
-    const {
-      last,
-      loading,
-      count,
-      data,
-      pageNow,
-      moreLoading,
-    } = notice;
+    const { last, loading, count, data, pageNow, moreLoading } = notice;
 
     // 显示的主体内容
     let contentReal = <div />;
@@ -193,11 +175,11 @@ class Notice extends Component {
                   bordered={false}
                   loading={loading}
                   className={styles.moreCard}
-                  style={item.is_top > 0 ? { backgroundColor: 'rgba(173, 226, 255, 0.32)' } : {}}
+                  style={item.is_top > 0 ? { backgroundColor: 'rgb(74, 168, 255)' } : {}}
                 >
                   <Tooltip title="查看完整通知">
                     <div
-                      className={styles.moreNotice}
+                      className={item.is_top > 0 ? styles.topNotice : styles.moreNotice}
                       onClick={() => {
                         dispatch({
                           type: 'notice/fetchInfo',
@@ -207,10 +189,26 @@ class Notice extends Component {
                         });
                       }}
                     >
+                      <div>
+                        {item.is_top > 0 ? (
+                          <span
+                            className={styles.tip}
+                            style={{ color: 'rgba(255,255,255,0.65)', margin: 'auto 16px' }}
+                          >
+                            <Icon type="caret-up" />
+                            置顶通知
+                          </span>
+                        ) : (
+                          <div />
+                        )}
+                      </div>
                       <div className={styles.noticeTitle}>
                         <p>{item.title}</p>
                       </div>
-                      <div className={styles.noticeContent}>
+                      <div
+                        className={styles.noticeContent}
+                        style={item.is_top > 0 ? { maxHeight: '175px' } : { maxHeight: '200px' }}
+                      >
                         <p>{item.content}</p>
                       </div>
                       <div className={styles.noticeTime}>

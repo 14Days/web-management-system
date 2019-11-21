@@ -31,8 +31,8 @@ class InfoModal extends Component {
           <span>通知详情</span>,
           <span>
             {currentNotice.is_top > 0 ? (
-              <span className={styles.tip} style={{ color: 'red', margin: 'auto 8px' }}>
-                <Icon type="fire" />
+              <span className={styles.tip} style={{ color: 'red', margin: 'auto 16px' }}>
+                <Icon type="caret-up" />
                 置顶通知
               </span>
             ) : (
@@ -91,7 +91,7 @@ class InfoModal extends Component {
           });
         }}
       >
-        <p style={{ fontWeight: '500', fontSize: '24px' }}>{currentNotice.title}</p>
+        <p style={{ fontWeight: '600', fontSize: '20px' }}>{currentNotice.title}</p>
         <div>{currentNotice.content}</div>
       </Modal>
     );
