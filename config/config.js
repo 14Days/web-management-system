@@ -108,12 +108,6 @@ export default {
               component: './statistics/index',
               authority: '',
             },
-            // {
-            //   name: '个人设置',
-            //   path: '/account/settings',
-            //   icon: 'control',
-            //   component: './account/settings',
-            // },
             {
               path: '/account',
               name: '账户管理',

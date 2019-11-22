@@ -4,11 +4,8 @@ import { showNotification } from '../utils/common';
 export default {
   namespace: 'message',
   state: {
+    total: 0,
     message: [],
-    loading: {
-      upload: false,
-      page: false,
-    },
     upload: {
       content: '',
       img: [],
@@ -80,35 +77,17 @@ export default {
   },
   effects: {
     *handleInit(_, { put, call }) {
-      yield put({
-        type: 'save',
-        payload: {
-          loading: {
-            page: true,
-            upload: false,
-          },
-        },
-      });
       const res = yield call(fetchMessage);
       showNotification(res.status, res.status === 'success' ? '拉取推荐消息成功' : '拉取失败');
       if (res.status === 'success') {
         yield put({
           type: 'save',
           payload: {
-            message: res.data,
+            message: res.data.res,
+            total: res.data.count,
           },
         });
       }
-
-      yield put({
-        type: 'save',
-        payload: {
-          loading: {
-            page: false,
-            upload: false,
-          },
-        },
-      });
     },
     *handleDelete({ payload }, { put, call }) {
       const { id, index } = payload;
@@ -140,15 +119,6 @@ export default {
       });
     },
     *handleUploadMessage({ payload }, { put, call }) {
-      yield put({
-        type: 'save',
-        payload: {
-          loading: {
-            page: false,
-            upload: true,
-          },
-        },
-      });
       const { content, img, url } = payload;
       const res = yield call(uploadMessage, content, img);
       console.log(res);
@@ -177,15 +147,6 @@ export default {
           },
         });
       }
-      yield put({
-        type: 'save',
-        payload: {
-          loading: {
-            page: false,
-            upload: false,
-          },
-        },
-      });
     },
   },
 };
