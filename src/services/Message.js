@@ -7,7 +7,15 @@ export async function fetchMessage() {
 
 export async function deleteMessage(id) {
   // token
-  return request.post(deleteMessageURL, id);
+  return request(deleteMessageURL, {
+    method: 'delete',
+    data: {
+      message_id: id,
+    },
+    params: {
+      id,
+    },
+  });
 }
 
 export async function upload(img) {

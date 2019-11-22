@@ -1,5 +1,5 @@
 const baseURL = 'https://wghtstudio.cn/back';
-//
+
 // if (process.env.NODE_ENV === 'development') {
 //   baseURL = 'http://yapi.wghtstudio.cn/mock/21';
 // }
@@ -30,7 +30,7 @@ export const getRecordURL = `${baseURL}/record`;
 export const getMessageURL = `${baseURL}/img`;
 
 // 删除推荐消息
-export const deleteMessageURL = `${baseURL}/img/delete`;
+export const deleteMessageURL = `${baseURL}/img`;
 
 // 获取公告信息
 export const getNoticeURL = `${baseURL}/notice`;
