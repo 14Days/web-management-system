@@ -1,4 +1,10 @@
-import { deleteMessageURL, getMessageURL, uploadImgURL, uploadMessageURL } from '../utils/url';
+import {
+  deleteMessageURL,
+  getMessageURL,
+  updateMessageURL,
+  uploadImgURL,
+  uploadMessageURL,
+} from '../utils/url';
 import request from '@/utils/request';
 
 export async function fetchMessage() {
@@ -27,6 +33,17 @@ export async function uploadMessage(content, img) {
     data: {
       img,
       content,
+    },
+  });
+}
+
+export async function updateMessge(content, img, old) {
+  return request(updateMessageURL, {
+    method: 'put',
+    data: {
+      content,
+      new_img_id: img,
+      old_img_id: old,
     },
   });
 }

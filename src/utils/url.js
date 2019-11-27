@@ -55,3 +55,12 @@ export const uploadMessageURL = `${baseURL}/img`;
 
 // 上传头像
 export const uploadAvatarURL = `${baseURL}/user/avatar`;
+
+// 修改推荐消息
+export const updateMessageURL = `${baseURL}/img`;
+
+// 拉取头像图片
+export const pullAvaURL = 'http://pull.wghtstudio.cn/avatar/web/';
+
+// 拉取素材图片
+export const pullImgURL = 'http://pull.wghtstudio.cn/img/';
