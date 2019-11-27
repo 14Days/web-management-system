@@ -1,6 +1,13 @@
 import { Modal } from 'antd';
 import { getNotice, commitNotice, detailNotice, deleteNotcie, changeNotice, searchNotice } from '../services/notice';
 
+// 用于快速搜索计算延时
+function delayWaiting(ms) {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
+  });
+}
+
 // 用于成功后在页面上调出成功弹窗提示
 function showSuccess(message) {
   return new Promise(resolve => {
@@ -43,6 +50,7 @@ const NoticeModels = {
     searchRes: [], // 搜索结果
     searchResWord: '', // 正在展示的结果的搜索词
     searchLoading: false, // 搜索加载状态
+    searchPageLoading: false, // 搜索下一页状态
     // 编辑对话框
     editTitle: '',
     editContent: '', // 正在编辑的内容
@@ -142,7 +150,7 @@ const NoticeModels = {
         const limit = 8;
         const res = yield call(getNotice, limit, pageNow + 1);
         // 拼接data
-        Array.prototype.push.apply(data, res.data.notice)
+        Array.prototype.push.apply(data, res.data.notice);
         console.log(data);
         yield put({
           type: 'save',
@@ -157,6 +165,48 @@ const NoticeModels = {
     // 获得搜索结果
     *search(_, { call, put, select }) {
       const { searchWord } = yield select(state => state.notice);
+      if (searchWord.length < 2) return;
+      yield put({
+        type: 'save',
+        payload: {
+          searchLoading: true,
+        },
+      });
+      const limit = 8;
+      const page = 0;
+      const res = yield call(searchNotice, limit, page, searchWord);
+      console.log(res);
+      yield put({
+        type: 'save',
+        payload: {
+          searchCount: res.data.count,
+          searchLoading: false,
+          searchRes: res.data.notice,
+          searchResWord: searchWord,
+          searchPage: 0,
+        },
+      });
+    },
+    // 快速搜索
+    *fastSearch(_, { put, call, select }) {
+      let { searchWord, searchLoading } = yield select(state => state.notice);
+      if (!searchLoading && searchWord.length >= 2) {
+        // 0.7s后若搜索词不变则自动搜索
+        yield call(delayWaiting, 700);
+        const oldWord = searchWord;
+        searchWord = yield select(state => state.notice.searchWord);
+        searchLoading = yield select(state => state.notice.searchLoading);
+        if (!searchLoading && searchWord === oldWord) {
+          yield put({
+            type: 'search',
+          });
+        }
+      }
+    },
+    // 搜索结果下一页
+    *searchNextPage(_, { put, call, select }) {
+      const { searchResWord, searchCount, searchPage } = yield select(state => state.notice);
+      if ((searchPage + 1) * 8 < searchCount) {
         yield put({
           type: 'save',
           payload: {
@@ -164,25 +214,17 @@ const NoticeModels = {
           },
         });
         const limit = 8;
-        const page = 0;
-        const res = yield call(searchNotice, limit, page, searchWord);
-        console.log(res);
+        const page = searchPage + 1;
+        const res = yield call(searchNotice, limit, page, searchResWord);
+        const { searchRes } = yield select(state => state.notice);
+        Array.prototype.push.apply(searchRes, res.data.notice);
         yield put({
           type: 'save',
           payload: {
-            searchCount: res.data.count,
+            searchPage: page,
             searchLoading: false,
-            searchRes: res.data.notice,
-            searchResWord: searchWord,
+            searchRes,
           },
-        });
-    },
-    // 快速搜索
-    *fastSearch(_, { put, select }) {
-      const { searchWord, searchLoading } = yield select(state => state.notice);
-      if (!searchLoading && searchWord.length >= 2) {
-        yield put({
-          type: 'search',
         });
       }
     },
@@ -196,9 +238,8 @@ const NoticeModels = {
           currentView: true,
           currentId,
         },
-      })
+      });
       const res = yield call(detailNotice, currentId);
-      console.log('infoo')
       console.log(res.data);
       yield put({
         type: 'save',
@@ -206,7 +247,7 @@ const NoticeModels = {
           currentLoading: false,
           currentNotice: res.data,
         },
-      })
+      });
     },
     // 编辑公告详情
     *handleChange(_, { call, put, select }) {
@@ -244,7 +285,10 @@ const NoticeModels = {
       }
       yield put({
         type: 'refresh',
-      })
+      });
+      yield put({
+        type: 'fastSearch',
+      });
     },
     // 删除公告
     *handleDelete(_, { call, put, select }) {
@@ -254,7 +298,7 @@ const NoticeModels = {
           deleteLoading: true,
         },
       });
-      const { currentId } = yield select(state => state.notice)
+      const { currentId } = yield select(state => state.notice);
       const res = yield call(deleteNotcie, currentId);
       console.log(res);
       yield put({
