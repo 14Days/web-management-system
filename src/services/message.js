@@ -6,25 +6,27 @@ export async function fetchMessage() {
 }
 
 export async function deleteMessage(id) {
-  // token
   return request(deleteMessageURL, {
     method: 'delete',
     data: {
-      message_id: id,
-    },
-    params: {
-      id,
+      recommend_id: id,
     },
   });
 }
 
 export async function upload(img) {
-  return request.post(uploadImgURL, img);
+  return request(uploadImgURL, {
+    method: 'post',
+    data: img,
+  });
 }
 
 export async function uploadMessage(content, img) {
-  return request.post(uploadMessageURL, {
-    img,
-    content,
+  return request(uploadMessageURL, {
+    method: 'post',
+    data: {
+      img,
+      content,
+    },
   });
 }

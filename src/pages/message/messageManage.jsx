@@ -21,20 +21,32 @@ class Message extends React.Component {
     });
   }
 
+  getBase64 = file => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    // 将表单中的 avatar 设置为 reader 后的 database64，显示在页面上.
+    reader.onload = () => {
+      this.props.dispatch({
+        type: 'message/handleUpload',
+        payload: {
+          file,
+          url: reader.result,
+        },
+      });
+    };
+  };
+
   // Modal 取消按钮
   handleCancel = () => {
+    console.log(this.props);
     this.setState({ visible: false });
   };
 
   // 上传图片
   handleUpload = action => {
+    console.log('action', action);
     const { file } = action;
-    this.props.dispatch({
-      type: 'message/handleUpload',
-      payload: {
-        file,
-      },
-    });
+    this.getBase64(file);
   };
 
   // 上传组件变化时触发

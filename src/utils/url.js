@@ -47,11 +47,11 @@ export const deleteNoticeURL = `${baseURL}/notice`;
 // 修改公告(/必要)
 export const changeNoticeURL = `${baseURL}/notice/`;
 
-// 上传图片
-export const uploadImgURL = `${baseURL}/img/add`;
+// 上传推荐消息图片
+export const uploadImgURL = `${baseURL}/img/upload`;
 
 // 上传推荐消息
-export const uploadMessageURL = `${baseURL}/img/message`;
+export const uploadMessageURL = `${baseURL}/img`;
 
 // 上传头像
 export const uploadAvatarURL = `${baseURL}/user/avatar`;

@@ -1,4 +1,4 @@
-import { deleteMessage, fetchMessage, upload, uploadMessage } from '../services/Message';
+import { deleteMessage, fetchMessage, upload, uploadMessage } from '../services/message';
 import { showNotification } from '../utils/common';
 
 export default {
@@ -32,6 +32,7 @@ export default {
       const {
         upload: { img },
       } = state;
+      // 用本地 url
       const { imgID, url, status } = payload;
       const uid = img.length === 0 ? 0 : img[img.length - 1].uid + 1;
       img.push({
@@ -68,6 +69,8 @@ export default {
         id,
         content,
         img_url: url,
+        thumb: 0,
+        comment: 0,
       });
       return {
         ...state,
@@ -91,21 +94,25 @@ export default {
     },
     *handleDelete({ payload }, { put, call }) {
       const { id, index } = payload;
-      const res = yield call(deleteMessage, id);
-      showNotification(res.status, res.data || res.err_msg);
+      try {
+        const res = yield call(deleteMessage, [id]); // 对接口变成数组
+        showNotification(res.status, res.data || res.err_msg);
 
-      if (res.status === 'success') {
-        yield put({
-          type: 'delete',
-          payload: {
-            index,
-          },
-        });
+        if (res.status === 'success') {
+          yield put({
+            type: 'delete',
+            payload: {
+              index,
+            },
+          });
+        }
+      } catch (e) {
+        console.log(e);
       }
     },
     // 上传图片
     *handleUpload({ payload }, { put, call }) {
-      const { file } = payload;
+      const { file, url } = payload;
       const img = new FormData();
       img.append('img', file);
       const res = yield call(upload, img);
@@ -113,7 +120,7 @@ export default {
         type: 'uploadSuccess',
         payload: {
           imgID: res.data.img_id || undefined,
-          url: res.data.url,
+          url,
           status: res.status === 'success' ? 'done' : 'error',
         },
       });
