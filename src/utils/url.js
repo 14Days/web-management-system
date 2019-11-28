@@ -1,5 +1,5 @@
 const baseURL = 'https://wghtstudio.cn/back';
-//
+
 // if (process.env.NODE_ENV === 'development') {
 //   baseURL = 'http://yapi.wghtstudio.cn/mock/21';
 // }
@@ -30,7 +30,7 @@ export const getRecordURL = `${baseURL}/record`;
 export const getMessageURL = `${baseURL}/img`;
 
 // 删除推荐消息
-export const deleteMessageURL = `${baseURL}/img/delete`;
+export const deleteMessageURL = `${baseURL}/img`;
 
 // 获取公告信息
 export const getNoticeURL = `${baseURL}/notice`;
@@ -47,11 +47,20 @@ export const deleteNoticeURL = `${baseURL}/notice`;
 // 修改公告(/必要)
 export const changeNoticeURL = `${baseURL}/notice/`;
 
-// 上传图片
-export const uploadImgURL = `${baseURL}/img/add`;
+// 上传推荐消息图片
+export const uploadImgURL = `${baseURL}/img/upload`;
 
 // 上传推荐消息
-export const uploadMessageURL = `${baseURL}/img/message`;
+export const uploadMessageURL = `${baseURL}/img`;
 
 // 上传头像
 export const uploadAvatarURL = `${baseURL}/user/avatar`;
+
+// 修改推荐消息
+export const updateMessageURL = `${baseURL}/img`;
+
+// 拉取头像图片
+export const pullAvaURL = 'http://pull.wghtstudio.cn/avatar/web/';
+
+// 拉取素材图片
+export const pullImgURL = 'http://pull.wghtstudio.cn/img/';
