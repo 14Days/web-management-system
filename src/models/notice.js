@@ -19,6 +19,17 @@ function showSuccess(message) {
   });
 }
 
+// 用于成功后在页面上调出成功弹窗提示
+function showFail(message) {
+  return new Promise(resolve => {
+    Modal.error({
+      content: message,
+      centered: true,
+    });
+    resolve();
+  });
+}
+
 const NoticeModels = {
   namespace: 'notice',
   state: {
@@ -93,7 +104,6 @@ const NoticeModels = {
       const { title, content, postType, isTop } = yield select(state => state.notice);
       const res = yield call(commitNotice, title, content, postType, isTop);
       // ****** res 处理 *****
-      console.log(res);
       // 退出发布对话框
       yield put({
         type: 'notice/exitPost',
@@ -101,6 +111,8 @@ const NoticeModels = {
       // 弹出成功弹窗
       if (res.status === 'success') {
         yield call(showSuccess, '通知发送成功！');
+      } else {
+        yield call(showFail, `抱歉，通知发送失败。 ${res.status}`);
       }
       // 刷新页面（避免旧数据误导）
       yield put({
@@ -122,7 +134,6 @@ const NoticeModels = {
       const page = 0;
       const res = yield call(getNotice, limit, page);
       // ****** res 处理 *****
-      console.log(res);
       // 将结果直接替换旧的结果
       if (res.status === 'success') {
         yield put({
@@ -134,6 +145,8 @@ const NoticeModels = {
             count: res.data.count,
           },
         });
+      } else {
+        yield call(showFail, `抱歉，通知拉取失败。 ${res.status}`);
       }
     },
     // 加载下一页
@@ -151,15 +164,18 @@ const NoticeModels = {
         const res = yield call(getNotice, limit, pageNow + 1);
         // 拼接data
         Array.prototype.push.apply(data, res.data.notice);
-        console.log(data);
-        yield put({
-          type: 'save',
-          payload: {
-            data,
-            pageNow: pageNow + 1,
-            moreLoading: false,
-          },
-        });
+        if (res.status !== 'success') {
+          yield call(showFail, `抱歉，通知加载失败。 ${res.status}`);
+        } else {
+          yield put({
+            type: 'save',
+            payload: {
+              data,
+              pageNow: pageNow + 1,
+              moreLoading: false,
+            },
+          });
+        }
       }
     },
     // 获得搜索结果
@@ -175,17 +191,20 @@ const NoticeModels = {
       const limit = 8;
       const page = 0;
       const res = yield call(searchNotice, limit, page, searchWord);
-      console.log(res);
-      yield put({
-        type: 'save',
-        payload: {
-          searchCount: res.data.count,
-          searchLoading: false,
-          searchRes: res.data.notice,
-          searchResWord: searchWord,
-          searchPage: 0,
-        },
-      });
+      if (res.status === 'success') {
+        yield put({
+          type: 'save',
+          payload: {
+            searchCount: res.data.count,
+            searchLoading: false,
+            searchRes: res.data.notice,
+            searchResWord: searchWord,
+            searchPage: 0,
+          },
+        });
+      } else {
+        yield call(showFail, `抱歉，通知搜索失败。 ${res.status}`);
+      }
     },
     // 快速搜索
     *fastSearch(_, { put, call, select }) {
@@ -218,14 +237,18 @@ const NoticeModels = {
         const res = yield call(searchNotice, limit, page, searchResWord);
         const { searchRes } = yield select(state => state.notice);
         Array.prototype.push.apply(searchRes, res.data.notice);
-        yield put({
-          type: 'save',
-          payload: {
-            searchPage: page,
-            searchLoading: false,
-            searchRes,
-          },
-        });
+        if (res.status === 'success') {
+          yield put({
+            type: 'save',
+            payload: {
+              searchPage: page,
+              searchLoading: false,
+              searchRes,
+            },
+          });
+        } else {
+          yield call(showFail, `抱歉，搜索结果加载失败。 ${res.status}`);
+        }
       }
     },
     // 获取公告详情
@@ -240,7 +263,6 @@ const NoticeModels = {
         },
       });
       const res = yield call(detailNotice, currentId);
-      console.log(res.data);
       yield put({
         type: 'save',
         payload: {
@@ -248,6 +270,9 @@ const NoticeModels = {
           currentNotice: res.data,
         },
       });
+      if (res.status !== 'success') {
+        yield call(showFail, `抱歉，通知详情拉取失败。 ${res.status}`);
+      }
     },
     // 编辑公告详情
     *handleChange(_, { call, put, select }) {
@@ -272,7 +297,6 @@ const NoticeModels = {
         currentNotice.type,
         editIsTop,
       );
-      console.log(res);
       yield put({
         type: 'save',
         payload: {
@@ -282,6 +306,8 @@ const NoticeModels = {
       });
       if (res.status === 'success') {
         yield call(showSuccess, '通知修改成功！');
+      } else {
+        yield call(showFail, `抱歉，通知修改失败。 ${res.status}`);
       }
       yield put({
         type: 'refresh',
@@ -300,7 +326,6 @@ const NoticeModels = {
       });
       const { currentId } = yield select(state => state.notice);
       const res = yield call(deleteNotcie, currentId);
-      console.log(res);
       yield put({
         type: 'save',
         payload: {
@@ -310,6 +335,8 @@ const NoticeModels = {
       });
       if (res.status === 'success') {
         yield call(showSuccess, '通知删除成功！');
+      } else {
+        yield call(showFail, `抱歉，通知删除失败。 ${res.status}`);
       }
       yield put({
         type: 'refresh',
