@@ -4,6 +4,7 @@ import { stringify } from 'querystring';
 import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
 import { getUserInfo, login } from '../services/login';
+import { pullAvaURL } from '../utils/url';
 
 const Model = {
   namespace: 'login',
@@ -37,7 +38,7 @@ const Model = {
           // 获取个人详细信息
           const getInfo = yield call(getUserInfo, userID);
           // 在这里拼好头像的url
-          getInfo.data.avatar.name = `http://pull.wghtstudio.cn/avatar/web/${getInfo.data.avatar.name}`;
+          getInfo.data.avatar.name = `${pullAvaURL}${getInfo.data.avatar.name}`;
           // 保存个人信息
           yield put({
             type: 'user/saveCurrentUser',

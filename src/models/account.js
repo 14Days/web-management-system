@@ -9,6 +9,7 @@ import {
 } from '../services/account';
 import { getUserInfo } from '../services/login';
 import { showNotification } from '../utils/common';
+import { pullAvaURL } from '../utils/url';
 
 export default {
   namespace: 'account',
@@ -182,7 +183,7 @@ export default {
       // 获取个人详细信息
       const { data } = yield call(getUserInfo, userid);
       // 在这里拼好头像的url
-      data.avatar.name = `http://pull.wghtstudio.cn/avatar/web/${data.avatar.name}`;
+      data.avatar.name = `${pullAvaURL}${data.avatar.name}`;
       // 保存个人信息
       yield put({
         type: 'user/saveCurrentUser',

@@ -44,7 +44,11 @@ const UserLayout = props => {
                 <span className={styles.title}>Fxxk Design</span>
               </Link>
             </div>
-            <div className={styles.desc}>Fxxk Design 是岳麓区最具影响力的 Web 设计规范</div>
+            <div className={styles.desc}>
+              Fxxk
+              Design是中国湖南省长沙市岳麓区湖南大学信息科学与工程学院2017级软件1703班最具影响力的
+              Web 设计规范
+            </div>
           </div>
           {children}
         </div>
