@@ -6,6 +6,7 @@ import { connect } from 'dva';
 import { formatMessage } from 'umi-plugin-react/locale';
 
 import styles from './UserLayout.less';
+import { Icon } from 'antd';
 
 const UserLayout = props => {
   const {
@@ -52,7 +53,17 @@ const UserLayout = props => {
           </div>
           {children}
         </div>
-        <DefaultFooter />
+        <DefaultFooter
+          copyright="2019 14Days 出品"
+          links={[
+            {
+              key: 'github',
+              title: <Icon type="github" />,
+              href: 'https://github.com/14Days',
+              blankTarget: true,
+            },
+          ]}
+        />
       </div>
     </>
   );

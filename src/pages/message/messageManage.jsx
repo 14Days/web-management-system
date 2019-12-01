@@ -240,11 +240,9 @@ class Message extends React.Component {
                         index,
                       },
                     });
-                    const UpdateContent = this.props.update.content;
-                    this.props.form.setFieldsValue({ UpdateContent }, () => {
-                      this.setState({
-                        visible: { update: true },
-                      });
+                    // const UpdateContent = this.props.update.content;
+                    this.setState({
+                      visible: { update: true },
                     });
                   }}
                   style={{ marginLeft: '20px' }}
