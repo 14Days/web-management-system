@@ -10,7 +10,7 @@ export default {
   menu: {
     locale: true,
   },
-  title: 'Fxxk Design Pro',
+  title: 'Design Pro',
   pwa: false,
   iconfontUrl: '',
 };

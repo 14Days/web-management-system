@@ -1,7 +1,20 @@
 import React from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { connect } from 'dva';
-import { Button, Carousel, Form, Icon, Input, List, Modal, Upload } from 'antd';
+import {
+  Avatar,
+  Button,
+  Carousel,
+  Comment,
+  Drawer,
+  Empty,
+  Form,
+  Icon,
+  Input,
+  List,
+  Modal,
+  Upload,
+} from 'antd';
 import { showNotification } from '../../utils/common';
 import './message.less';
 import { pullImgURL } from '../../utils/url';
@@ -13,6 +26,7 @@ class Message extends React.Component {
       visible: {
         Upload: false,
         Update: false,
+        Drawer: false,
       },
     };
     this.props.form.setFieldsValue({
@@ -43,6 +57,17 @@ class Message extends React.Component {
         },
       });
     };
+  };
+
+  // 抽屉弹出和弹入
+  triggerDrawer = () => {
+    const { visible } = this.state;
+    this.setState({
+      visible: {
+        ...visible,
+        Drawer: !visible.Drawer,
+      },
+    });
   };
 
   // 上传图片
@@ -219,6 +244,52 @@ class Message extends React.Component {
             {uploadButton}
           </Upload>
         </Modal>
+        {/* 抽屉显示评论 */}
+        <Drawer
+          title="一级评论详情"
+          placement="bottom"
+          closable={false}
+          height={600}
+          onClose={this.triggerDrawer}
+          visible={this.state.visible.Drawer}
+          keyboard
+        >
+          {/*
+            comment: [{
+              content,
+              create_at,
+              id,
+              second:[]
+              user:{
+                avatar,
+                id,
+                nickname
+              }
+            }]
+            TODO: 完成评论发表时间，下拉滚动，或者说页面跳转
+          */}
+          {this.props.detail.comment.length === 0 ? (
+            <Empty />
+          ) : (
+            this.props.detail.comment.map(item => (
+              <Comment
+                actions={[<a color="red">删除</a>]}
+                author={item.user.nickname}
+                avatar={<Avatar src={item.user.avatar} />}
+                content={<p>{item.content}</p>}
+              >
+                {item.second.map(ele => (
+                  <Comment
+                    actions={[<a color="red">删除</a>]}
+                    author={ele.user.nickname}
+                    avatar={<Avatar src={ele.user.avatar} />}
+                    content={<p>{ele.content}</p>}
+                  />
+                ))}
+              </Comment>
+            ))
+          )}
+        </Drawer>
         <List
           itemLayout="vertical"
           size="large"
@@ -230,7 +301,22 @@ class Message extends React.Component {
             <List.Item
               actions={[
                 <div>点赞数：{item.thumb}</div>,
-                <div>评论数：{item.comment}</div>,
+                <div
+                  onClick={() => {
+                    new Promise(resolve => {
+                      this.props.dispatch({
+                        type: 'message/getDetail',
+                        payload: item.id,
+                      });
+                      resolve();
+                    }).then(() => {
+                      this.triggerDrawer();
+                      console.log(this.props);
+                    });
+                  }}
+                >
+                  评论数：{item.comment}
+                </div>,
                 <Button
                   type="primary"
                   onClick={() => {
@@ -273,9 +359,6 @@ class Message extends React.Component {
                         alt={ele.name}
                         width={300}
                         height={300}
-                        onLoad={() => {
-                          console.log('loaded');
-                        }}
                       />
                     ))}
                   </Carousel>

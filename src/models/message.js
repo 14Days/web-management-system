@@ -1,11 +1,12 @@
 import {
   deleteMessage,
   fetchMessage,
+  getDetail,
   updateMessge,
   upload,
   uploadMessage,
 } from '../services/message';
-import { showNotification } from '../utils/common';
+import { formatAppAvaUrl, showNotification } from '../utils/common';
 import { pullImgURL } from '../utils/url';
 
 export default {
@@ -22,6 +23,9 @@ export default {
       img: [],
       old: [],
       messageID: 0,
+    },
+    detail: {
+      comment: [],
     },
   },
   reducers: {
@@ -121,6 +125,7 @@ export default {
   effects: {
     *handleInit(_, { put, call }) {
       const res = yield call(fetchMessage);
+      console.log('请求推荐消息', res);
       if (res.status === 'error') {
         showNotification('error', '拉取失败');
       } else {
@@ -221,6 +226,26 @@ export default {
         }
       } catch (e) {
         showNotification('error', '修改失败');
+      }
+    },
+    *getDetail({ payload }, { put, call }) {
+      try {
+        const res = yield call(getDetail, payload);
+        console.log(res);
+        if (res.status === 'success') {
+          // 拼接头像 url
+          res.data.comment.forEach(item => {
+            item.user.avatar = formatAppAvaUrl(item.user.avatar);
+          });
+          yield put({
+            type: 'save',
+            payload: {
+              detail: res.data,
+            },
+          });
+        }
+      } catch (e) {
+        showNotification('error', '获取评论失败');
       }
     },
   },
