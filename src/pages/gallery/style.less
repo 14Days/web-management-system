@@ -1,0 +1,84 @@
+.file {
+  height: 160px;
+.fileGroup {
+  z-index: 9900;
+  left: 0;
+  top: 0;
+  width: 100%;
+  position: relative;
+  height: 160px;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.85);
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  .fileBlock {
+    height: 150px;
+    overflow: hidden;
+    display: block;
+    border-radius: 12px;
+    .fileBlockContent {
+      position: absolute;
+      border-radius: 12px;
+      overflow: hidden;
+      .fileImg {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+      }
+    }
+    .fileBlockAfter {
+      border-radius: 12px;
+      position: absolute;
+      background-color: rgba(0, 0, 0, 0.75);
+      height: 150px;
+      width: 97%;
+      padding: 24px;
+      overflow: hidden;
+      overflow-wrap: break-word;
+      p {
+        font-weight: 700;
+        font-size: 24px;
+        color: rgba(255, 255, 255, 0.85);
+      }
+    }
+  }
+  // https://s2.ax1x.com/2019/12/11/QsuV2t.jpg
+}
+  .fileGroup:hover {
+    height: fit-content;
+  }
+}
+
+.imgGroup{
+  margin-top: 20px;
+  .imgCase {
+    margin: 4px;
+    .imgBox {
+      display: block;
+      height: 200px;
+      overflow: hidden;
+      .img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 200px;
+      overflow: hidden;
+      .imgSelf {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+      }
+    }
+    .imgAfter {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      span {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 30px;
+        margin: 0;
+      }
+    }
+  } 
+  }
+}

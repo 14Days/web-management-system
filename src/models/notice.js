@@ -134,6 +134,7 @@ const NoticeModels = {
       const page = 0;
       const res = yield call(getNotice, limit, page);
       // ****** res 处理 *****
+      console.log(res);
       // 将结果直接替换旧的结果
       if (res.status === 'success') {
         yield put({

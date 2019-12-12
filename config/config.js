@@ -102,12 +102,20 @@ export default {
           authority: ['admin', 'user'],
           routes: [
             {
+              path: '/gallery/index',
+              name: '图库',
+              icon: 'line-chart',
+              component: './gallery/index',
+              authority: '',
+            },
+            {
               path: '/statistics/index',
               name: '统计信息',
               icon: 'line-chart',
               component: './statistics/index',
               authority: '',
             },
+            
             {
               path: '/account',
               name: '账户管理',

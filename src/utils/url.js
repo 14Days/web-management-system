@@ -5,6 +5,7 @@ const baseURL = 'https://wghtstudio.cn/back';
 // }
 
 const userURL = `${baseURL}/user`;
+
 // 获取所有的管理员用户信息
 export const getUserURL = userURL;
 
@@ -64,3 +65,24 @@ export const pullAvaURL = 'http://pull.wghtstudio.cn/avatar/web/';
 
 // 拉取素材图片
 export const pullImgURL = 'http://pull.wghtstudio.cn/img/';
+
+// 获取文件夹表
+export const getFileURL = `${baseURL}/gallery`;
+
+// 新建文件夹
+export const newFileURL = 'http://yapi.wghtstudio.cn/mock/21/gallery';
+
+// 更改文件夹名称
+export const renameFileURL = 'http://yapi.wghtstudio.cn/mock/21/gallery/';
+
+// 删除文件夹
+export const deleteFileURL = 'http://yapi.wghtstudio.cn/mock/21/gallery/';
+
+// 获取图片
+export const getImgURL = `${baseURL}/gallery/`;
+
+// 更改图片文件夹
+export const moveImgURL = `http://yapi.wghtstudio.cn/mock/21/gallery/img/move`;
+
+// 删除图片
+export const deleteImgURL = `http://yapi.wghtstudio.cn/mock/21/gallery/img/delete`;
