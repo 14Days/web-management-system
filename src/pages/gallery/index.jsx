@@ -96,7 +96,7 @@ class Notice extends Component {
       >
         <div className={styles.file}>
         <Affix offsetTop={0} >
-          <Row className={styles.fileGroup} gutter={[20, 10]} align="top">
+          <Row className={styles.fileGroup} gutter={[30, 30]} align="top">
           <Col xl={6} lg={8} md={8} sm={12} xs={12}>
                 <div className={styles.fileBlock}>
                   <div className={styles.fileBlockContent}>
@@ -104,6 +104,23 @@ class Notice extends Component {
                   </div>
                   <div className={styles.fileBlockAfter}>
   <p>{nowFile.name}{nowFile.id === 0 ? <div/> : <Icon type="edit" style={{ color: 'rgba(255, 255, 255, 0.6)' }} />}</p>
+                  </div>
+                </div>
+              </Col>
+              <Col xl={6} lg={8} md={8} sm={12} xs={12}>
+                <div
+                  className={styles.fileNotNow}
+                  onClick={() => {
+                    dispatch({
+                      type: 'gallery/changeNewFile',
+                    })
+                  }}
+                >
+                  <div className={styles.fileBlockContent}>
+                    <img className={styles.fileImg} src="https://s2.ax1x.com/2019/12/11/QsuV2t.jpg" alt=""/>
+                  </div>
+                  <div className={styles.fileBlockAfter}>
+            {newFile ? dealNewFile : <p><Icon type="plus"/> 新建分类</p>}
                   </div>
                 </div>
               </Col>
@@ -123,23 +140,6 @@ class Notice extends Component {
             ))
           })
           }
-          <Col xl={6} lg={8} md={8} sm={12} xs={12}>
-                <div
-                  className={styles.fileNotNow}
-                  onClick={() => {
-                    dispatch({
-                      type: 'gallery/changeNewFile',
-                    })
-                  }}
-                >
-                  <div className={styles.fileBlockContent}>
-                    <img className={styles.fileImg} src="https://s2.ax1x.com/2019/12/11/QsuV2t.jpg" alt=""/>
-                  </div>
-                  <div className={styles.fileBlockAfter}>
-            {newFile ? dealNewFile : <p><Icon type="plus"/> 新建分类</p>}
-                  </div>
-                </div>
-              </Col>
           </Row>
           </Affix>
           </div>
