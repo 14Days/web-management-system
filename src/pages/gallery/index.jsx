@@ -12,7 +12,7 @@ import styles from './style.less';
 class Notice extends Component {
   state = {};
 
-  arr = [0, 1, 2, 3, 0, 1, 2, 3];
+  arr = [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3];
 
   componentWillMount() {
     const { dispatch, gallery } = this.props;
@@ -27,10 +27,47 @@ class Notice extends Component {
       last,
       files,
       imgs,
+      newFile,
+      newFileName,
       imgLoading,
+      nowFile,
     } = gallery;
 
-    const content = 'hello';
+    const dealNewFile = (
+      <div>
+        <Input
+        style={{ width: '80%' }}
+        defaultValue={newFileName}
+        autoFocus
+        onChange={e => {
+          dispatch({
+            type: 'gallery/save',
+            payload: {
+              newFileName: e.target.value,
+            },
+          })
+        }}
+        onPressEnter={() => {
+          dispatch({
+            type: 'gallery/dealNewFile',
+          })
+        }}
+        onClick={e => {
+          e.stopPropagation();
+        }}
+        />
+        <Icon
+          type="check"
+          style={{ margin: 'auto 2%', color: 'white', fontSize: '20px' }}
+          onClick={e => {
+            e.stopPropagation();
+            dispatch({
+              type: 'gallery/dealNewFile',
+            });
+          }}
+        />
+      </div>
+    )
     return (
       <PageHeaderWrapper
         title="图库"
@@ -47,7 +84,7 @@ class Notice extends Component {
                     type: 'gallery/imgRefresh',
                     payload: {
                       fileId: -1,
-                    }
+                    },
                   });
                 }}
               >
@@ -66,33 +103,40 @@ class Notice extends Component {
                     <img className={styles.fileImg} src="https://s2.ax1x.com/2019/12/11/QsuV2t.jpg" alt=""/>
                   </div>
                   <div className={styles.fileBlockAfter}>
-            <p>未分类</p>
+  <p>{nowFile.name}{nowFile.id === 0 ? <div/> : <Icon type="edit" style={{ color: 'rgba(255, 255, 255, 0.6)' }} />}</p>
                   </div>
                 </div>
               </Col>
-          { files.map(item => {
+          {files.map(item => {
             console.log("index");
-            return (
+            return (item.id === nowFile.id ? <div /> : (
               <Col xl={6} lg={8} md={8} sm={12} xs={12}>
-                <div className={styles.fileBlock}>
+                <div className={styles.fileNotNow}>
                   <div className={styles.fileBlockContent}>
                     <img className={styles.fileImg} src="https://s2.ax1x.com/2019/12/11/QsuV2t.jpg" alt=""/>
                   </div>
                   <div className={styles.fileBlockAfter}>
-            <p>{item.name}</p>
+            <p>{item.name}{item.id === 0 ? <div/> : <span><Icon type="edit" style={{ color: 'rgba(255, 255, 255, 0.3)', fontSize: '16px', margin: '8px 2%' }} /><Icon type="close" style={{ color: 'rgba(255, 255, 255, 0.3)', fontSize: '16px', margin: '8px 2%' }}/></span>}</p>
                   </div>
                 </div>
               </Col>
-            )
+            ))
           })
           }
           <Col xl={6} lg={8} md={8} sm={12} xs={12}>
-                <div className={styles.fileBlock}>
+                <div
+                  className={styles.fileNotNow}
+                  onClick={() => {
+                    dispatch({
+                      type: 'gallery/changeNewFile',
+                    })
+                  }}
+                >
                   <div className={styles.fileBlockContent}>
                     <img className={styles.fileImg} src="https://s2.ax1x.com/2019/12/11/QsuV2t.jpg" alt=""/>
                   </div>
                   <div className={styles.fileBlockAfter}>
-            <p>新建分类</p>
+            {newFile ? dealNewFile : <p><Icon type="plus"/> 新建分类</p>}
                   </div>
                 </div>
               </Col>
@@ -100,7 +144,7 @@ class Notice extends Component {
           </Affix>
           </div>
         <Row className={styles.imgGroup} gutter={[0, 0]} align="top">
-        { imgs.map(item => {
+        {imgs.map(item => {
             console.log(item);
             const usedTip = item.count === 0 ? <div/> : <span><Icon type="pushpin" theme="filled" /></span>;
             return (
@@ -133,7 +177,6 @@ class Notice extends Component {
           })
           }
         </Row>
-        <p>{ content }</p>
       </PageHeaderWrapper>
     );
   }

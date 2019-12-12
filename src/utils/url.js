@@ -70,7 +70,7 @@ export const pullImgURL = 'http://pull.wghtstudio.cn/img/';
 export const getFileURL = `${baseURL}/gallery`;
 
 // 新建文件夹
-export const newFileURL = 'http://yapi.wghtstudio.cn/mock/21/gallery';
+export const newFileURL = `${baseURL}/gallery`;
 
 // 更改文件夹名称
 export const renameFileURL = 'http://yapi.wghtstudio.cn/mock/21/gallery/';

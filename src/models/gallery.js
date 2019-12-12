@@ -37,7 +37,7 @@ const GalleryModels = {
     imgLoading: false,
     imgs: [],
     files: [],
-    nowFile: { id: 0 },
+    nowFile: { id: 0, name: '未分类' },
     page: 0,
     count: 0,
     last: Date(),
@@ -50,6 +50,13 @@ const GalleryModels = {
         ...prev,
         ...payload,
       };
+    },
+    changeNewFile(prev) {
+      return {
+        ...prev,
+        newFile: !prev.newFile,
+        newFileName: '',
+      }
     },
   },
   effects: {
@@ -67,17 +74,19 @@ const GalleryModels = {
         type: 'imgRefresh',
         payload: {
           fileId: 0,
-        }
+        },
       });
     },
-    *fileRefresh(_, { call, select, put }) {
+    *fileRefresh(_, { call, put }) {
       const res = yield call(getFile);
       console.log(res);
+      const dirs = [{ id: 0, name: '未分类' }];
+      Array.prototype.push.apply(dirs, res.data.dirs);
       if (1 || res.status === 'success') {
         yield put({
           type: 'save',
           payload: {
-            files: res.data.dirs,
+            files: dirs,
             last: Date(),
           },
         })
@@ -101,6 +110,19 @@ const GalleryModels = {
             last: Date(),
           },
         })
+      }
+    },
+    *dealNewFile(_, { call, select, put }) {
+      const { newFileName } = yield select(state => state.gallery);
+      yield put({
+        type: 'changeNewFile',
+      });
+      if (newFileName !== '') {
+        const res = yield call(newFile, newFileName);
+        console.log(res);
+        yield put({
+          type: 'fileRefresh',
+        });
       }
     },
   },
