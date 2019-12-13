@@ -35,6 +35,15 @@ export default {
         ...payload,
       };
     },
+    clear(state) {
+      return {
+        ...state,
+        upload: {
+          content: '',
+          img: [],
+        },
+      };
+    },
     delete(state, { payload }) {
       const { message } = state;
       const { index } = payload;
@@ -124,32 +133,33 @@ export default {
   },
   effects: {
     *handleInit(_, { put, call }) {
-      const res = yield call(fetchMessage);
-      console.log('请求推荐消息', res);
-      if (res.status === 'error') {
+      try {
+        const res = yield call(fetchMessage);
+        console.log('请求推荐消息', res);
+        if (res.status === 'error') {
+          showNotification('error', '拉取失败');
+        } else {
+          yield put({
+            type: 'save',
+            payload: {
+              message: res.data.res,
+              total: res.data.count,
+            },
+          });
+        }
+      } catch (e) {
         showNotification('error', '拉取失败');
-      } else {
-        yield put({
-          type: 'save',
-          payload: {
-            message: res.data.res,
-            total: res.data.count,
-          },
-        });
       }
     },
     *handleDelete({ payload }, { put, call }) {
-      const { id, index } = payload;
+      const { id } = payload;
       try {
         const res = yield call(deleteMessage, [id]); // 对接口变成数组
 
         if (res.status === 'success') {
           showNotification('success', '删除成功');
           yield put({
-            type: 'delete',
-            payload: {
-              index,
-            },
+            type: 'handleInit',
           });
         }
       } catch (e) {
@@ -186,18 +196,12 @@ export default {
           res.status === 'success' ? '上传成功' : res.err_msg || '上传失败',
         );
         if (res.status === 'success') {
-          yield put({
-            type: 'handleInit',
-          });
           // 清空已上传图片列表
           yield put({
-            type: 'save',
-            payload: {
-              upload: {
-                content: '',
-                img: [],
-              },
-            },
+            type: 'clear',
+          });
+          yield put({
+            type: 'handleInit',
           });
         }
       } catch (e) {
@@ -209,12 +213,8 @@ export default {
       const {
         update: { old, messageID },
       } = yield select(state => state.message);
-      console.log('content', content);
-      console.log('img', img);
-      console.log('old', old);
       try {
         const res = yield call(updateMessge, messageID, content, img, old);
-        console.log('res', res);
         showNotification(
           res.status,
           res.status === 'success' ? '修改成功' : res.err_msg || '修改失败',
@@ -237,10 +237,22 @@ export default {
           res.data.comment.forEach(item => {
             item.user.avatar = formatAppAvaUrl(item.user.avatar);
           });
+          const { thumb_user: thumbs } = res.data;
+          let thumbInfo;
+          for (let i = 0; i < thumbs.length; i += 1) {
+            if (i > 6 || i === thumbs.length - 1) {
+              thumbInfo += `等${thumbs.length}人点赞`;
+            } else {
+              thumbInfo += i === thumbs.length - 1 ? thumbs[i] : `${thumbs[i]}、`;
+            }
+          }
           yield put({
             type: 'save',
             payload: {
-              detail: res.data,
+              detail: {
+                ...res.data,
+                thumbInfo,
+              },
             },
           });
         }
