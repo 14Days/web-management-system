@@ -14,18 +14,17 @@ class SecurityLayout extends React.Component {
       isReady: true,
     });
     const userID = sessionStorage.getItem('userID');
-    console.log('userID', userID);
-    this.props.dispatch({
-      type: 'login/fetchUserInfo',
-      payload: userID,
-    });
+    if (userID) {
+      this.props.dispatch({
+        type: 'login/fetchUserInfo',
+        payload: userID,
+      });
+    }
   }
 
   render() {
     const { isReady } = this.state;
-    const { children, loading, currentUser } = this.props;
-    console.log('currentUser', currentUser);
-    console.log('cookies', document.session);
+    const { children, loading } = this.props;
     const isLogin = sessionStorage.getItem('userID');
     const queryString = stringify({
       redirect: window.location.href,

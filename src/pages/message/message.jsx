@@ -13,8 +13,8 @@ import {
   Input,
   List,
   Modal,
-  Upload,
   Tooltip,
+  Upload,
 } from 'antd';
 import { showNotification } from '../../utils/common';
 import './message.less';
@@ -296,6 +296,7 @@ class Message extends React.Component {
           }}
           renderItem={(item, index) => (
             <List.Item
+              style={{ borderBottomWidth: '2px', borderBottomColor: '#8e8e8e' }}
               actions={[
                 <Tooltip title={this.props.detail.thumbInfo}>
                   {/* TODO 提示每次都要重新拉数据 */}
@@ -342,7 +343,6 @@ class Message extends React.Component {
                       type: 'message/handleDelete',
                       payload: {
                         id: item.id,
-                        index,
                       },
                     });
                   }}
@@ -353,12 +353,12 @@ class Message extends React.Component {
               ]}
               extra={
                 <div>
-                  <Carousel autoplay style={{ width: '450px' }}>
+                  <Carousel autoplay style={{ width: '400px' }}>
                     {item.img_url.map(ele => (
                       <img
                         src={`${pullImgURL}${ele.name}`}
                         alt={ele.name}
-                        width={300}
+                        width={400}
                         height={300}
                       />
                     ))}
