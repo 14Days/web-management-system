@@ -14,6 +14,7 @@ import {
   List,
   Modal,
   Upload,
+  Tooltip,
 } from 'antd';
 import { showNotification } from '../../utils/common';
 import './message.less';
@@ -33,7 +34,6 @@ class Message extends React.Component {
       UpdateContent: '',
       UploadContent: '',
     });
-    this.handleOk = this.handleOk.bind(this);
   }
 
   componentWillMount() {
@@ -72,14 +72,12 @@ class Message extends React.Component {
 
   // 上传图片
   handleUpload = action => {
-    console.log('action', action);
     const { file } = action;
     this.getBase64(file);
   };
 
   // 上传组件变化时触发
   handleChange = ({ fileList }) => {
-    console.log('update, filelist', fileList);
     const model = this.state.visible.update === true ? 'update' : 'upload';
     if (this.props[model].img.length > fileList.length) {
       const origin = this.props[model];
@@ -93,7 +91,6 @@ class Message extends React.Component {
         },
       });
     }
-    console.log(this.props);
   };
 
   // Modal 取消按钮
@@ -108,7 +105,7 @@ class Message extends React.Component {
   };
 
   // Modal 确定按钮
-  handleOk() {
+  handleOk = () => {
     // 标记打开了哪一个对话框
     const model = this.state.visible.update === true ? 'Update' : 'Upload';
 
@@ -146,7 +143,7 @@ class Message extends React.Component {
 
     // 上传成功后要把 state 清空
     this.props.form.resetFields();
-  }
+  };
 
   render() {
     const { getFieldDecorator } = this.props.form;
@@ -300,7 +297,10 @@ class Message extends React.Component {
           renderItem={(item, index) => (
             <List.Item
               actions={[
-                <div>点赞数：{item.thumb}</div>,
+                <Tooltip title={this.props.detail.thumbInfo}>
+                  {/* TODO 提示每次都要重新拉数据 */}
+                  <div>点赞数：{item.thumb}</div>
+                </Tooltip>,
                 <div
                   onClick={() => {
                     new Promise(resolve => {
@@ -347,6 +347,7 @@ class Message extends React.Component {
                     });
                   }}
                 >
+                  {/* TODO 删除时要有提示 */}
                   删除
                 </Button>,
               ]}
