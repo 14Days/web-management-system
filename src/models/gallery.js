@@ -1,5 +1,13 @@
 import { Modal } from 'antd';
-import { getFile, newFile, renameFile, deleteFile, getImg, moveImg, deleteImg } from '../services/gallery';
+import {
+  getFile,
+  newFile,
+  renameFile,
+  deleteFile,
+  getImg,
+  moveImg,
+  deleteImg
+} from '../services/gallery';
 
 // 用于快速搜索计算延时
 function delayWaiting(ms) {
@@ -37,12 +45,25 @@ const GalleryModels = {
     imgLoading: false,
     imgs: [],
     files: [],
-    nowFile: { id: 0, name: '未分类' },
+    nowFile: {
+      id: 0,
+      name: '未归档',
+    },
     page: 0,
     count: 0,
     last: Date(),
     newFile: false,
     newFileName: '',
+    editFile: {
+      id: 0,
+      name: '未归档',
+    },
+    editFileState: false,
+    toDeleteFile: {
+      id: 0,
+      name: '未归档',
+    },
+    toDeleteFileState: false,
   },
   reducers: {
     save(prev, { payload }) {
@@ -50,6 +71,16 @@ const GalleryModels = {
         ...prev,
         ...payload,
       };
+    },
+    saveFileName(prev, { payload }) {
+      const { name } = payload;
+      return {
+        ...prev,
+        editFile: {
+          ...prev.editFile,
+          name,
+        },
+      }
     },
     changeNewFile(prev) {
       return {
@@ -60,14 +91,17 @@ const GalleryModels = {
     },
   },
   effects: {
-    *allRefresh(_, { put }) {
+    * allRefresh(_, { put }) {
       yield put({
         type: 'fileRefresh',
       });
       yield put({
         type: 'save',
         payload: {
-          nowFile: { id: 0, name: '未分类' },
+          nowFile: {
+            id: 0,
+            name: '未归档',
+          },
         },
       })
       yield put({
@@ -77,10 +111,13 @@ const GalleryModels = {
         },
       });
     },
-    *fileRefresh(_, { call, put }) {
+    * fileRefresh(_, { call, put }) {
       const res = yield call(getFile);
       console.log(res);
-      const dirs = [{ id: 0, name: '未分类' }];
+      const dirs = [{
+        id: 0,
+        name: '未归档',
+      }];
       Array.prototype.push.apply(dirs, res.data.dirs);
       if (1 || res.status === 'success') {
         yield put({
@@ -92,7 +129,7 @@ const GalleryModels = {
         })
       }
     },
-    *imgRefresh({ payload }, { call, select, put }) {
+    * imgRefresh({ payload }, { call, select, put }) {
       let { fileId } = payload;
       const gallery = yield select(state => state.gallery);
       if (fileId === -1) {
@@ -112,7 +149,7 @@ const GalleryModels = {
         })
       }
     },
-    *dealNewFile(_, { call, select, put }) {
+    * dealNewFile(_, { call, select, put }) {
       const { newFileName } = yield select(state => state.gallery);
       yield put({
         type: 'changeNewFile',
@@ -124,6 +161,50 @@ const GalleryModels = {
           type: 'fileRefresh',
         });
       }
+    },
+    * dealRenameFile(_, { call, select, put }) {
+      const { editFile } = yield select(state => state.gallery);
+      const { id, name } = editFile;
+      if (name !== '') {
+        yield put({
+          type: 'save',
+          payload: {
+            editFileState: false,
+          },
+        });
+        const { files } = yield select(state => state.gallery);
+        files.forEach((item, index) => {
+          if (item.id === id) {
+            files[index].name = name;
+          }
+        });
+        yield put({
+          type: 'save',
+          payload: {
+            files,
+          },
+        })
+        const res = yield call(renameFile, id, name);
+        if (res.status === 'success') {
+          yield put({
+            type: 'fileRefresh',
+          });
+        }
+      }
+    },
+    * dealDeleteFile(_, { call, select, put }) {
+      yield put({
+        type: 'save',
+        payload: {
+          toDeleteFileState: false,
+        },
+      })
+      const { toDeleteFile } = yield select(state => state.gallery);
+      const res = yield call(deleteFile, toDeleteFile.id);
+      console.log(res)
+      yield put({
+        type: 'fileRefresh',
+      })
     },
   },
 };

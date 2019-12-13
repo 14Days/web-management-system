@@ -73,10 +73,10 @@ export const getFileURL = `${baseURL}/gallery`;
 export const newFileURL = `${baseURL}/gallery`;
 
 // 更改文件夹名称
-export const renameFileURL = 'http://yapi.wghtstudio.cn/mock/21/gallery/';
+export const renameFileURL = `${baseURL}/gallery/`;
 
 // 删除文件夹
-export const deleteFileURL = 'http://yapi.wghtstudio.cn/mock/21/gallery/';
+export const deleteFileURL = `${baseURL}/gallery/`;
 
 // 获取图片
 export const getImgURL = `${baseURL}/gallery/`;
