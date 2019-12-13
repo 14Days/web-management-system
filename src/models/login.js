@@ -4,12 +4,12 @@ import { stringify } from 'querystring';
 import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
 import { getUserInfo, login } from '../services/login';
-import { pullAvaURL } from '../utils/url';
+import { pullWebAvaURL } from '../utils/url';
 
 const Model = {
   namespace: 'login',
   state: {
-    status: undefined,
+    status: 'ok',
     loading: false,
   },
   effects: {
@@ -38,7 +38,7 @@ const Model = {
           // 获取个人详细信息
           const getInfo = yield call(getUserInfo, userID);
           // 在这里拼好头像的url
-          getInfo.data.avatar.name = `${pullAvaURL}${getInfo.data.avatar.name}`;
+          getInfo.data.avatar.name = `${pullWebAvaURL}${getInfo.data.avatar.name}`;
           // 保存个人信息
           yield put({
             type: 'user/saveCurrentUser',
@@ -49,8 +49,10 @@ const Model = {
               ...getInfo.data,
             },
           });
-
-          // 官方跳转
+          // 保存登录者信息
+          sessionStorage.setItem('userID', userID);
+          sessionStorage.setItem('userInfo', JSON.stringify(getInfo.data));
+          // 官方写的跳转
           const urlParams = new URL(window.location.href);
           const params = getPageQuery();
           let { redirect } = params;
@@ -89,7 +91,25 @@ const Model = {
         });
       }
     },
-
+    *fetchUserInfo({ payload }, { call, put }) {
+      try {
+        const getInfo = yield call(getUserInfo, payload);
+        console.log('getUserInfo', getInfo);
+        getInfo.data.avatar.name = `${pullWebAvaURL}${getInfo.data.avatar.name}`;
+        // 保存个人信息
+        yield put({
+          type: 'user/saveCurrentUser',
+          payload: {
+            name: `${getInfo.data.nickname}`,
+            userid: payload,
+            // 在这里展开所有的个人详细信息，保存在 user model 里面
+            ...getInfo.data,
+          },
+        });
+      } catch (e) {
+        console.log('未曾登录');
+      }
+    },
     *logout(_, { put }) {
       const { redirect } = getPageQuery(); // redirect
 

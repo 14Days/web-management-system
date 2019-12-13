@@ -6,6 +6,7 @@ import { connect } from 'dva';
 import { formatMessage } from 'umi-plugin-react/locale';
 
 import styles from './UserLayout.less';
+import { Icon } from 'antd';
 
 const UserLayout = props => {
   const {
@@ -41,18 +42,28 @@ const UserLayout = props => {
                 <span role="img" aria-label="" style={{ fontSize: '24px', marginRight: '20px' }}>
                   👿
                 </span>
-                <span className={styles.title}>Fxxk Design</span>
+                <span className={styles.title}>Design</span>
               </Link>
             </div>
             <div className={styles.desc}>
-              Fxxk
-              Design是中国湖南省长沙市岳麓区湖南大学信息科学与工程学院2017级软件1703班最具影响力的
-              Web 设计规范
+              Design
+              Pro是中国湖南省长沙市岳麓区湖南大学信息科学与工程学院2017级软件1703班最具影响力的 Web
+              设计规范
             </div>
           </div>
           {children}
         </div>
-        <DefaultFooter />
+        <DefaultFooter
+          copyright="2019 14Days 出品"
+          links={[
+            {
+              key: 'github',
+              title: <Icon type="github" />,
+              href: 'https://github.com/14Days',
+              blankTarget: true,
+            },
+          ]}
+        />
       </div>
     </>
   );
