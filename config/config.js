@@ -94,13 +94,19 @@ export default {
       routes: [
         {
           path: '/',
-          redirect: './statistics/index',
+          redirect: './notice',
         },
         {
           path: '/',
           component: '../layouts/BasicLayout',
           authority: ['admin', 'user'],
           routes: [
+            {
+              name: '公告信息管理',
+              path: '/notice',
+              icon: 'message',
+              component: './notice',
+            },
             {
               path: '/statistics/index',
               name: '统计信息',
@@ -116,15 +122,15 @@ export default {
               routes: [
                 {
                   name: '查找账户',
-                  path: '/account/find',
+                  path: './find',
                   icon: 'user',
                   component: './account/find',
                 },
                 {
                   name: '新建账户',
-                  path: '/account/create',
+                  path: './create',
                   icon: 'user-add',
-                  component: './Account/create',
+                  component: './account/create',
                 },
                 {
                   component: './account/settings',
@@ -133,15 +139,15 @@ export default {
             },
             {
               name: '推荐消息管理',
-              path: '/message/messageManage',
+              path: '/message/message',
               icon: 'picture',
-              component: './message/messageManage',
-            },
-            {
-              name: '公告信息管理',
-              path: '/notice',
-              icon: 'message',
-              component: './notice',
+              component: './message/message',
+              routes: [
+                {
+                  path: './comment',
+                  breadcrumbName: 'Third-level Menu',
+                },
+              ],
             },
             {
               component: './404',

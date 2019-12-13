@@ -59,8 +59,14 @@ export const uploadAvatarURL = `${baseURL}/user/avatar`;
 // 修改推荐消息
 export const updateMessageURL = `${baseURL}/img`;
 
-// 拉取头像图片
-export const pullAvaURL = 'http://pull.wghtstudio.cn/avatar/web/';
+// 获取推荐消息详情
+export const getMessageDetailURL = `${baseURL}/img`;
+
+// 拉取web头像图片
+export const pullWebAvaURL = 'http://pull.wghtstudio.cn/avatar/web/';
+
+// 拉取app头像图片
+export const pullAppAvaURL = 'http://pull.wghtstudio.cn/avatar/app/';
 
 // 拉取素材图片
 export const pullImgURL = 'http://pull.wghtstudio.cn/img/';

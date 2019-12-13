@@ -1,5 +1,6 @@
 import {
   deleteMessageURL,
+  getMessageDetailURL,
   getMessageURL,
   updateMessageURL,
   uploadImgURL,
@@ -37,13 +38,19 @@ export async function uploadMessage(content, img) {
   });
 }
 
-export async function updateMessge(content, img, old) {
-  return request(updateMessageURL, {
+export async function updateMessge(messageID, content, img, old) {
+  return request(`${updateMessageURL}/${messageID}`, {
     method: 'put',
     data: {
       content,
       new_img_id: img,
       old_img_id: old,
     },
+  });
+}
+
+export async function getDetail(id) {
+  return request(`${getMessageDetailURL}/${id}`, {
+    method: 'get',
   });
 }

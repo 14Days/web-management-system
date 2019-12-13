@@ -1,11 +1,12 @@
 import {
   deleteMessage,
   fetchMessage,
+  getDetail,
   updateMessge,
   upload,
   uploadMessage,
 } from '../services/message';
-import { showNotification } from '../utils/common';
+import { formatAppAvaUrl, showNotification } from '../utils/common';
 import { pullImgURL } from '../utils/url';
 
 export default {
@@ -21,6 +22,10 @@ export default {
       content: '',
       img: [],
       old: [],
+      messageID: 0,
+    },
+    detail: {
+      comment: [],
     },
   },
   reducers: {
@@ -94,6 +99,7 @@ export default {
       // message.img_url.{id, name}
       const format = [];
       const old = [];
+      console.log(handle);
       handle.img_url.forEach((item, i) => {
         format.push({
           imgID: item.id,
@@ -107,6 +113,7 @@ export default {
         content: handle.content,
         img: format,
         old,
+        messageID: handle.id,
       };
       console.log('uuuupdate', update);
       return {
@@ -118,6 +125,7 @@ export default {
   effects: {
     *handleInit(_, { put, call }) {
       const res = yield call(fetchMessage);
+      console.log('请求推荐消息', res);
       if (res.status === 'error') {
         showNotification('error', '拉取失败');
       } else {
@@ -199,13 +207,13 @@ export default {
     *handleUpdateMessage({ payload }, { put, call, select }) {
       const { content, img } = payload;
       const {
-        update: { old },
+        update: { old, messageID },
       } = yield select(state => state.message);
       console.log('content', content);
       console.log('img', img);
       console.log('old', old);
       try {
-        const res = yield call(updateMessge, content, img, old);
+        const res = yield call(updateMessge, messageID, content, img, old);
         console.log('res', res);
         showNotification(
           res.status,
@@ -218,6 +226,26 @@ export default {
         }
       } catch (e) {
         showNotification('error', '修改失败');
+      }
+    },
+    *getDetail({ payload }, { put, call }) {
+      try {
+        const res = yield call(getDetail, payload);
+        console.log(res);
+        if (res.status === 'success') {
+          // 拼接头像 url
+          res.data.comment.forEach(item => {
+            item.user.avatar = formatAppAvaUrl(item.user.avatar);
+          });
+          yield put({
+            type: 'save',
+            payload: {
+              detail: res.data,
+            },
+          });
+        }
+      } catch (e) {
+        showNotification('error', '获取评论失败');
       }
     },
   },

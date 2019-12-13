@@ -9,25 +9,24 @@ class SecurityLayout extends React.Component {
     isReady: false,
   };
 
-  componentDidMount() {
+  componentWillMount() {
     this.setState({
       isReady: true,
     });
-    const { dispatch } = this.props;
-
-    if (dispatch) {
-      dispatch({
-        type: 'user/fetchCurrent',
-      });
-    }
+    const userID = sessionStorage.getItem('userID');
+    console.log('userID', userID);
+    this.props.dispatch({
+      type: 'login/fetchUserInfo',
+      payload: userID,
+    });
   }
 
   render() {
     const { isReady } = this.state;
     const { children, loading, currentUser } = this.props;
-    // 你可以把它替换成你自己的登录认证规则（比如判断 token 是否存在）
-
-    const isLogin = currentUser && currentUser.userid;
+    console.log('currentUser', currentUser);
+    console.log('cookies', document.session);
+    const isLogin = sessionStorage.getItem('userID');
     const queryString = stringify({
       redirect: window.location.href,
     });
