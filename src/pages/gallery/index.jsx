@@ -286,8 +286,8 @@ class Notice extends Component {
                     bordered={false}
                     actions={[
                       <Icon type="setting" key="setting"/>,
-                      <Icon type="edit" key="edit"/>,
-                      <Icon type="ellipsis" key="ellipsis"/>,
+                      <Icon type="plus-square" key="plus-square"/>,
+                      <Icon type="close" key="close"/>,
                     ]}
                     cover={
                       <div className={styles.imgBox}>
