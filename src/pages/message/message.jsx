@@ -19,6 +19,8 @@ import {
 import { showNotification } from '../../utils/common';
 import { pullImgURL } from '../../utils/url';
 
+import styles from './message.less';
+
 class Message extends React.Component {
   constructor(props) {
     super(props);
@@ -135,9 +137,15 @@ class Message extends React.Component {
      */
     const { img: imgs } = this.props[model.toLowerCase()];
     const img = [];
+    let isAllReady = true;
     imgs.forEach(item => {
+      if (item.status === 'uploading') isAllReady = false;
       img.push(item.imgID);
     });
+    if (!isAllReady) {
+      showNotification('error', '请等待所有图片完成上传哦😬');
+      return;
+    }
     this.props.dispatch({
       type: `message/handle${model}Message`,
       payload: {
@@ -324,7 +332,6 @@ class Message extends React.Component {
                       resolve();
                     }).then(() => {
                       this.triggerDrawer();
-                      console.log(this.props);
                     });
                   }}
                 >
@@ -364,7 +371,7 @@ class Message extends React.Component {
               ]}
               extra={
                 <div>
-                  <Carousel autoplay style={{ width: '400px' }}>
+                  <Carousel className={styles.carousel} autoplay>
                     {item.img_url.map(ele => (
                       <img
                         src={`${pullImgURL}${ele.name}`}

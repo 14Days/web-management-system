@@ -43,6 +43,7 @@ export default {
         upload: {
           content: '',
           img: [],
+          inc: 0,
         },
       };
     },
