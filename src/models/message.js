@@ -15,10 +15,12 @@ export default {
     total: 0,
     message: [],
     upload: {
+      inc: 0,
       content: '',
       img: [],
     },
     update: {
+      inc: 0,
       content: '',
       img: [],
       old: [],
@@ -44,14 +46,22 @@ export default {
         },
       };
     },
-    delete(state, { payload }) {
-      const { message } = state;
-      const { index } = payload;
-      message.splice(index, 1);
-      const ret = JSON.parse(JSON.stringify(message));
+    // 上传图片显示加载中
+    loading(state, { payload }) {
+      const { model } = payload;
+      const up = state[model];
+      const { inc } = up;
+      const img = JSON.parse(JSON.stringify(up.img));
+      img.push({
+        uid: inc,
+        status: 'uploading',
+      });
       return {
         ...state,
-        message: ret,
+        [model]: {
+          ...up,
+          img,
+        },
       };
     },
     // 上传单张图片
@@ -59,36 +69,37 @@ export default {
       // 用本地 url
       const { imgID, url, status, model } = payload;
       const {
-        [model]: { img },
+        [model]: { img, inc },
       } = state;
-      console.log('uploadSuccess', payload);
-      const uid = img.length === 0 ? 0 : img[img.length - 1].uid + 1;
-      img.push({
-        uid,
-        imgID,
-        status,
-        url,
+      const ret = JSON.parse(JSON.stringify(img));
+      ret.forEach(e => {
+        if (e.uid === inc) {
+          e.status = status;
+          e.imgID = imgID;
+          e.url = url;
+        }
       });
       const origin = state[model];
       return {
         ...state,
         [model]: {
           ...origin,
-          img,
+          img: ret,
+          inc: inc + 1,
         },
       };
     },
-    deleteUpload(state, { payload }) {
-      const {
-        upload: { img },
-      } = state;
-      const { uid } = payload;
-      img.splice(uid, 1);
+    delete(state, { payload }) {
+      const { uid, model } = payload;
+      const up = state[model];
+      console.log(model, up);
 
+      const res = up.img.filter(e => e.uid !== uid); // 找出不等于 uid 的
       return {
         ...state,
-        upload: {
-          img,
+        [model]: {
+          ...up,
+          img: res,
         },
       };
     },
@@ -106,16 +117,17 @@ export default {
       const handle = message[index];
       let update = {};
       // message.img_url.{id, name}
-      const format = [];
-      const old = [];
-      console.log(handle);
-      handle.img_url.forEach((item, i) => {
+      const format = []; // 把原来的图片格式化成 Upload 组件兼容的格式
+      const old = []; // 保存原来图片的 id
+      let inc = 0; // 自增计数器
+      handle.img_url.forEach(item => {
         format.push({
           imgID: item.id,
           url: `${pullImgURL}${item.name}`,
           status: 'done',
-          uid: i,
+          uid: inc,
         });
+        inc += 1;
         old.push(item.id);
       });
       update = {
@@ -123,8 +135,8 @@ export default {
         img: format,
         old,
         messageID: handle.id,
+        inc,
       };
-      console.log('uuuupdate', update);
       return {
         ...state,
         update,

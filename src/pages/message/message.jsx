@@ -17,7 +17,6 @@ import {
   Upload,
 } from 'antd';
 import { showNotification } from '../../utils/common';
-import './message.less';
 import { pullImgURL } from '../../utils/url';
 
 class Message extends React.Component {
@@ -72,29 +71,38 @@ class Message extends React.Component {
 
   // 上传图片
   handleUpload = action => {
+    const model = this.state.visible.update === true ? 'update' : 'upload';
+    // 先添加一个文件上传中的提示
+    this.props.dispatch({
+      type: 'message/loading',
+      payload: { model },
+    });
     const { file } = action;
     this.getBase64(file);
   };
 
-  // 上传组件变化时触发
-  handleChange = ({ fileList }) => {
+  // 预览图片
+  handlePreview = ({ url }) => {
+    const img = new Image();
+    img.src = url;
+    const newWin = window.open('', '_blank');
+    newWin.document.write(img.outerHTML);
+    newWin.document.title = '预览图';
+    newWin.document.close();
+  };
+
+  // 删除图片
+  handleRemove = ({ uid }) => {
     const model = this.state.visible.update === true ? 'update' : 'upload';
-    if (this.props[model].img.length > fileList.length) {
-      const origin = this.props[model];
-      this.props.dispatch({
-        type: 'message/save',
-        payload: {
-          [model]: {
-            ...origin,
-            img: fileList,
-          },
-        },
-      });
-    }
+    this.props.dispatch({
+      type: 'message/delete',
+      payload: { uid, model },
+    });
   };
 
   // Modal 取消按钮
   handleCancel = () => {
+    console.log(this.props);
     // 标记打开了哪一个对话框
     const model = this.state.visible.update === true ? 'Update' : 'Upload';
     this.setState({
@@ -207,7 +215,9 @@ class Message extends React.Component {
             method="post"
             listType="picture-card"
             fileList={this.props.upload.img}
-            onChange={this.handleChange}
+            onRemove={this.handleRemove}
+            onPreview={this.handlePreview}
+            onDownload={this.handlePreview}
           >
             {uploadButton}
           </Upload>
@@ -236,7 +246,9 @@ class Message extends React.Component {
             method="post"
             listType="picture-card"
             fileList={this.props.update.img}
-            onChange={this.handleChange}
+            onRemove={this.handleRemove}
+            onPreview={this.handlePreview}
+            onDownload={this.handlePreview}
           >
             {uploadButton}
           </Upload>
@@ -327,7 +339,6 @@ class Message extends React.Component {
                         index,
                       },
                     });
-                    // const UpdateContent = this.props.update.content;
                     this.setState({
                       visible: { update: true },
                     });
