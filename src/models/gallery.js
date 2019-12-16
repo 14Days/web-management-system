@@ -112,6 +112,16 @@ const GalleryModels = {
         selected,
       }
     },
+    cleanSelected(prev) {
+      prev.selected = [];
+      prev.imgs.forEach((item, index) => {
+          prev.imgs[index].choose = false;
+        });
+      console.log(prev);
+      return {
+        ...prev,
+      };
+    },
   },
   effects: {
     * allRefresh(_, { put }) {

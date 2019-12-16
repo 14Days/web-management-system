@@ -173,7 +173,26 @@ class Notice extends Component {
             </div>
             :
             <div>
-              <p>{'发布推荐动态 | '}<span style={{ color: 'rgba(0, 0, 0, 0.45)', fontSize: '16px' }}>{`已选择 ${selected.length} 张图片`}</span></p>
+              <p>
+                {'发布推荐动态'}
+                <span
+                  style={{
+                    color: 'rgba(0, 0, 0, 0.45)',
+                    fontSize: '16px',
+                    margin: 'auto 10px',
+                  }}>
+                  <span>{` 已选择 ${selected.length} 张图片 | `}</span>
+                  <span
+                    onClick={e => {
+                      e.stopPropagation();
+                      dispatch({
+                        type: 'gallery/cleanSelected',
+                      });
+                    }}
+                  >
+                    清空</span>
+                </span>
+              </p>
             </div>
           }
         </div>
