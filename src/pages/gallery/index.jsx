@@ -39,6 +39,8 @@ class Notice extends Component {
       last,
       files,
       imgs,
+      count,
+      page,
       newFile,
       newFileName,
       imgLoading,
@@ -47,6 +49,7 @@ class Notice extends Component {
       editFileState,
       toDeleteFile,
       toDeleteFileState,
+      selected,
     } = gallery;
 
     const dealNewFile = (
@@ -160,11 +163,22 @@ class Notice extends Component {
             })
           }}
         >
-          <p>删除后，图集里所有图片将回到未归档状态，请小心操作。</p>
+          <p>删除后，图集里所有图片将回到未归档状态，请谨慎操作。</p>
           <p>确定要删除 {toDeleteFile.name} 图集吗？</p>
         </Modal>
+        <div className={styles.floatBar}>
+          { selected.length === 0 ?
+            <div>
+              <p style={{ color: 'rgba(0, 0, 0, 0.45)', fontSize: '16px' }}>未选择任何图片</p>
+            </div>
+            :
+            <div>
+              <p>{'发布推荐动态 | '}<span style={{ color: 'rgba(0, 0, 0, 0.45)', fontSize: '16px' }}>{`已选择 ${selected.length} 张图片`}</span></p>
+            </div>
+          }
+        </div>
         <div className={styles.file}>
-          <Affix offsetTop={0}>
+          <Affix offsetTop={80}>
             <Row className={styles.fileGroup} gutter={[30, 30]} align="top">
               <Col xl={6} lg={8} md={8} sm={12} xs={12}>
                 <div className={styles.fileBlock}>
@@ -219,7 +233,20 @@ class Notice extends Component {
                 console.log('index');
                 return (item.id === nowFile.id ? <div/> : (
                   <Col xl={6} lg={8} md={8} sm={12} xs={12}>
-                    <div className={styles.fileNotNow}>
+                    <div
+                      className={styles.fileNotNow}
+                      onClick={() => {
+                        dispatch({
+                          type: 'gallery/save',
+                          payload: {
+                            nowFile: item,
+                          },
+                        });
+                        dispatch({
+                          type: 'gallery/imgRefresh',
+                        });
+                      }}
+                    >
                       <div className={styles.fileBlockContent}>
                         <img className={styles.fileImg}
                              src="https://s2.ax1x.com/2019/12/11/QsuV2t.jpg" alt=""/>
@@ -274,10 +301,8 @@ class Notice extends Component {
         </div>
         <Row className={styles.imgGroup} gutter={[0, 0]} align="top">
           {
-            imgs.map(item => {
+            imgs.map((item, index) => {
               console.log(item);
-              const usedTip = item.count === 0 ? <div/> :
-                <span><Icon type="pushpin" theme="filled"/></span>;
               return (
                 <Col xl={4} lg={6} md={6} sm={12} xs={12}>
                   <Card
@@ -285,9 +310,15 @@ class Notice extends Component {
                     hoverable
                     bordered={false}
                     actions={[
-                      <Icon type="setting" key="setting"/>,
-                      <Icon type="plus-square" key="plus-square"/>,
-                      <Icon type="close" key="close"/>,
+                      <Tooltip title="移动到...">
+                        <Icon type="folder" key="folder"/>
+                      </Tooltip>,
+                      <Tooltip title="下载图片">
+                        <Icon type="download" key="download"/>
+                      </Tooltip>,
+                      <Tooltip title="删除图片">
+                        <Icon type="close" key="close"/>
+                      </Tooltip>,
                     ]}
                     cover={
                       <div className={styles.imgBox}>
@@ -296,11 +327,24 @@ class Notice extends Component {
                             className={styles.imgSelf}
                             src={`http://pull.wghtstudio.cn/img/${item.name}`} alt="图片未能正常显示"/>
                         </div>
-                        <div className={styles.imgAfter}>
-                          {usedTip}
-                        </div>
+                        {item.choose ?
+                          <div className={styles.imgAfter}>
+                            <p><Icon type="check" /></p>
+                          </div>
+                         :
+                          <div />
+                        }
                       </div>
-                    }>
+                    }
+                    onClick={() => {
+                      dispatch({
+                        type: 'gallery/dealSelected',
+                        payload: {
+                          index,
+                        },
+                      });
+                    }}
+                  >
                     <Card.Meta
                       title={`已被引用 ${item.count} 次`}
                       description={`上传于 ${item.upload_time}`}
@@ -310,6 +354,20 @@ class Notice extends Component {
               )
             })
           }
+        </Row>
+        <Row className={styles.imgGroup} gutter={[0, 0]} align="top">
+          <Col xl={24} lg={24} md={24} sm={24} xs={24}>
+            <div
+              className={styles.morePage}
+              onClick={() => {
+                dispatch({
+                  type: 'gallery/morePage',
+                })
+              }}
+            >
+              <p>{(page + 1) * 12 >= count ? '没有更多了哦~' : '加载更多...'}</p>
+            </div>
+          </Col>
         </Row>
       </PageHeaderWrapper>
     );

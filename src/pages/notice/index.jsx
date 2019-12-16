@@ -95,7 +95,7 @@ class Notice extends Component {
             </Col>
             {/* 搜索栏 */}
             <Col xl={8} lg={24} md={24} sm={24} xs={24}>
-              <Affix offsetTop={20}>
+              <Affix offsetTop={80}>
                 <Card className={styles.searchCard}>
                   <Row>
                     <Col xl={24} lg={24} md={24} sm={24} xs={24} className={styles.send}>

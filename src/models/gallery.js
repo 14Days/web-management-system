@@ -64,6 +64,7 @@ const GalleryModels = {
       name: '未归档',
     },
     toDeleteFileState: false,
+    selected: [],
   },
   reducers: {
     save(prev, { payload }) {
@@ -89,6 +90,28 @@ const GalleryModels = {
         newFileName: '',
       }
     },
+    dealSelected(prev, { payload }) {
+      const { index } = payload;
+      let selected;
+      if (prev.imgs[index].choose) {
+        prev.imgs[index].choose = false;
+        selected = prev.selected.filter(item => {
+          if (item.img_id === prev.imgs[index].img_id) {
+            return false;
+          }
+          return true;
+        });
+      } else {
+        prev.imgs[index].choose = true;
+        selected = prev.selected.filter(() => true);
+        selected.push(prev.imgs[index]);
+      }
+      console.log(selected);
+      return {
+        ...prev,
+        selected,
+      }
+    },
   },
   effects: {
     * allRefresh(_, { put }) {
@@ -106,9 +129,6 @@ const GalleryModels = {
       })
       yield put({
         type: 'imgRefresh',
-        payload: {
-          fileId: 0,
-        },
       });
     },
     * fileRefresh(_, { call, put }) {
@@ -129,22 +149,27 @@ const GalleryModels = {
         })
       }
     },
-    * imgRefresh({ payload }, { call, select, put }) {
-      let { fileId } = payload;
-      const gallery = yield select(state => state.gallery);
-      if (fileId === -1) {
-        fileId = gallery.nowFile.id;
-      }
-      const { page } = gallery;
-      const res = yield call(getImg, fileId, page, 12);
+    * imgRefresh(_, { call, select, put }) {
+      const { nowFile, selected } = yield select(state => state.gallery);
+      const res = yield call(getImg, nowFile.id, 0, 12);
       console.log(res);
-      if (1 || res.status === 'success') {
+      if (res.status === 'success') {
+        res.data.images.forEach((item, index) => {
+          let flag = false;
+          selected.forEach(ele => {
+            if (ele.img_id === item.img_id) {
+              flag = true;
+            }
+          })
+          res.data.images[index].choose = flag;
+        });
         yield put({
           type: 'save',
           payload: {
             imgs: res.data.images,
             count: res.data.count,
             last: Date(),
+            page: 0,
           },
         })
       }
@@ -205,6 +230,31 @@ const GalleryModels = {
       yield put({
         type: 'fileRefresh',
       })
+    },
+    * morePage(_, { call, select, put }) {
+      const { nowFile, page, count, imgs, selected } = yield select(state => state.gallery);
+      if ((page + 1) * 12 < count) {
+        const res = yield call(getImg, nowFile.id, page + 1, 12);
+        if (res.status === 'success') {
+          res.data.images.forEach((item, index) => {
+            let flag = false;
+            selected.forEach(ele => {
+              if (ele.img_id === item.img_id) {
+                flag = true;
+              }
+            });
+            res.data.images[index].choose = flag;
+          });
+          Array.prototype.push.apply(imgs, res.data.images);
+          yield put({
+            type: 'save',
+            payload: {
+              imgs,
+              page: page + 1,
+            },
+          });
+        }
+      }
     },
   },
 };
