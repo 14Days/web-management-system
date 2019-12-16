@@ -88,7 +88,7 @@ export const deleteFileURL = `${baseURL}/gallery/`;
 export const getImgURL = `${baseURL}/gallery/`;
 
 // 更改图片文件夹
-export const moveImgURL = `http://yapi.wghtstudio.cn/mock/21/gallery/img/move`;
+export const moveImgURL = `${baseURL}/gallery/img/move`;
 
 // 删除图片
 export const deleteImgURL = `http://yapi.wghtstudio.cn/mock/21/gallery/img/delete`;

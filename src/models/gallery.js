@@ -65,6 +65,13 @@ const GalleryModels = {
     },
     toDeleteFileState: false,
     selected: [],
+    toMoveImg: {
+      file_id: 0,
+      img_id: 0,
+      name: '',
+    },
+    toMoveImgState: false,
+    toMoveImgDist: 0,
   },
   reducers: {
     save(prev, { payload }) {
@@ -239,6 +246,20 @@ const GalleryModels = {
       console.log(res)
       yield put({
         type: 'fileRefresh',
+      })
+    },
+    * dealMoveImg(_, { call, select, put }) {
+      const { toMoveImg, toMoveImgDist } = yield select(state => state.gallery);
+      const res = yield call(moveImg, toMoveImgDist, toMoveImg.img_id);
+      console.log(res);
+      yield put({
+        type: 'imgRefresh',
+      })
+      yield put({
+        type: 'save',
+        payload: {
+          toMoveImgState: false,
+        },
       })
     },
     * morePage(_, { call, select, put }) {

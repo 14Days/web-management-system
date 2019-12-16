@@ -9,12 +9,13 @@ import {
   Input,
   Modal,
   Row,
-  Tooltip
+  Select,
+  Tooltip,
 } from 'antd';
 import React, { Component } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { connect } from 'dva';
-import Authorized from '../../utils/Authorized';
+// import Authorized from '../../utils/Authorized';
 
 import styles from './style.less';
 
@@ -50,8 +51,11 @@ class Notice extends Component {
       toDeleteFile,
       toDeleteFileState,
       selected,
+      toMoveImgState,
+      toMoveImg,
+      toMoveImgDist,
     } = gallery;
-
+    const { Option } = Select;
     const dealNewFile = (
       <div>
         <Input
@@ -166,6 +170,71 @@ class Notice extends Component {
           <p>删除后，图集里所有图片将回到未归档状态，请谨慎操作。</p>
           <p>确定要删除 {toDeleteFile.name} 图集吗？</p>
         </Modal>
+        <Modal
+          width="70%"
+          title="移动图片"
+          visible={toMoveImgState}
+          onCancel={() => {
+            dispatch({
+              type: 'gallery/save',
+              payload: {
+                toMoveImgState: false,
+              },
+            })
+          }}
+          okButtonProps={{
+            disabled: toMoveImgDist === 0,
+          }}
+          destroyOnClose
+          onOk={() => {
+            dispatch({
+              type: 'gallery/dealMoveImg',
+            })
+          }}
+        >
+          <div className={styles.moveModal}>
+          <div
+            className={styles.showImg}
+          >
+            {
+              toMoveImg.img_id === 0 ? <div /> :
+              <img
+                src={`http://pull.wghtstudio.cn/img/${toMoveImg.name}`}
+                alt=""
+              />
+            }
+          </div>
+          <div style={{ marginTop: '50px' }}>
+            <p>
+              <span style={{ margin: 'auto 20px' }}>移动到</span>
+              <Select
+                placeholder="选择一个图集..."
+                style={{ width: 300 }}
+                onChange={value => {
+                  dispatch({
+                    type: 'gallery/save',
+                    payload: {
+                      toMoveImgDist: value,
+                    },
+                  })
+                }}
+              >
+                {
+                  files.map(item => {
+                    console.log(item.id);
+                    return <Option
+                      value={item.id}
+                      disabled={item.id === 0 || item.id === toMoveImg.file_id}
+                    >
+                      {item.name}
+                    </Option>;
+                  })
+                }
+              </Select>
+            </p>
+          </div>
+          </div>
+        </Modal>
         <div className={styles.floatBar}>
           { selected.length === 0 ?
             <div>
@@ -190,7 +259,8 @@ class Notice extends Component {
                       });
                     }}
                   >
-                    清空</span>
+                    清空
+                  </span>
                 </span>
               </p>
             </div>
@@ -330,7 +400,21 @@ class Notice extends Component {
                     bordered={false}
                     actions={[
                       <Tooltip title="移动到...">
-                        <Icon type="folder" key="folder"/>
+                        <Icon
+                          type="folder"
+                          key="folder"
+                          onClick={e => {
+                            e.stopPropagation();
+                            dispatch({
+                              type: 'gallery/save',
+                              payload: {
+                                toMoveImg: item,
+                                toMoveImgState: true,
+                                toMoveImgDist: 0,
+                              },
+                            })
+                          }}
+                        />
                       </Tooltip>,
                       <Tooltip title="下载图片">
                         <Icon type="download" key="download"/>
@@ -344,7 +428,9 @@ class Notice extends Component {
                         <div className={styles.img}>
                           <img
                             className={styles.imgSelf}
-                            src={`http://pull.wghtstudio.cn/img/${item.name}`} alt="图片未能正常显示"/>
+                            src={`http://pull.wghtstudio.cn/img/${item.name}`}
+                            alt="图片未能正常显示"
+                          />
                         </div>
                         {item.choose ?
                           <div className={styles.imgAfter}>
