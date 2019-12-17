@@ -45,17 +45,6 @@ class Message extends React.Component {
     };
   };
 
-  // 抽屉弹出和弹入
-  triggerDrawer = () => {
-    const { visible } = this.state;
-    this.setState({
-      visible: {
-        ...visible,
-        Drawer: !visible.Drawer,
-      },
-    });
-  };
-
   // 上传图片
   handleUpload = action => {
     const model = this.state.visible.update === true ? 'update' : 'upload';
@@ -191,7 +180,7 @@ class Message extends React.Component {
       >
         <BackTop className={styles.backTop}>
           <Icon type="up-circle" />
-          <span>回到顶部</span>
+          <span> 回到顶部</span>
         </BackTop>
         <Modal
           title="发布推荐消息"
@@ -275,8 +264,6 @@ class Message extends React.Component {
         <Button
           className={styles.loadMore}
           onClick={() => {
-            console.log(this.state);
-            console.log(this.props);
             this.props.dispatch({
               type: 'message/handleLoadMore',
             });
