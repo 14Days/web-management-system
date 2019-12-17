@@ -9,7 +9,7 @@ import {
 } from '../services/account';
 import { getUserInfo } from '../services/login';
 import { showNotification } from '../utils/common';
-import { pullAvaURL } from '../utils/url';
+import { pullWebAvaURL } from '../utils/url';
 
 export default {
   namespace: 'account',
@@ -81,67 +81,83 @@ export default {
       });
     },
     // 提交删除
-    *handleDelete({ payload }, { put }) {
+    *handleDelete({ payload }, { put, call }) {
       const { userID, index } = payload;
-      const res = yield commitDelete([userID]); // 这里用数组包起来是为了对接口
-      showNotification(res.status, res.data || res.err_msg);
-      if (res.status === 'success') {
-        yield put({
-          type: 'delete',
-          payload: {
-            index,
-          },
-        });
+      try {
+        const res = yield call(commitDelete, [userID]); // 这里用数组包起来是为了对接口
+        showNotification(res.status, res.data || res.err_msg);
+        if (res.status === 'success') {
+          yield put({
+            type: 'delete',
+            payload: {
+              index,
+            },
+          });
+        }
+      } catch (e) {
+        showNotification('error', '删除失败了- -');
       }
     },
     // 修改密码
-    *handleUpdate({ payload }, { put }) {
+    *handleUpdate({ payload }, { put, call }) {
       const { index, password, selectID } = payload;
-      const res = yield updateUser(selectID, password);
-      showNotification(res.status, res.data || res.err_msg);
-      if (res.status === 'success') {
-        yield put({
-          type: 'update',
-          payload: {
-            index,
-            password,
-          },
-        });
+      try {
+        const res = yield call(updateUser, selectID, password);
+        showNotification(res.status, res.data || res.err_msg);
+        if (res.status === 'success') {
+          yield put({
+            type: 'update',
+            payload: {
+              index,
+              password,
+            },
+          });
+        }
+      } catch (e) {
+        showNotification('error', '修改失败');
       }
     },
     // 新建账户
-    *handleCreate({ payload }, { put }) {
+    *handleCreate({ payload }, { put, call }) {
       const { username, password } = payload;
-      const res = yield createAccount(username, password);
-      showNotification(res.status, res.data || res.err_msg);
-      yield put({
-        type: 'triggerLoading',
-        payload: {
-          page: 'create',
-        },
-      });
+      try {
+        yield call(createAccount, username, password);
+      } catch (e) {
+        showNotification('error', '创建失败，用户名已存在或服务器错误');
+      } finally {
+        yield put({
+          type: 'triggerLoading',
+          payload: {
+            page: 'create',
+          },
+        });
+      }
     },
     // 查找用户
     *handleSearch({ payload }, { put }) {
       const { key } = payload;
-      const res = yield fetchSearInfo(key);
-
-      showNotification(res.status, res.status === 'success' ? '查询成功' : '查询失败');
-      if (res.status === 'success') {
+      try {
+        const res = yield fetchSearInfo(key);
+        showNotification(res.status, res.status === 'success' ? '查询成功' : '查询失败');
+        if (res.status === 'success') {
+          yield put({
+            type: 'save',
+            payload: {
+              total: res.data.total,
+              user: res.data.user,
+            },
+          });
+        }
+      } catch (e) {
+        showNotification('error', '查找失败');
+      } finally {
         yield put({
-          type: 'save',
+          type: 'triggerLoading',
           payload: {
-            total: res.data.total,
-            user: res.data.user,
+            page: 'find',
           },
         });
       }
-      yield put({
-        type: 'triggerLoading',
-        payload: {
-          page: 'find',
-        },
-      });
     },
     // 提交修改信息
     *handleSettings({ payload }, { put, call }) {
@@ -183,7 +199,7 @@ export default {
       // 获取个人详细信息
       const { data } = yield call(getUserInfo, userid);
       // 在这里拼好头像的url
-      data.avatar.name = `${pullAvaURL}${data.avatar.name}`;
+      data.avatar.name = `${pullWebAvaURL}${data.avatar.name}`;
       // 保存个人信息
       yield put({
         type: 'user/saveCurrentUser',
