@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'dva';
-import { Card, Carousel, Icon } from 'antd';
+import { Card, Carousel, Icon, Popconfirm, Popover } from 'antd';
 import { formatImgUrl } from '../../../utils/common';
 
 import styles from './cardLine.less';
@@ -19,9 +19,20 @@ const CardLine = props => (
           </Carousel>
         }
         actions={[
-          <div>
-            <Icon type="like" theme="twoTone" twoToneColor="#ff00ff" />
-            <span> {m.thumb}</span>
+          <div
+            onClick={() => {
+              props.dispatch({
+                type: 'message/getMessageDetail',
+                payload: {
+                  message: m,
+                },
+              });
+            }}
+          >
+            <Popover trigger="click" content={<span>{props.detail.thumbList}</span>}>
+              <Icon type="like" theme="twoTone" twoToneColor="#ff00ff" />
+              <span> {m.thumb}</span>
+            </Popover>
           </div>,
           <div>
             <Icon type="message" theme="twoTone" twoToneColor="#836fff" />
@@ -44,12 +55,9 @@ const CardLine = props => (
               props.openEditModal();
             }}
           />,
-          <Icon
-            type="delete"
-            key="delete"
-            theme="twoTone"
-            twoToneColor="#f00"
-            onClick={() => {
+          <Popconfirm
+            title="确定删除此条推荐吗？"
+            onConfirm={() => {
               props.dispatch({
                 type: 'message/handleDelete',
                 payload: {
@@ -59,7 +67,9 @@ const CardLine = props => (
                 },
               });
             }}
-          />,
+          >
+            <Icon type="delete" key="delete" theme="twoTone" twoToneColor="#f00" />
+          </Popconfirm>,
         ]}
       >
         <div className={styles.meta}>{m.content}</div>

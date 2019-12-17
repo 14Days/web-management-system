@@ -22,7 +22,9 @@ export default {
   namespace: 'message',
   state: {
     total: 0,
-    message: [],
+    page: 0,
+    limit: 3,
+    loadAll: false,
     leftMsg: [],
     rightMsg: [],
     leftHeight: 0,
@@ -204,16 +206,19 @@ export default {
     },
   },
   effects: {
-    *handleInit(_, { put, call }) {
+    *handleInit(_, { put, call, select }) {
       yield put({
         type: 'save',
         payload: {
           leftMsg: [],
           rightMsg: [],
+          page: 0,
+          loadAll: false,
         },
       });
       try {
-        const res = yield call(fetchMessage);
+        const { page, limit } = yield select(state => state.message);
+        const res = yield call(fetchMessage, page, limit);
         console.log('请求推荐消息', res);
         if (res.status === 'error') {
           showNotification('error', '拉取失败');
@@ -221,8 +226,8 @@ export default {
           yield put({
             type: 'save',
             payload: {
-              message: res.data.res,
               total: res.data.count,
+              page: page + 1,
             },
           });
           yield put({
@@ -231,6 +236,41 @@ export default {
               message: res.data.res,
             },
           });
+        }
+      } catch (e) {
+        showNotification('error', '拉取失败');
+      }
+    },
+    *handleLoadMore(_, { put, call, select }) {
+      try {
+        const { page, limit } = yield select(state => state.message);
+        const res = yield call(fetchMessage, page, limit);
+        console.log('请求推荐消息', res);
+        if (res.status === 'error') {
+          showNotification('error', '拉取失败');
+        } else {
+          yield put({
+            type: 'save',
+            payload: {
+              total: res.data.count,
+              page: page + 1,
+            },
+          });
+          if (res.data.res.length === 0) {
+            yield put({
+              type: 'save',
+              payload: {
+                loadAll: true,
+              },
+            });
+          } else {
+            yield put({
+              type: 'waterfall',
+              payload: {
+                message: res.data.res,
+              },
+            });
+          }
         }
       } catch (e) {
         showNotification('error', '拉取失败');
@@ -353,9 +393,22 @@ export default {
         showNotification('error', '修改失败');
       }
     },
-    *getMessageDetail({ payload }, { put, call }) {
+    *getMessageDetail(
+      {
+        payload: {
+          message: { id },
+        },
+      },
+      { put, call },
+    ) {
+      yield put({
+        type: 'save',
+        payload: {
+          detail: {},
+        },
+      });
       try {
-        const res = yield call(getDetail, payload);
+        const res = yield call(getDetail, id);
         console.log(res);
         if (res.status === 'success') {
           // 拼接头像 url
@@ -363,12 +416,13 @@ export default {
             item.user.avatar = formatAppAvaUrl(item.user.avatar);
           });
           const { thumb_user: thumbs } = res.data;
-          let thumbInfo;
+          let thumbList = thumbs.length ? '' : '还没有人点赞哦';
           for (let i = 0; i < thumbs.length; i += 1) {
             if (i > 6 || i === thumbs.length - 1) {
-              thumbInfo += `等${thumbs.length}人点赞`;
+              thumbList += `${thumbs[i]}等${thumbs.length}人点赞`;
+              break;
             } else {
-              thumbInfo += i === thumbs.length - 1 ? thumbs[i] : `${thumbs[i]}、`;
+              thumbList += `${thumbs[i]}、`;
             }
           }
           yield put({
@@ -376,7 +430,7 @@ export default {
             payload: {
               detail: {
                 ...res.data,
-                thumbInfo,
+                thumbList,
               },
             },
           });

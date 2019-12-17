@@ -1,6 +1,6 @@
 import React from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Avatar, Button, Comment, Drawer, Empty, Form, Icon, Input, Modal, Upload } from 'antd';
+import { BackTop, Button, Form, Icon, Input, Modal, Upload } from 'antd';
 import { connect } from 'dva';
 import { showNotification } from '../../utils/common';
 import CardLine from './cardLine/cardLine';
@@ -14,7 +14,6 @@ class Message extends React.Component {
       visible: {
         Upload: false,
         Update: false,
-        Drawer: false,
       },
     };
     this.props.form.setFieldsValue({
@@ -190,6 +189,10 @@ class Message extends React.Component {
           </Button>,
         ]}
       >
+        <BackTop className={styles.backTop}>
+          <Icon type="up-circle" />
+          <span>回到顶部</span>
+        </BackTop>
         <Modal
           title="发布推荐消息"
           visible={this.state.visible.upload}
@@ -251,60 +254,6 @@ class Message extends React.Component {
             {uploadButton}
           </Upload>
         </Modal>
-        {/* 抽屉显示评论 */}
-        <Drawer
-          title="一级评论详情"
-          placement="bottom"
-          closable={false}
-          height={600}
-          onClose={this.triggerDrawer}
-          visible={this.state.visible.Drawer}
-          keyboard
-        >
-          {/*
-            comment: [{
-              content,
-              create_at,
-              id,
-              second:[]
-              user:{
-                avatar,
-                id,
-                nickname
-              }
-            }]
-            TODO: 完成评论发表时间，下拉滚动，或者说页面跳转
-          */}
-          {this.props.detail.comment.length === 0 ? (
-            <Empty />
-          ) : (
-            this.props.detail.comment.map(item => (
-              <Comment
-                actions={[<a color="red">删除</a>]}
-                author={item.user.nickname}
-                avatar={<Avatar src={item.user.avatar} />}
-                content={<p>{item.content}</p>}
-              >
-                {item.second.map(ele => (
-                  <Comment
-                    actions={[<a color="red">删除</a>]}
-                    author={ele.user.nickname}
-                    avatar={<Avatar src={ele.user.avatar} />}
-                    content={<p>{ele.content}</p>}
-                  />
-                ))}
-              </Comment>
-            ))
-          )}
-        </Drawer>
-        <Button
-          onClick={() => {
-            console.log(this.state);
-            console.log(this.props);
-          }}
-        >
-          ok
-        </Button>
         <div className={styles.container}>
           <CardLine
             side="left"
@@ -323,6 +272,20 @@ class Message extends React.Component {
             }}
           />
         </div>
+        <Button
+          className={styles.loadMore}
+          onClick={() => {
+            console.log(this.state);
+            console.log(this.props);
+            this.props.dispatch({
+              type: 'message/handleLoadMore',
+            });
+          }}
+          disabled={this.props.loadAll}
+          type="dashed"
+        >
+          {this.props.loadAll ? '没咯！！' : <Icon type="caret-down" />}
+        </Button>
       </PageHeaderWrapper>
     );
   }
