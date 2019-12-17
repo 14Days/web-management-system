@@ -1,23 +1,9 @@
 import React from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
+import { Avatar, Button, Comment, Drawer, Empty, Form, Icon, Input, Modal, Upload } from 'antd';
 import { connect } from 'dva';
-import {
-  Avatar,
-  Button,
-  Carousel,
-  Comment,
-  Drawer,
-  Empty,
-  Form,
-  Icon,
-  Input,
-  List,
-  Modal,
-  Tooltip,
-  Upload,
-} from 'antd';
 import { showNotification } from '../../utils/common';
-import { pullImgURL } from '../../utils/url';
+import CardLine from './cardLine/cardLine';
 
 import styles from './message.less';
 
@@ -98,7 +84,10 @@ class Message extends React.Component {
     const model = this.state.visible.update === true ? 'update' : 'upload';
     this.props.dispatch({
       type: 'message/delete',
-      payload: { uid, model },
+      payload: {
+        uid,
+        model,
+      },
     });
   };
 
@@ -133,7 +122,7 @@ class Message extends React.Component {
 
     /**
      * 发送请求
-     * img 是 id
+     * img 是 id 的数组
      */
     const { img: imgs } = this.props[model.toLowerCase()];
     const img = [];
@@ -146,6 +135,8 @@ class Message extends React.Component {
       showNotification('error', '请等待所有图片完成上传哦😬');
       return;
     }
+    console.log(img);
+    console.log(this.props);
     this.props.dispatch({
       type: `message/handle${model}Message`,
       payload: {
@@ -153,7 +144,7 @@ class Message extends React.Component {
         img,
       },
     });
-
+    console.log(this.props);
     // 隐藏弹出框
     this.setState({ visible: { [model]: false } });
 
@@ -169,7 +160,6 @@ class Message extends React.Component {
         <div className="ant-upload-text">Upload</div>
       </div>
     );
-
     return (
       <PageHeaderWrapper
         content={[
@@ -307,88 +297,32 @@ class Message extends React.Component {
             ))
           )}
         </Drawer>
-        <List
-          itemLayout="vertical"
-          size="large"
-          dataSource={this.props.message}
-          pagination={{
-            pageSize: 5,
+        <Button
+          onClick={() => {
+            console.log(this.state);
+            console.log(this.props);
           }}
-          renderItem={(item, index) => (
-            <List.Item
-              style={{ borderBottomWidth: '2px', borderBottomColor: '#8e8e8e' }}
-              actions={[
-                <Tooltip title={this.props.detail.thumbInfo}>
-                  {/* TODO 提示每次都要重新拉数据 */}
-                  <div>点赞数：{item.thumb}</div>
-                </Tooltip>,
-                <div
-                  onClick={() => {
-                    new Promise(resolve => {
-                      this.props.dispatch({
-                        type: 'message/getDetail',
-                        payload: item.id,
-                      });
-                      resolve();
-                    }).then(() => {
-                      this.triggerDrawer();
-                    });
-                  }}
-                >
-                  评论数：{item.comment}
-                </div>,
-                <Button
-                  type="primary"
-                  onClick={() => {
-                    this.props.dispatch({
-                      type: 'message/updateMessagePrepare',
-                      payload: {
-                        index,
-                      },
-                    });
-                    this.setState({
-                      visible: { update: true },
-                    });
-                  }}
-                  style={{ marginLeft: '20px' }}
-                >
-                  修改
-                </Button>,
-                <Button
-                  type="danger"
-                  onClick={() => {
-                    this.props.dispatch({
-                      type: 'message/handleDelete',
-                      payload: {
-                        id: item.id,
-                      },
-                    });
-                  }}
-                >
-                  {/* TODO 删除时要有提示 */}
-                  删除
-                </Button>,
-              ]}
-              extra={
-                <div>
-                  <Carousel className={styles.carousel} autoplay>
-                    {item.img_url.map(ele => (
-                      <img
-                        src={`${pullImgURL}${ele.name}`}
-                        alt={ele.name}
-                        width={400}
-                        height={300}
-                      />
-                    ))}
-                  </Carousel>
-                </div>
-              }
-            >
-              <List.Item.Meta title={item.id} />
-              {item.content}
-            </List.Item>
-          )}
-        />
+        >
+          ok
+        </Button>
+        <div className={styles.container}>
+          <CardLine
+            side="left"
+            openEditModal={() => {
+              this.setState({
+                visible: { update: true },
+              });
+            }}
+          />
+          <CardLine
+            side="right"
+            openEditModal={() => {
+              this.setState({
+                visible: { update: true },
+              });
+            }}
+          />
+        </div>
       </PageHeaderWrapper>
     );
   }
