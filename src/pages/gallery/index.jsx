@@ -8,9 +8,11 @@ import {
   Icon,
   Input,
   Modal,
+  Popover,
   Row,
   Select,
   Tooltip,
+  Upload,
 } from 'antd';
 import React, { Component } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
@@ -58,6 +60,8 @@ class Notice extends Component {
       toDeleteImgState,
       toPostImg,
       toPostImgState,
+      uploadState,
+      uploadImg,
     } = gallery;
     const { Option } = Select;
     const { TextArea } = Input;
@@ -321,16 +325,60 @@ class Notice extends Component {
               />
             </p>
             <div className={styles.imgSelected}>
-            {
-              selected.map(item => (
-                  <img
-                    src={`http://pull.wghtstudio.cn/img/${item.name}`}
-                    alt="图片未能正常显示"
-                  />
-                ),
-              )
-            }
+              {
+                selected.map(item => (
+                    <img
+                      src={`http://pull.wghtstudio.cn/img/${item.name}`}
+                      alt="图片未能正常显示"
+                    />
+                  ),
+                )
+              }
             </div>
+          </div>
+        </Modal>
+        <Modal
+          title="上传图片"
+          visible={uploadState}
+          onCancel={() => {
+            dispatch({
+              type: 'gallery/save',
+              payload: {
+                uploadState: false,
+              },
+            });
+          }}
+        >
+          <div>
+            <p>你好</p>
+            <Upload
+              accept=".png,.jpg,.jpeg"
+              customRequest={action => {
+                const { file } = action;
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => {
+                  dispatch({
+                    type: 'gallery/handleUpload',
+                    payload: {
+                      file,
+                      url: reader.result,
+                    },
+                  });
+                };
+              }}
+              method="post"
+              listType="picture-card"
+              fileList={uploadImg}
+              onChange={() => {
+
+              }}
+            >
+              <div>
+                <Icon type="plus" />
+                <div className="ant-upload-text">开始上传</div>
+              </div>
+            </Upload>
           </div>
         </Modal>
         <div className={styles.floatBar}>
@@ -338,7 +386,7 @@ class Notice extends Component {
             <div>
               <p style={{
                 color: 'rgba(0, 0, 0, 0.45)',
-                fontSize: '16px'
+                fontSize: '16px',
               }}>未选择任何图片</p>
             </div>
             :
@@ -379,6 +427,22 @@ class Notice extends Component {
               </p>
             </div>
           }
+        </div>
+        <div className={styles.floatUpload}>
+          <p>
+            <Icon
+              type="cloud-upload"
+              onClick={e => {
+                e.stopPropagation();
+                dispatch({
+                  type: 'gallery/save',
+                  payload: {
+                    uploadState: true,
+                  },
+                })
+              }}
+            />
+          </p>
         </div>
         <div className={styles.file}>
           <Affix offsetTop={80}>

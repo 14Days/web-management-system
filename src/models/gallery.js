@@ -8,7 +8,8 @@ import {
   moveImg,
   deleteImg,
 } from '../services/gallery';
-import { uploadMessage } from '../services/message';
+import { upload, uploadMessage } from '../services/message';
+import { showNotification } from '@/utils/common';
 
 // 用于快速搜索计算延时
 function delayWaiting(ms) {
@@ -75,6 +76,8 @@ const GalleryModels = {
     toDeleteImgState: false,
     toPostImg: '',
     toPostImgState: false,
+    uploadState: false,
+    uploadImg: [],
   },
   reducers: {
     save(prev, { payload }) {
@@ -369,6 +372,32 @@ const GalleryModels = {
           fileId: nowFile.id,
         },
       });
+    },
+    * handleUpload({ payload }, { select, call, put }) {
+      const { file } = payload;
+      const img = new FormData();
+      img.append('img', file);
+      try {
+        const res = yield call(upload, img);
+        console.log('success!!!!!!!', res);
+        if (res.status === 'success') {
+          yield put({
+            type: 'save',
+            payload: {
+              uploadState: false,
+            },
+          });
+          const { nowFile } = yield select(state => state.gallery);
+          yield put({
+            type: 'imgRefresh',
+            payload: {
+              fileId: nowFile.id,
+            },
+          });
+        }
+      } catch (e) {
+        showNotification('error', '图片上传失败');
+      }
     },
   },
 };
