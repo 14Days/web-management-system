@@ -139,15 +139,15 @@ export default {
             },
             {
               name: '推荐消息管理',
-              path: '/message/message',
+              path: '/message',
               icon: 'picture',
               component: './message/message',
-              routes: [
-                {
-                  path: './comment',
-                  breadcrumbName: 'Third-level Menu',
-                },
-              ],
+            },
+            {
+              name: '评论管理',
+              path: '/message/comment/:id',
+              component: './message/comment/comment',
+              hideInMenu: true,
             },
             {
               component: './404',
