@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'dva';
 import { Card, Carousel, Icon, Popconfirm, Popover } from 'antd';
+import router from 'umi/router';
 import { formatImgUrl } from '../../../utils/common';
 
 import styles from './cardLine.less';
@@ -34,7 +35,11 @@ const CardLine = props => (
               <span> {m.thumb}</span>
             </Popover>
           </div>,
-          <div>
+          <div
+            onClick={() => {
+              router.push(`/message/comment/${m.id}`);
+            }}
+          >
             <Icon type="message" theme="twoTone" twoToneColor="#836fff" />
             <span> {m.comment}</span>
           </div>,
