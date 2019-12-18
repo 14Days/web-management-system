@@ -56,8 +56,11 @@ class Notice extends Component {
       toMoveImgDist,
       toDeleteImg,
       toDeleteImgState,
+      toPostImg,
+      toPostImgState,
     } = gallery;
     const { Option } = Select;
+    const { TextArea } = Input;
     const dealNewFile = (
       <div>
         <Input
@@ -195,46 +198,46 @@ class Notice extends Component {
           }}
         >
           <div className={styles.moveModal}>
-          <div
-            className={styles.showImg}
-          >
-            {
-              toMoveImg.img_id === 0 ? <div /> :
-              <img
-                src={`http://pull.wghtstudio.cn/img/${toMoveImg.name}`}
-                alt=""
-              />
-            }
-          </div>
-          <div style={{ marginTop: '50px' }}>
-            <p>
-              <span style={{ margin: 'auto 20px' }}>移动到</span>
-              <Select
-                placeholder="选择一个图集..."
-                style={{ width: 300 }}
-                onChange={value => {
-                  dispatch({
-                    type: 'gallery/save',
-                    payload: {
-                      toMoveImgDist: value,
-                    },
-                  })
-                }}
-              >
-                {
-                  files.map(item => {
-                    console.log(item.id);
-                    return <Option
-                      value={item.id}
-                      disabled={item.id === 0 || item.id === toMoveImg.file_id}
-                    >
-                      {item.name}
-                    </Option>;
-                  })
-                }
-              </Select>
-            </p>
-          </div>
+            <div
+              className={styles.showImg}
+            >
+              {
+                toMoveImg.img_id === 0 ? <div/> :
+                  <img
+                    src={`http://pull.wghtstudio.cn/img/${toMoveImg.name}`}
+                    alt=""
+                  />
+              }
+            </div>
+            <div style={{ marginTop: '50px' }}>
+              <p>
+                <span style={{ margin: 'auto 20px' }}>移动到</span>
+                <Select
+                  placeholder="选择一个图集..."
+                  style={{ width: 300 }}
+                  onChange={value => {
+                    dispatch({
+                      type: 'gallery/save',
+                      payload: {
+                        toMoveImgDist: value,
+                      },
+                    })
+                  }}
+                >
+                  {
+                    files.map(item => {
+                      console.log(item.id);
+                      return <Option
+                        value={item.id}
+                        disabled={item.id === 0 || item.id === toMoveImg.file_id}
+                      >
+                        {item.name}
+                      </Option>;
+                    })
+                  }
+                </Select>
+              </p>
+            </div>
           </div>
         </Modal>
         <Modal
@@ -260,7 +263,7 @@ class Notice extends Component {
               className={styles.showImg}
             >
               {
-                toDeleteImg.img_id === 0 ? <div /> :
+                toDeleteImg.img_id === 0 ? <div/> :
                   <img
                     src={`http://pull.wghtstudio.cn/img/${toDeleteImg.name}`}
                     alt=""
@@ -273,15 +276,88 @@ class Notice extends Component {
             </div>
           </div>
         </Modal>
-        <div className={styles.floatBar}>
-          { selected.length === 0 ?
+        <Modal
+          width="800px"
+          title="发布推荐消息"
+          visible={toPostImgState}
+          onCancel={() => {
+            dispatch({
+              type: 'gallery/save',
+              payload: {
+                toPostImgState: false,
+              },
+            });
+          }}
+          onOk={() => {
+            dispatch({
+              type: 'gallery/dealPostImg',
+            });
+          }}
+          destroyOnClose
+          okButtonProps={{
+            disabled: toPostImg === '',
+          }}
+        >
+          <div className={styles.sendModal}>
             <div>
-              <p style={{ color: 'rgba(0, 0, 0, 0.45)', fontSize: '16px' }}>未选择任何图片</p>
+              <p style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
+                <Icon type="exclamation-circle" style={{ margin: 'auto 6px' }}/>
+                消息发布后 APP 用户将看到您的推荐消息，您可以在 [推荐消息管理页] 管理已经发布的推荐消息。
+              </p>
+            </div>
+            <p>
+              <TextArea
+                style={{ width: '734px' }}
+                placeholder="介绍一下想要推荐的内容吧"
+                autoSize={{ maxRows: 5 }}
+                onChange={e => {
+                  dispatch({
+                    type: 'gallery/save',
+                    payload: {
+                      toPostImg: e.target.value,
+                    },
+                  })
+                }}
+              />
+            </p>
+            <div className={styles.imgSelected}>
+            {
+              selected.map(item => (
+                  <img
+                    src={`http://pull.wghtstudio.cn/img/${item.name}`}
+                    alt="图片未能正常显示"
+                  />
+                ),
+              )
+            }
+            </div>
+          </div>
+        </Modal>
+        <div className={styles.floatBar}>
+          {selected.length === 0 ?
+            <div>
+              <p style={{
+                color: 'rgba(0, 0, 0, 0.45)',
+                fontSize: '16px'
+              }}>未选择任何图片</p>
             </div>
             :
             <div>
               <p>
-                {'发布推荐动态'}
+                <span
+                  onClick={e => {
+                    e.stopPropagation();
+                    dispatch({
+                      type: 'gallery/save',
+                      payload: {
+                        toPostImg: '',
+                        toPostImgState: true,
+                      },
+                    });
+                  }}
+                >
+                发布推荐动态
+                </span>
                 <span
                   style={{
                     color: 'rgba(0, 0, 0, 0.45)',
@@ -507,10 +583,10 @@ class Notice extends Component {
                         </div>
                         {item.choose ?
                           <div className={styles.imgAfter}>
-                            <p><Icon type="check" /></p>
+                            <p><Icon type="check"/></p>
                           </div>
-                         :
-                          <div />
+                          :
+                          <div/>
                         }
                       </div>
                     }

@@ -8,6 +8,7 @@ import {
   moveImg,
   deleteImg,
 } from '../services/gallery';
+import { uploadMessage } from '../services/message';
 
 // 用于快速搜索计算延时
 function delayWaiting(ms) {
@@ -72,6 +73,8 @@ const GalleryModels = {
       name: '',
     },
     toDeleteImgState: false,
+    toPostImg: '',
+    toPostImgState: false,
   },
   reducers: {
     save(prev, { payload }) {
@@ -334,6 +337,37 @@ const GalleryModels = {
       });
       yield put({
         type: 'imgRefresh',
+      });
+    },
+    * dealPostImg(_, { select, call, put }) {
+      const { selected, toPostImg, nowFile } = yield select(state => state.gallery);
+      const imgs = [];
+      console.log('??');
+      selected.forEach(item => {
+        imgs.push(item.img_id);
+      });
+      console.log('hello');
+      const res = yield call(uploadMessage, toPostImg, imgs);
+      console.log(res);
+      yield put({
+        type: 'save',
+        payload: {
+          toPostImgState: false,
+        },
+      });
+      if (res.status === 'success') {
+        yield call(showSuccess, '发布成功！');
+        yield put({
+          type: 'cleanSelected',
+        });
+      } else {
+        yield call(showSuccess, `抱歉，发布失败：${res.status}`);
+      }
+      yield put({
+        type: 'imgRefresh',
+        payload: {
+          fileId: nowFile.id,
+        },
       });
     },
   },
