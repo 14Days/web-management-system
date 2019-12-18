@@ -28,7 +28,7 @@ class Notice extends Component {
   arr = [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3];
 
   componentWillMount() {
-    const { dispatch, gallery } = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'gallery/allRefresh',
     })
@@ -54,6 +54,8 @@ class Notice extends Component {
       toMoveImgState,
       toMoveImg,
       toMoveImgDist,
+      toDeleteImg,
+      toDeleteImgState,
     } = gallery;
     const { Option } = Select;
     const dealNewFile = (
@@ -167,8 +169,8 @@ class Notice extends Component {
             })
           }}
         >
-          <p>删除后，图集里所有图片将回到未归档状态，请谨慎操作。</p>
-          <p>确定要删除 {toDeleteFile.name} 图集吗？</p>
+          <p style={{ color: 'red' }}>删除后，图集里的图片不会被删除，但将回到未归档状态，请谨慎操作。</p>
+          <p>确定要删除 <span style={{ fontWeight: '700' }}>{toDeleteFile.name}</span> 图集吗？</p>
         </Modal>
         <Modal
           width="70%"
@@ -233,6 +235,42 @@ class Notice extends Component {
               </Select>
             </p>
           </div>
+          </div>
+        </Modal>
+        <Modal
+          width="70%"
+          title="删除图片"
+          visible={toDeleteImgState}
+          onCancel={() => {
+            dispatch({
+              type: 'gallery/save',
+              payload: {
+                toDeleteImgState: false,
+              },
+            });
+          }}
+          onOk={() => {
+            dispatch({
+              type: 'gallery/dealDeleteImg',
+            })
+          }}
+        >
+          <div className={styles.moveModal}>
+            <div
+              className={styles.showImg}
+            >
+              {
+                toDeleteImg.img_id === 0 ? <div /> :
+                  <img
+                    src={`http://pull.wghtstudio.cn/img/${toDeleteImg.name}`}
+                    alt=""
+                  />
+              }
+            </div>
+            <div style={{ marginTop: '50px' }}>
+              <p style={{ color: 'red' }}>删除后，图片将永久无法被找回！请谨慎操作。</p>
+              <p>确定要删除这张图片吗？</p>
+            </div>
           </div>
         </Modal>
         <div className={styles.floatBar}>
@@ -417,10 +455,45 @@ class Notice extends Component {
                         />
                       </Tooltip>,
                       <Tooltip title="下载图片">
-                        <Icon type="download" key="download"/>
+                        <Icon
+                          type="download"
+                          key="download"
+                          onClick={e => {
+                            e.stopPropagation();
+                            const link = new XMLHttpRequest();
+                            link.open(
+                              'GET',
+                              `http://pull.wghtstudio.cn/img/${item.name}`,
+                              true,
+                            );
+                            link.onload = () => {
+                              const url = window.URL.createObjectURL(link.response);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              a.download = item.img_id;
+                              a.click();
+                            }
+                            link.send();
+                          }}
+                        />
                       </Tooltip>,
-                      <Tooltip title="删除图片">
-                        <Icon type="close" key="close"/>
+                      <Tooltip title={item.count === 0 ? '删除图片' : '被引用的图片无法删除哦~'}>
+                        <Icon
+                          type={item.count === 0 ? 'close' : 'exclamation-circle'}
+                          key="close"
+                          onClick={e => {
+                            e.stopPropagation();
+                            if (item.count === 0) {
+                              dispatch({
+                                type: 'gallery/save',
+                                payload: {
+                                  toDeleteImgState: true,
+                                  toDeleteImg: item,
+                                },
+                              });
+                            }
+                          }}
+                        />
                       </Tooltip>,
                     ]}
                     cover={

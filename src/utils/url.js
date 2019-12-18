@@ -91,4 +91,4 @@ export const getImgURL = `${baseURL}/gallery/`;
 export const moveImgURL = `${baseURL}/gallery/img/move`;
 
 // 删除图片
-export const deleteImgURL = `http://yapi.wghtstudio.cn/mock/21/gallery/img/delete`;
+export const deleteImgURL = `${baseURL}/gallery/img`;

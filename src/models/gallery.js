@@ -1,4 +1,4 @@
-import { Modal } from 'antd';
+import { message } from 'antd';
 import {
   getFile,
   newFile,
@@ -6,7 +6,7 @@ import {
   deleteFile,
   getImg,
   moveImg,
-  deleteImg
+  deleteImg,
 } from '../services/gallery';
 
 // 用于快速搜索计算延时
@@ -17,23 +17,17 @@ function delayWaiting(ms) {
 }
 
 // 用于成功后在页面上调出成功弹窗提示
-function showSuccess(message) {
+function showSuccess(msg) {
   return new Promise(resolve => {
-    Modal.success({
-      content: message,
-      centered: true,
-    });
+    message.success(msg);
     resolve();
   });
 }
 
 // 用于成功后在页面上调出成功弹窗提示
-function showFail(message) {
+function showFail(msg) {
   return new Promise(resolve => {
-    Modal.error({
-      content: message,
-      centered: true,
-    });
+    message.error(msg)
     resolve();
   });
 }
@@ -72,6 +66,12 @@ const GalleryModels = {
     },
     toMoveImgState: false,
     toMoveImgDist: 0,
+    toDeleteImg: {
+      file_id: 0,
+      img_id: 0,
+      name: '',
+    },
+    toDeleteImgState: false,
   },
   reducers: {
     save(prev, { payload }) {
@@ -199,6 +199,11 @@ const GalleryModels = {
       if (newFileName !== '') {
         const res = yield call(newFile, newFileName);
         console.log(res);
+        if (res.status === 'success') {
+          yield call(showSuccess, '图集创建成功');
+        } else {
+          yield call(showFail, `图集创建失败：${res.status}`);
+        }
         yield put({
           type: 'fileRefresh',
         });
@@ -228,10 +233,13 @@ const GalleryModels = {
         })
         const res = yield call(renameFile, id, name);
         if (res.status === 'success') {
-          yield put({
-            type: 'fileRefresh',
-          });
+          yield call(showSuccess, '图集重命名成功');
+        } else {
+          yield call(showSuccess, `图集重命名失败：${res.status}`);
         }
+        yield put({
+          type: 'fileRefresh',
+        });
       }
     },
     * dealDeleteFile(_, { call, select, put }) {
@@ -244,6 +252,11 @@ const GalleryModels = {
       const { toDeleteFile } = yield select(state => state.gallery);
       const res = yield call(deleteFile, toDeleteFile.id);
       console.log(res)
+      if (res.status === 'success') {
+        yield call(showSuccess, '图集删除成功');
+      } else {
+        yield call(showFail, `图集删除失败：${res.status}`)
+      }
       yield put({
         type: 'fileRefresh',
       })
@@ -252,6 +265,11 @@ const GalleryModels = {
       const { toMoveImg, toMoveImgDist } = yield select(state => state.gallery);
       const res = yield call(moveImg, toMoveImgDist, toMoveImg.img_id);
       console.log(res);
+      if (res.status === 'success') {
+        yield call(showSuccess, '移动图片成功');
+      } else {
+        yield call(showFail, `移动图片失败：${res.status}`)
+      }
       yield put({
         type: 'imgRefresh',
       })
@@ -286,6 +304,37 @@ const GalleryModels = {
           });
         }
       }
+    },
+    * dealDeleteImg(_, { select, put, call }) {
+      const { toDeleteImg, selected } = yield select(state => state.gallery);
+      const newSelected = selected.filter((item) => {
+        if (toDeleteImg.img_id === item.img_id) {
+          return false;
+        }
+        return true;
+      });
+      yield put({
+        type: 'save',
+        payload: {
+          selected: newSelected,
+        },
+      });
+      const res = yield call(deleteImg, toDeleteImg.img_id);
+      console.log(res);
+      if (res.status === 'success') {
+        yield call(showSuccess, '图片删除成功');
+      } else {
+        yield call(showFail, `图片删除失败：${res.status}`)
+      }
+      yield put({
+        type: 'save',
+        payload: {
+          toDeleteImgState: false,
+        },
+      });
+      yield put({
+        type: 'imgRefresh',
+      });
     },
   },
 };
