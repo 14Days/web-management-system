@@ -119,7 +119,6 @@ const GalleryModels = {
         selected = prev.selected.filter(() => true);
         selected.push(prev.imgs[index]);
       }
-      console.log(selected);
       return {
         ...prev,
         selected,
@@ -130,7 +129,6 @@ const GalleryModels = {
       prev.imgs.forEach((item, index) => {
           prev.imgs[index].choose = false;
         });
-      console.log(prev);
       return {
         ...prev,
       };
@@ -156,7 +154,6 @@ const GalleryModels = {
     },
     * fileRefresh(_, { call, put }) {
       const res = yield call(getFile);
-      console.log(res);
       const dirs = [{
         id: 0,
         name: '未归档',
@@ -175,7 +172,6 @@ const GalleryModels = {
     * imgRefresh(_, { call, select, put }) {
       const { nowFile, selected } = yield select(state => state.gallery);
       const res = yield call(getImg, nowFile.id, 0, 12);
-      console.log(res);
       if (res.status === 'success') {
         res.data.images.forEach((item, index) => {
           let flag = false;
@@ -204,7 +200,6 @@ const GalleryModels = {
       });
       if (newFileName !== '') {
         const res = yield call(newFile, newFileName);
-        console.log(res);
         if (res.status === 'success') {
           yield call(showSuccess, '图集创建成功');
         } else {
@@ -257,7 +252,6 @@ const GalleryModels = {
       })
       const { toDeleteFile } = yield select(state => state.gallery);
       const res = yield call(deleteFile, toDeleteFile.id);
-      console.log(res)
       if (res.status === 'success') {
         yield call(showSuccess, '图集删除成功');
       } else {
@@ -270,7 +264,6 @@ const GalleryModels = {
     * dealMoveImg(_, { call, select, put }) {
       const { toMoveImg, toMoveImgDist } = yield select(state => state.gallery);
       const res = yield call(moveImg, toMoveImgDist, toMoveImg.img_id);
-      console.log(res);
       if (res.status === 'success') {
         yield call(showSuccess, '移动图片成功');
       } else {
@@ -326,7 +319,6 @@ const GalleryModels = {
         },
       });
       const res = yield call(deleteImg, toDeleteImg.img_id);
-      console.log(res);
       if (res.status === 'success') {
         yield call(showSuccess, '图片删除成功');
       } else {
@@ -345,13 +337,10 @@ const GalleryModels = {
     * dealPostImg(_, { select, call, put }) {
       const { selected, toPostImg, nowFile } = yield select(state => state.gallery);
       const imgs = [];
-      console.log('??');
       selected.forEach(item => {
         imgs.push(item.img_id);
       });
-      console.log('hello');
       const res = yield call(uploadMessage, toPostImg, imgs);
-      console.log(res);
       yield put({
         type: 'save',
         payload: {
@@ -379,7 +368,6 @@ const GalleryModels = {
       img.append('img', file);
       try {
         const res = yield call(upload, img);
-        console.log('success!!!!!!!', res);
         if (res.status === 'success') {
           yield put({
             type: 'save',
@@ -387,6 +375,7 @@ const GalleryModels = {
               uploadState: false,
             },
           });
+          yield call(showSuccess, '上传成功！');
           const { nowFile } = yield select(state => state.gallery);
           yield put({
             type: 'imgRefresh',
@@ -394,9 +383,23 @@ const GalleryModels = {
               fileId: nowFile.id,
             },
           });
+        } else {
+          yield put({
+            type: 'save',
+            payload: {
+              uploadState: false,
+            },
+          });
+          yield call(showFail, `抱歉，上传失败：${res.status}`);
         }
       } catch (e) {
-        showNotification('error', '图片上传失败');
+        yield put({
+          type: 'save',
+          payload: {
+            uploadState: false,
+          },
+        });
+        yield call(showFail, '抱歉，图片上传出错。');
       }
     },
   },

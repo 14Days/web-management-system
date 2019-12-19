@@ -230,7 +230,6 @@ class Notice extends Component {
                 >
                   {
                     files.map(item => {
-                      console.log(item.id);
                       return <Option
                         value={item.id}
                         disabled={item.id === 0 || item.id === toMoveImg.file_id}
@@ -370,8 +369,15 @@ class Notice extends Component {
               method="post"
               listType="picture-card"
               fileList={uploadImg}
-              onChange={() => {
-
+              onChange={({ fileList }) => {
+                if (uploadImg.length > fileList.length) {
+                  dispatch({
+                    type: 'gallery/save',
+                    payload: {
+                      uploadImg: fileList,
+                    },
+                  });
+                }
               }}
             >
               <div>
@@ -497,7 +503,6 @@ class Notice extends Component {
                 </div>
               </Col>
               {files.map(item => {
-                console.log('index');
                 return (item.id === nowFile.id ? <div/> : (
                   <Col xl={6} lg={8} md={8} sm={12} xs={12}>
                     <div
@@ -569,7 +574,6 @@ class Notice extends Component {
         <Row className={styles.imgGroup} gutter={[0, 0]} align="top">
           {
             imgs.map((item, index) => {
-              console.log(item);
               return (
                 <Col xl={4} lg={6} md={6} sm={12} xs={12}>
                   <Card
