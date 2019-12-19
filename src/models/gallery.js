@@ -18,7 +18,7 @@ function showSuccess(msg) {
   });
 }
 
-// 用于成功后在页面上调出成功弹窗提示
+// 用于成功后在页面上调出错误弹窗提示
 function showFail(msg) {
   return new Promise(resolve => {
     message.error(msg);
@@ -29,47 +29,47 @@ function showFail(msg) {
 const GalleryModels = {
   namespace: 'gallery',
   state: {
-    fileLoading: false,
-    imgLoading: false,
-    imgs: [],
-    files: [],
-    nowFile: {
+    fileLoading: false, // 图集表加载
+    imgLoading: false, // 图片表加载
+    imgs: [], // 当前显示图片
+    files: [], // 图集
+    nowFile: { // 当前图集
       id: 0,
       name: '未归档',
     },
-    page: 0,
-    count: 0,
-    last: Date(),
-    newFile: false,
-    newFileName: '',
-    editFile: {
+    page: 0, // 当前页
+    count: 0, // 图片总数
+    last: Date(), // 最后刷新时间
+    newFile: false, // 新建图集激活状态
+    newFileName: '', // 新建图集命名
+    editFile: { // 重命名图集目标 & 名
       id: 0,
       name: '未归档',
     },
-    editFileState: false,
-    toDeleteFile: {
+    editFileState: false, // 重命名图集激活状态
+    toDeleteFile: { // 删除图集目标
       id: 0,
       name: '未归档',
     },
-    toDeleteFileState: false,
-    selected: [],
-    toMoveImg: {
+    toDeleteFileState: false, // 删除图集激活状态
+    selected: [], // 当前选中图片
+    toMoveImg: { // 移动图片目标
       file_id: 0,
       img_id: 0,
       name: '',
     },
-    toMoveImgState: false,
-    toMoveImgDist: 0,
-    toDeleteImg: {
+    toMoveImgState: false, // 移动图片激活状态
+    toMoveImgDist: 0, // 移动图片目的图集
+    toDeleteImg: { // 删除图片目标
       file_id: 0,
       img_id: 0,
       name: '',
     },
-    toDeleteImgState: false,
-    toPostImg: '',
-    toPostImgState: false,
-    uploadState: false,
-    uploadImg: [],
+    toDeleteImgState: false, // 删除图片激活状态
+    toPostImg: '', // 发布推荐内容
+    toPostImgState: false, // 发布推荐激活状态
+    uploadState: false, // 上传图片激活状态
+    uploadImg: [], // 上传图片表，供 Upload 组件使用
   },
   reducers: {
     save(prev, { payload }) {
@@ -78,6 +78,7 @@ const GalleryModels = {
         ...payload,
       };
     },
+    // 重命名图集：存储图集名称
     saveFileName(prev, { payload }) {
       const { name } = payload;
       return {
@@ -88,6 +89,7 @@ const GalleryModels = {
         },
       }
     },
+    // 新建图集
     changeNewFile(prev) {
       return {
         ...prev,
@@ -95,6 +97,7 @@ const GalleryModels = {
         newFileName: '',
       }
     },
+    // 点选图片
     dealSelected(prev, { payload }) {
       const { index } = payload;
       let selected;
@@ -116,6 +119,7 @@ const GalleryModels = {
         selected,
       }
     },
+    // 清空图片点选
     cleanSelected(prev) {
       prev.selected = [];
       prev.imgs.forEach((item, index) => {
@@ -127,6 +131,7 @@ const GalleryModels = {
     },
   },
   effects: {
+    // 全刷新
     * allRefresh(_, { put }) {
       yield put({
         type: 'fileRefresh',
@@ -144,6 +149,7 @@ const GalleryModels = {
         type: 'imgRefresh',
       });
     },
+    // 图集表刷新
     * fileRefresh(_, { call, put }) {
       const res = yield call(getFile);
       const dirs = [{
@@ -161,6 +167,7 @@ const GalleryModels = {
         })
       }
     },
+    // 图片刷新
     * imgRefresh(_, { call, select, put }) {
       const { nowFile, selected } = yield select(state => state.gallery);
       const res = yield call(getImg, nowFile.id, 0, 12);
@@ -185,6 +192,7 @@ const GalleryModels = {
         })
       }
     },
+    // 新建图集
     * dealNewFile(_, { call, select, put }) {
       const { newFileName } = yield select(state => state.gallery);
       yield put({
@@ -202,6 +210,7 @@ const GalleryModels = {
         });
       }
     },
+    // 重命名图集
     * dealRenameFile(_, { call, select, put }) {
       const { editFile } = yield select(state => state.gallery);
       const { id, name } = editFile;
@@ -235,6 +244,7 @@ const GalleryModels = {
         });
       }
     },
+    // 删除图集
     * dealDeleteFile(_, { call, select, put }) {
       yield put({
         type: 'save',
@@ -253,6 +263,7 @@ const GalleryModels = {
         type: 'fileRefresh',
       })
     },
+    // 移动图片
     * dealMoveImg(_, { call, select, put }) {
       const { toMoveImg, toMoveImgDist } = yield select(state => state.gallery);
       const res = yield call(moveImg, toMoveImgDist, toMoveImg.img_id);
@@ -271,6 +282,7 @@ const GalleryModels = {
         },
       });
     },
+    // 拉取下一分页
     * morePage(_, { call, select, put }) {
       const { nowFile, page, count, imgs, selected } = yield select(state => state.gallery);
       if ((page + 1) * 12 < count) {
@@ -296,6 +308,7 @@ const GalleryModels = {
         }
       }
     },
+    // 删除图片
     * dealDeleteImg(_, { select, put, call }) {
       const { toDeleteImg, selected } = yield select(state => state.gallery);
       const newSelected = selected.filter(item => toDeleteImg.img_id !== item.img_id);
@@ -321,6 +334,7 @@ const GalleryModels = {
         type: 'imgRefresh',
       });
     },
+    // 发布推荐消息
     * dealPostImg(_, { select, call, put }) {
       const { selected, toPostImg, nowFile } = yield select(state => state.gallery);
       const imgs = [];
@@ -349,6 +363,7 @@ const GalleryModels = {
         },
       });
     },
+    // 上传图片
     * handleUpload({ payload }, { select, call, put }) {
       const { file } = payload;
       const img = new FormData();

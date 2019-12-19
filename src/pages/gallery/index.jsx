@@ -14,7 +14,6 @@ import {
 import React, { Component } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { connect } from 'dva';
-// import Authorized from '../../utils/Authorized';
 
 import styles from './style.less';
 
@@ -24,13 +23,12 @@ import styles from './style.less';
 class Notice extends Component {
   state = {};
 
-  arr = [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3];
-
   componentWillMount() {
     const { dispatch } = this.props;
+    // 图库全刷新：一次刷新图集 + 图片
     dispatch({
       type: 'gallery/allRefresh',
-    })
+    });
   }
 
   render() {
@@ -62,8 +60,10 @@ class Notice extends Component {
     } = gallery;
     const { Option } = Select;
     const { TextArea } = Input;
+    // 激活新建图集时显示的框架
     const dealNewFile = (
       <div>
+        {/* 输入框 */}
         <Input
           style={{ width: '80%' }}
           defaultValue={newFileName}
@@ -85,6 +85,7 @@ class Notice extends Component {
             e.stopPropagation();
           }}
         />
+        {/* 冗余的确认键 */}
         <Icon
           type="check"
           style={{
@@ -127,6 +128,7 @@ class Notice extends Component {
           </Descriptions>,
         ]}
       >
+        {/* 更改图集名称浮框 */}
         <Modal
           title="更改图集名称"
           visible={editFileState}
@@ -156,6 +158,7 @@ class Notice extends Component {
             }}
           />
         </Modal>
+        {/* 删除图集浮框 */}
         <Modal
           title="删除图集"
           visible={toDeleteFileState}
@@ -176,6 +179,7 @@ class Notice extends Component {
           <p style={{ color: 'red' }}>删除后，图集里的图片不会被删除，但将回到未归档状态，请谨慎操作。</p>
           <p>确定要删除 <span style={{ fontWeight: '700' }}>{toDeleteFile.name}</span> 图集吗？</p>
         </Modal>
+        {/* 移动图片浮框 */}
         <Modal
           width="70%"
           title="移动图片"
@@ -199,9 +203,8 @@ class Notice extends Component {
           }}
         >
           <div className={styles.moveModal}>
-            <div
-              className={styles.showImg}
-            >
+            {/* 图片显示 */}
+            <div className={styles.showImg}>
               {
                 toMoveImg.img_id === 0 ? <div/> :
                   <img
@@ -210,6 +213,7 @@ class Notice extends Component {
                   />
               }
             </div>
+            {/* 图集选择 */}
             <div style={{ marginTop: '50px' }}>
               <p>
                 <span style={{ margin: 'auto 20px' }}>移动到</span>
@@ -227,17 +231,18 @@ class Notice extends Component {
                 >
                   {
                     files.map(item => <Option
-                        value={item.id}
-                        disabled={item.id === 0 || item.id === toMoveImg.file_id}
-                      >
-                        {item.name}
-                      </Option>)
+                      value={item.id}
+                      disabled={item.id === 0 || item.id === toMoveImg.file_id}
+                    >
+                      {item.name}
+                    </Option>)
                   }
                 </Select>
               </p>
             </div>
           </div>
         </Modal>
+        {/* 删除图片浮框 */}
         <Modal
           width="70%"
           title="删除图片"
@@ -257,9 +262,8 @@ class Notice extends Component {
           }}
         >
           <div className={styles.moveModal}>
-            <div
-              className={styles.showImg}
-            >
+            {/* 图片显示 */}
+            <div className={styles.showImg}>
               {
                 toDeleteImg.img_id === 0 ? <div/> :
                   <img
@@ -274,6 +278,7 @@ class Notice extends Component {
             </div>
           </div>
         </Modal>
+        {/* 推荐消息发布浮框 */}
         <Modal
           width="800px"
           title="发布推荐消息"
@@ -297,12 +302,14 @@ class Notice extends Component {
           }}
         >
           <div className={styles.sendModal}>
+            {/* 提示信息 */}
             <div>
               <p style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
                 <Icon type="exclamation-circle" style={{ margin: 'auto 6px' }}/>
                 消息发布后 APP 用户将看到您的推荐消息，您可以在 [推荐消息管理页] 管理已经发布的推荐消息。
               </p>
             </div>
+            {/* 内容输入框 */}
             <p>
               <TextArea
                 style={{ width: '734px' }}
@@ -318,6 +325,7 @@ class Notice extends Component {
                 }}
               />
             </p>
+            {/* 图片显示 */}
             <div className={styles.imgSelected}>
               {
                 selected.map(item => (
@@ -331,8 +339,10 @@ class Notice extends Component {
             </div>
           </div>
         </Modal>
+        {/* 上传图片浮框 */}
         <Modal
           title="上传图片"
+          centered
           visible={uploadState}
           onCancel={() => {
             dispatch({
@@ -342,55 +352,70 @@ class Notice extends Component {
               },
             });
           }}
+          footer={null}
         >
+          {/* 提示信息 */}
           <div>
-            <p>你好</p>
-            <Upload
-              accept=".png,.jpg,.jpeg"
-              customRequest={action => {
-                const { file } = action;
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => {
-                  dispatch({
-                    type: 'gallery/handleUpload',
-                    payload: {
-                      file,
-                      url: reader.result,
-                    },
-                  });
-                };
-              }}
-              method="post"
-              listType="picture-card"
-              fileList={uploadImg}
-              onChange={({ fileList }) => {
-                if (uploadImg.length > fileList.length) {
-                  dispatch({
-                    type: 'gallery/save',
-                    payload: {
-                      uploadImg: fileList,
-                    },
-                  });
-                }
-              }}
-            >
-              <div>
-                <Icon type="plus" />
-                <div className="ant-upload-text">开始上传</div>
-              </div>
-            </Upload>
+            <p style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
+              图片选择后将被自动上传，新上传的图片默认存储在 [未归档] 图集中。
+            </p>
+          </div>
+          {/* 上传图框 */}
+          <div className={styles.uploadBox}>
+            <div>
+              <Upload
+                accept=".png,.jpg,.jpeg"
+                customRequest={action => {
+                  const { file } = action;
+                  const reader = new FileReader();
+                  reader.readAsDataURL(file);
+                  reader.onload = () => {
+                    dispatch({
+                      type: 'gallery/handleUpload',
+                      payload: {
+                        file,
+                        url: reader.result,
+                      },
+                    });
+                  };
+                }}
+                method="post"
+                listType="picture-card"
+                fileList={uploadImg}
+                onChange={({ fileList }) => {
+                  if (uploadImg.length > fileList.length) {
+                    dispatch({
+                      type: 'gallery/save',
+                      payload: {
+                        uploadImg: fileList,
+                      },
+                    });
+                  }
+                }}
+              >
+                <div>
+                  <Icon type="plus"/>
+                  <div className="ant-upload-text">开始上传</div>
+                </div>
+              </Upload>
+            </div>
           </div>
         </Modal>
-        <div className={styles.floatBar}>
+        {/* 浮动操作框 */}
+        <div
+          className={styles.floatBar}
+          style={selected.length === 0 ? null : { opacity: 1 }}
+        >
           {selected.length === 0 ?
+            // 未选择任何图片时
             <div>
               <p style={{
                 color: 'rgba(0, 0, 0, 0.45)',
                 fontSize: '16px',
-              }}>未选择任何图片</p>
+              }}>点击图片即可选中哦~😜</p>
             </div>
             :
+            // 有图片选中后
             <div>
               <p>
                 <span
@@ -429,6 +454,7 @@ class Notice extends Component {
             </div>
           }
         </div>
+        {/* 浮动上传按钮 */}
         <div className={styles.floatUpload}>
           <p>
             <Icon
@@ -445,11 +471,14 @@ class Notice extends Component {
             />
           </p>
         </div>
+        {/* 图集选择栏 */}
         <div className={styles.file}>
           <Affix offsetTop={80}>
             <Row className={styles.fileGroup} gutter={[30, 30]} align="top">
+              {/* 当前图集 */}
               <Col xl={6} lg={8} md={8} sm={12} xs={12}>
                 <div className={styles.fileBlock}>
+                  {/* 背景 */}
                   <div className={styles.fileBlockContent}>
                     <img
                       className={styles.fileImg}
@@ -457,6 +486,7 @@ class Notice extends Component {
                       alt=""
                     />
                   </div>
+                  {/* 显示 */}
                   <div className={styles.fileBlockAfter}>
                     <p>{nowFile.name}{nowFile.id === 0 ? <div/> :
                       <Icon
@@ -476,6 +506,7 @@ class Notice extends Component {
                   </div>
                 </div>
               </Col>
+              {/* 新建图集占位 */}
               <Col xl={6} lg={8} md={8} sm={12} xs={12}>
                 <div
                   className={styles.fileNotNow}
@@ -497,28 +528,29 @@ class Notice extends Component {
                   </div>
                 </div>
               </Col>
+              {/* 非当前图集 */}
               {files.map(item => (item.id === nowFile.id ? <div/> : (
-                  <Col xl={6} lg={8} md={8} sm={12} xs={12}>
-                    <div
-                      className={styles.fileNotNow}
-                      onClick={() => {
-                        dispatch({
-                          type: 'gallery/save',
-                          payload: {
-                            nowFile: item,
-                          },
-                        });
-                        dispatch({
-                          type: 'gallery/imgRefresh',
-                        });
-                      }}
-                    >
-                      <div className={styles.fileBlockContent}>
-                        <img className={styles.fileImg}
-                             src="https://s2.ax1x.com/2019/12/11/QsuV2t.jpg" alt=""/>
-                      </div>
-                      <div className={styles.fileBlockAfter}>
-                        <p>{item.name}{item.id === 0 ? <div/> : <span>
+                <Col xl={6} lg={8} md={8} sm={12} xs={12}>
+                  <div
+                    className={styles.fileNotNow}
+                    onClick={() => {
+                      dispatch({
+                        type: 'gallery/save',
+                        payload: {
+                          nowFile: item,
+                        },
+                      });
+                      dispatch({
+                        type: 'gallery/imgRefresh',
+                      });
+                    }}
+                  >
+                    <div className={styles.fileBlockContent}>
+                      <img className={styles.fileImg}
+                           src="https://s2.ax1x.com/2019/12/11/QsuV2t.jpg" alt=""/>
+                    </div>
+                    <div className={styles.fileBlockAfter}>
+                      <p>{item.name}{item.id === 0 ? <div/> : <span>
                           <Icon
                             type="edit"
                             style={{
@@ -556,118 +588,120 @@ class Notice extends Component {
                             }}
                           />
                               </span>}</p>
-                      </div>
                     </div>
-                  </Col>
-                )))
+                  </div>
+                </Col>
+              )))
               }
             </Row>
           </Affix>
         </div>
         <Row className={styles.imgGroup} gutter={[0, 0]} align="top">
+          {/* 图片显示 */}
           {
             imgs.map((item, index) => (
-                <Col xl={4} lg={6} md={6} sm={12} xs={12}>
-                  <Card
-                    className={styles.imgCase}
-                    hoverable
-                    bordered={false}
-                    actions={[
-                      <Tooltip title="移动到...">
-                        <Icon
-                          type="folder"
-                          key="folder"
-                          onClick={e => {
-                            e.stopPropagation();
+              <Col xl={4} lg={6} md={6} sm={12} xs={12}>
+                <Card
+                  className={styles.imgCase}
+                  hoverable
+                  bordered={false}
+                  actions={[
+                    <Tooltip title="移动到...">
+                      <Icon
+                        type="folder"
+                        key="folder"
+                        onClick={e => {
+                          e.stopPropagation();
+                          dispatch({
+                            type: 'gallery/save',
+                            payload: {
+                              toMoveImg: item,
+                              toMoveImgState: true,
+                              toMoveImgDist: 0,
+                            },
+                          })
+                        }}
+                      />
+                    </Tooltip>,
+                    <Tooltip title="下载图片">
+                      <Icon
+                        type="download"
+                        key="download"
+                        onClick={e => {
+                          e.stopPropagation();
+                          const link = new XMLHttpRequest();
+                          link.open(
+                            'GET',
+                            `http://pull.wghtstudio.cn/img/${item.name}`,
+                            true,
+                          );
+                          link.onload = () => {
+                            const url = window.URL.createObjectURL(link.response);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = item.img_id;
+                            a.click();
+                          };
+                          link.send();
+                        }}
+                      />
+                    </Tooltip>,
+                    <Tooltip title={item.count === 0 ? '删除图片' : '被引用的图片无法删除哦~'}>
+                      <Icon
+                        type={item.count === 0 ? 'close' : 'exclamation-circle'}
+                        key="close"
+                        onClick={e => {
+                          e.stopPropagation();
+                          if (item.count === 0) {
                             dispatch({
                               type: 'gallery/save',
                               payload: {
-                                toMoveImg: item,
-                                toMoveImgState: true,
-                                toMoveImgDist: 0,
+                                toDeleteImgState: true,
+                                toDeleteImg: item,
                               },
-                            })
-                          }}
+                            });
+                          }
+                        }}
+                      />
+                    </Tooltip>,
+                  ]}
+                  cover={
+                    <div className={styles.imgBox}>
+                      <div className={styles.img}>
+                        <img
+                          className={styles.imgSelf}
+                          src={`http://pull.wghtstudio.cn/img/${item.name}`}
+                          alt="图片未能正常显示"
                         />
-                      </Tooltip>,
-                      <Tooltip title="下载图片">
-                        <Icon
-                          type="download"
-                          key="download"
-                          onClick={e => {
-                            e.stopPropagation();
-                            const link = new XMLHttpRequest();
-                            link.open(
-                              'GET',
-                              `http://pull.wghtstudio.cn/img/${item.name}`,
-                              true,
-                            );
-                            link.onload = () => {
-                              const url = window.URL.createObjectURL(link.response);
-                              const a = document.createElement('a');
-                              a.href = url;
-                              a.download = item.img_id;
-                              a.click();
-                            };
-                            link.send();
-                          }}
-                        />
-                      </Tooltip>,
-                      <Tooltip title={item.count === 0 ? '删除图片' : '被引用的图片无法删除哦~'}>
-                        <Icon
-                          type={item.count === 0 ? 'close' : 'exclamation-circle'}
-                          key="close"
-                          onClick={e => {
-                            e.stopPropagation();
-                            if (item.count === 0) {
-                              dispatch({
-                                type: 'gallery/save',
-                                payload: {
-                                  toDeleteImgState: true,
-                                  toDeleteImg: item,
-                                },
-                              });
-                            }
-                          }}
-                        />
-                      </Tooltip>,
-                    ]}
-                    cover={
-                      <div className={styles.imgBox}>
-                        <div className={styles.img}>
-                          <img
-                            className={styles.imgSelf}
-                            src={`http://pull.wghtstudio.cn/img/${item.name}`}
-                            alt="图片未能正常显示"
-                          />
-                        </div>
-                        {item.choose ?
-                          <div className={styles.imgAfter}>
-                            <p><Icon type="check"/></p>
-                          </div>
-                          :
-                          <div/>
-                        }
                       </div>
-                    }
-                    onClick={() => {
-                      dispatch({
-                        type: 'gallery/dealSelected',
-                        payload: {
-                          index,
-                        },
-                      });
-                    }}
-                  >
-                    <Card.Meta
-                      title={`已被引用 ${item.count} 次`}
-                      description={`上传于 ${item.upload_time}`}
-                    />
-                  </Card>
-                </Col>
-              ))
+                      {item.choose ?
+                        <div className={styles.imgAfter}>
+                          <p><Icon type="check"/></p>
+                        </div>
+                        :
+                        <div/>
+                      }
+                    </div>
+                  }
+                  onClick={() => {
+                    dispatch({
+                      type: 'gallery/dealSelected',
+                      payload: {
+                        index,
+                      },
+                    });
+                  }}
+                >
+                  <Card.Meta
+                    title={`已被引用 ${item.count} 次`}
+                    description={`上传于 ${item.upload_time}`}
+                  />
+                </Card>
+              </Col>
+            ))
           }
         </Row>
+        {/* 分页 */}
         <Row className={styles.imgGroup} gutter={[0, 0]} align="top">
           <Col xl={24} lg={24} md={24} sm={24} xs={24}>
             <div
