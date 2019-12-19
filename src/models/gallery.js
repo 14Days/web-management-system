@@ -9,14 +9,6 @@ import {
   deleteImg,
 } from '../services/gallery';
 import { upload, uploadMessage } from '../services/message';
-import { showNotification } from '@/utils/common';
-
-// 用于快速搜索计算延时
-function delayWaiting(ms) {
-  return new Promise(resolve => {
-    setTimeout(resolve, ms);
-  });
-}
 
 // 用于成功后在页面上调出成功弹窗提示
 function showSuccess(msg) {
@@ -29,7 +21,7 @@ function showSuccess(msg) {
 // 用于成功后在页面上调出成功弹窗提示
 function showFail(msg) {
   return new Promise(resolve => {
-    message.error(msg)
+    message.error(msg);
     resolve();
   });
 }
@@ -179,7 +171,7 @@ const GalleryModels = {
             if (ele.img_id === item.img_id) {
               flag = true;
             }
-          })
+          });
           res.data.images[index].choose = flag;
         });
         yield put({
@@ -231,7 +223,7 @@ const GalleryModels = {
           payload: {
             files,
           },
-        })
+        });
         const res = yield call(renameFile, id, name);
         if (res.status === 'success') {
           yield call(showSuccess, '图集重命名成功');
@@ -249,7 +241,7 @@ const GalleryModels = {
         payload: {
           toDeleteFileState: false,
         },
-      })
+      });
       const { toDeleteFile } = yield select(state => state.gallery);
       const res = yield call(deleteFile, toDeleteFile.id);
       if (res.status === 'success') {
@@ -271,13 +263,13 @@ const GalleryModels = {
       }
       yield put({
         type: 'imgRefresh',
-      })
+      });
       yield put({
         type: 'save',
         payload: {
           toMoveImgState: false,
         },
-      })
+      });
     },
     * morePage(_, { call, select, put }) {
       const { nowFile, page, count, imgs, selected } = yield select(state => state.gallery);
@@ -306,12 +298,7 @@ const GalleryModels = {
     },
     * dealDeleteImg(_, { select, put, call }) {
       const { toDeleteImg, selected } = yield select(state => state.gallery);
-      const newSelected = selected.filter((item) => {
-        if (toDeleteImg.img_id === item.img_id) {
-          return false;
-        }
-        return true;
-      });
+      const newSelected = selected.filter(item => toDeleteImg.img_id !== item.img_id);
       yield put({
         type: 'save',
         payload: {

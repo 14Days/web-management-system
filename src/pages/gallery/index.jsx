@@ -1,14 +1,11 @@
 import {
   Affix,
-  Button,
   Card,
   Col,
   Descriptions,
-  Divider,
   Icon,
   Input,
   Modal,
-  Popover,
   Row,
   Select,
   Tooltip,
@@ -103,7 +100,7 @@ class Notice extends Component {
           }}
         />
       </div>
-    )
+    );
     return (
       <PageHeaderWrapper
         title="图库"
@@ -229,14 +226,12 @@ class Notice extends Component {
                   }}
                 >
                   {
-                    files.map(item => {
-                      return <Option
+                    files.map(item => <Option
                         value={item.id}
                         disabled={item.id === 0 || item.id === toMoveImg.file_id}
                       >
                         {item.name}
-                      </Option>;
-                    })
+                      </Option>)
                   }
                 </Select>
               </p>
@@ -502,8 +497,7 @@ class Notice extends Component {
                   </div>
                 </div>
               </Col>
-              {files.map(item => {
-                return (item.id === nowFile.id ? <div/> : (
+              {files.map(item => (item.id === nowFile.id ? <div/> : (
                   <Col xl={6} lg={8} md={8} sm={12} xs={12}>
                     <div
                       className={styles.fileNotNow}
@@ -565,16 +559,14 @@ class Notice extends Component {
                       </div>
                     </div>
                   </Col>
-                ))
-              })
+                )))
               }
             </Row>
           </Affix>
         </div>
         <Row className={styles.imgGroup} gutter={[0, 0]} align="top">
           {
-            imgs.map((item, index) => {
-              return (
+            imgs.map((item, index) => (
                 <Col xl={4} lg={6} md={6} sm={12} xs={12}>
                   <Card
                     className={styles.imgCase}
@@ -616,7 +608,7 @@ class Notice extends Component {
                               a.href = url;
                               a.download = item.img_id;
                               a.click();
-                            }
+                            };
                             link.send();
                           }}
                         />
@@ -673,8 +665,7 @@ class Notice extends Component {
                     />
                   </Card>
                 </Col>
-              )
-            })
+              ))
           }
         </Row>
         <Row className={styles.imgGroup} gutter={[0, 0]} align="top">
