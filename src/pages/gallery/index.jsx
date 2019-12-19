@@ -3,6 +3,7 @@ import {
   Card,
   Col,
   Descriptions,
+  Divider,
   Icon,
   Input,
   Modal,
@@ -407,7 +408,7 @@ class Notice extends Component {
           className={styles.floatBar}
           style={selected.length === 0 ? { width: '240px' } : {
             opacity: 1,
-            width: '360px'
+            width: '360px',
           }}
         >
           {selected.length === 0 ?
@@ -492,10 +493,13 @@ class Notice extends Component {
               })}
               style={
                 fileHover ? { height: 120 * (Math.ceil((files.length + 1) / 4)) }
-                  : { height: 100 }
+                  : { height: 160 }
               }
             >
               <Row gutter={[14, 10]} align="top">
+                <Col xl={24} lg={24} md={24} sm={24} xs={24}>
+                  <Divider>图集</Divider>
+                </Col>
               {/* 当前图集 */}
               <Col xl={6} lg={8} md={8} sm={12} xs={12}>
                 <div className={styles.fileBlock}>
@@ -641,6 +645,17 @@ class Notice extends Component {
           </Affix>
         </div>
         <Row className={styles.imgGroup} gutter={[0, 0]} align="top">
+          <Col xl={24} lg={24} md={24} sm={24} xs={24}>
+            <Divider
+              orientation="left"
+              style={{
+                color: 'rgba(0, 0, 0, 0.35)',
+                fontWeight: '200',
+              }}
+            >
+              {nowFile.name}
+            </Divider>
+          </Col>
           {/* 图片显示 */}
           {
             imgs.map((item, index) => (
@@ -740,7 +755,7 @@ class Notice extends Component {
                   }}
                 >
                   <Card.Meta
-                    title={`已被引用 ${item.count} 次`}
+                    title={item.count === 0 ? '此图未被引用' : `被引用 ${item.count} 次`}
                     description={`上传于 ${item.upload_time}`}
                   />
                 </Card>
