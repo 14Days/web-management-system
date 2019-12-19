@@ -57,6 +57,7 @@ class Notice extends Component {
       toPostImgState,
       uploadState,
       uploadImg,
+      fileHover,
     } = gallery;
     const { Option } = Select;
     const { TextArea } = Input;
@@ -112,7 +113,7 @@ class Notice extends Component {
             <Descriptions.Item label="最后刷新时间">
               {last}
               <Tooltip
-                title="刷新"
+                title="刷新图片"
                 onClick={() => {
                   dispatch({
                     type: 'gallery/imgRefresh',
@@ -404,7 +405,10 @@ class Notice extends Component {
         {/* 浮动操作框 */}
         <div
           className={styles.floatBar}
-          style={selected.length === 0 ? null : { opacity: 1 }}
+          style={selected.length === 0 ? { width: '240px' } : {
+            opacity: 1,
+            width: '360px'
+          }}
         >
           {selected.length === 0 ?
             // 未选择任何图片时
@@ -429,6 +433,7 @@ class Notice extends Component {
                       },
                     });
                   }}
+                  style={{ cursor: 'pointer' }}
                 >
                 发布推荐动态
                 </span>
@@ -446,6 +451,7 @@ class Notice extends Component {
                         type: 'gallery/cleanSelected',
                       });
                     }}
+                    style={{ cursor: 'pointer' }}
                   >
                     清空
                   </span>
@@ -471,27 +477,53 @@ class Notice extends Component {
             />
           </p>
         </div>
-        {/* 图集选择栏 */}
+        {/* 图集栏 */}
         <div className={styles.file}>
-          <Affix offsetTop={80}>
-            <Row className={styles.fileGroup} gutter={[30, 30]} align="top">
+          <Affix offsetTop={64}>
+            <div
+              className={styles.fileGroup}
+              onMouseEnter={() => dispatch({
+                type: 'gallery/save',
+                payload: { fileHover: true },
+              })}
+              onMouseLeave={() => dispatch({
+                type: 'gallery/save',
+                payload: { fileHover: false },
+              })}
+              style={
+                fileHover ? { height: 120 * (Math.ceil((files.length + 1) / 4)) }
+                  : { height: 100 }
+              }
+            >
+              <Row gutter={[14, 10]} align="top">
               {/* 当前图集 */}
               <Col xl={6} lg={8} md={8} sm={12} xs={12}>
                 <div className={styles.fileBlock}>
                   {/* 背景 */}
                   <div className={styles.fileBlockContent}>
-                    <img
-                      className={styles.fileImg}
-                      src="https://s2.ax1x.com/2019/12/11/QsuV2t.jpg"
-                      alt=""
-                    />
+                    {
+                      imgs.length > 0 ?
+                        <img
+                          className={styles.fileImg}
+                          src={`http://pull.wghtstudio.cn/img/${imgs[0].name}`}
+                          alt=""
+                        /> : <img
+                          className={styles.fileImg}
+                          src="https://s2.ax1x.com/2019/12/19/QqoleU.png"
+                          alt=""
+                        />
+                    }
                   </div>
                   {/* 显示 */}
                   <div className={styles.fileBlockAfter}>
                     <p>{nowFile.name}{nowFile.id === 0 ? <div/> :
                       <Icon
                         type="edit"
-                        style={{ color: 'rgba(255, 255, 255, 0.6)' }}
+                        style={{
+                          color: 'rgba(255, 255, 255, 0.4)',
+                          fontSize: '16px',
+                          margin: '8px 2%',
+                        }}
                         onClick={e => {
                           e.stopPropagation();
                           dispatch({
@@ -519,9 +551,10 @@ class Notice extends Component {
                   <div className={styles.fileBlockContent}>
                     <img
                       className={styles.fileImg}
-                      src="https://s2.ax1x.com/2019/12/11/QsuV2t.jpg"
+                      src="https://s2.ax1x.com/2019/12/19/QqoleU.png"
                       alt=""
                     />
+                    {/* https://s2.ax1x.com/2019/12/19/QqWayF.jpg */}
                   </div>
                   <div className={styles.fileBlockAfter}>
                     {newFile ? dealNewFile : <p><Icon type="plus"/> 新建图集</p>}
@@ -529,7 +562,7 @@ class Notice extends Component {
                 </div>
               </Col>
               {/* 非当前图集 */}
-              {files.map(item => (item.id === nowFile.id ? <div/> : (
+              {files.map(item => (item.id === nowFile.id ? null : (
                 <Col xl={6} lg={8} md={8} sm={12} xs={12}>
                   <div
                     className={styles.fileNotNow}
@@ -546,8 +579,18 @@ class Notice extends Component {
                     }}
                   >
                     <div className={styles.fileBlockContent}>
-                      <img className={styles.fileImg}
-                           src="https://s2.ax1x.com/2019/12/11/QsuV2t.jpg" alt=""/>
+                      {
+                        item.imgsName === undefined ?
+                          <img
+                            className={styles.fileImg}
+                            src="https://s2.ax1x.com/2019/12/19/QqoleU.png"
+                            alt=""
+                          /> : <img
+                            className={styles.fileImg}
+                            src={`http://pull.wghtstudio.cn/img/${item.imgsName}`}
+                            alt=""
+                          />
+                      }
                     </div>
                     <div className={styles.fileBlockAfter}>
                       <p>{item.name}{item.id === 0 ? <div/> : <span>
@@ -593,7 +636,8 @@ class Notice extends Component {
                 </Col>
               )))
               }
-            </Row>
+              </Row>
+            </div>
           </Affix>
         </div>
         <Row className={styles.imgGroup} gutter={[0, 0]} align="top">
@@ -605,6 +649,9 @@ class Notice extends Component {
                   className={styles.imgCase}
                   hoverable
                   bordered={false}
+                  style={
+                    item.choose ? { boxShadow: '0 0 10px rgba(74, 168, 255, 0.6)' } : null
+                  }
                   actions={[
                     <Tooltip title="移动到...">
                       <Icon
@@ -646,7 +693,7 @@ class Notice extends Component {
                         }}
                       />
                     </Tooltip>,
-                    <Tooltip title={item.count === 0 ? '删除图片' : '被引用的图片无法删除哦~'}>
+                    <Tooltip title={item.count === 0 ? '删除图片' : '被引用的图片无法删除'}>
                       <Icon
                         type={item.count === 0 ? 'close' : 'exclamation-circle'}
                         key="close"

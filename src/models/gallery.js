@@ -70,6 +70,7 @@ const GalleryModels = {
     toPostImgState: false, // 发布推荐激活状态
     uploadState: false, // 上传图片激活状态
     uploadImg: [], // 上传图片表，供 Upload 组件使用
+    fileHover: false,
   },
   reducers: {
     save(prev, { payload }) {
@@ -109,10 +110,13 @@ const GalleryModels = {
           }
           return true;
         });
-      } else {
+      } else if (prev.selected.length < 16) {
         prev.imgs[index].choose = true;
         selected = prev.selected.filter(() => true);
         selected.push(prev.imgs[index]);
+      } else {
+        selected = prev.selected.filter(() => true);
+        message.info('一条推荐消息最多附带16张图')
       }
       return {
         ...prev,
@@ -123,8 +127,8 @@ const GalleryModels = {
     cleanSelected(prev) {
       prev.selected = [];
       prev.imgs.forEach((item, index) => {
-          prev.imgs[index].choose = false;
-        });
+        prev.imgs[index].choose = false;
+      });
       return {
         ...prev,
       };
@@ -144,32 +148,46 @@ const GalleryModels = {
             name: '未归档',
           },
         },
-      })
+      });
       yield put({
         type: 'imgRefresh',
       });
     },
     // 图集表刷新
     * fileRefresh(_, { call, put }) {
+      yield put({
+        type: 'save',
+        payload: {
+          files: [],
+        },
+      });
       const res = yield call(getFile);
       const dirs = [{
         id: 0,
         name: '未归档',
       }];
       Array.prototype.push.apply(dirs, res.data.dirs);
-      if (1 || res.status === 'success') {
+      if (res.status === 'success') {
         yield put({
           type: 'save',
           payload: {
             files: dirs,
-            last: Date(),
           },
-        })
+        });
+        yield put({
+          type: 'fetchEach',
+        });
       }
     },
     // 图片刷新
     * imgRefresh(_, { call, select, put }) {
       const { nowFile, selected } = yield select(state => state.gallery);
+      yield put({
+        type: 'save',
+        payload: {
+          imgs: [],
+        },
+      })
       const res = yield call(getImg, nowFile.id, 0, 12);
       if (res.status === 'success') {
         res.data.images.forEach((item, index) => {
@@ -191,6 +209,24 @@ const GalleryModels = {
           },
         })
       }
+    },
+    * fetchEach(_, { select, call, put }) {
+      console.log('hello')
+      const { files } = yield select(state => state.gallery);
+      console.log(files)
+      for (let index = 0; index < files.length; index += 1) {
+        const res = yield call(getImg, files[index].id, 0, 1);
+        if (res.data.images[0] !== undefined) {
+          files[index].imgsName = res.data.images[0].name;
+        }
+      }
+      console.log(files)
+      yield put({
+        type: 'save',
+        payload: {
+          files,
+        },
+      })
     },
     // 新建图集
     * dealNewFile(_, { call, select, put }) {
