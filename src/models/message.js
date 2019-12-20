@@ -6,21 +6,41 @@ import {
   upload,
   uploadMessage,
 } from '../services/message';
-import { formatAppAvaUrl, showNotification } from '../utils/common';
+import { formatAppAvaUrl, formatImgUrl, showNotification } from '../utils/common';
 import { pullImgURL } from '../utils/url';
+
+const loadImg = url =>
+  new Promise(resolve => {
+    const img = new Image();
+    img.src = url;
+    img.onload = () => {
+      resolve(img.height);
+    };
+  });
 
 export default {
   namespace: 'message',
   state: {
     total: 0,
-    message: [],
+    page: 0,
+    limit: 3,
+    loadAll: false,
+    leftMsg: [],
+    rightMsg: [],
+    leftHeight: 0,
+    rightHeight: 0,
     upload: {
+      inc: 0,
       content: '',
       img: [],
     },
     update: {
+      index: 0, // sideMsg下标
+      side: '', // 左边右边？
+      inc: 0,
       content: '',
       img: [],
+      imgInfos: [],
       old: [],
       messageID: 0,
     },
@@ -41,17 +61,36 @@ export default {
         upload: {
           content: '',
           img: [],
+          inc: 0,
         },
       };
     },
-    delete(state, { payload }) {
-      const { message } = state;
-      const { index } = payload;
-      message.splice(index, 1);
-      const ret = JSON.parse(JSON.stringify(message));
+    sidePush(state, { payload }) {
+      const { message: m, height, side } = payload;
+      const { [`${side}Msg`]: msgArr, [`${side}Height`]: h } = state;
+      msgArr.push(m);
       return {
         ...state,
-        message: ret,
+        [`${side}Msg`]: JSON.parse(JSON.stringify(msgArr)),
+        [`${side}Height`]: h + height,
+      };
+    },
+    // 上传图片显示加载中
+    loading(state, { payload }) {
+      const { model } = payload;
+      const up = state[model];
+      const { inc } = up;
+      const img = JSON.parse(JSON.stringify(up.img));
+      img.push({
+        uid: inc,
+        status: 'uploading',
+      });
+      return {
+        ...state,
+        [model]: {
+          ...up,
+          img,
+        },
       };
     },
     // 上传单张图片
@@ -59,36 +98,38 @@ export default {
       // 用本地 url
       const { imgID, url, status, model } = payload;
       const {
-        [model]: { img },
+        [model]: { img, inc },
       } = state;
-      console.log('uploadSuccess', payload);
-      const uid = img.length === 0 ? 0 : img[img.length - 1].uid + 1;
-      img.push({
-        uid,
-        imgID,
-        status,
-        url,
+      const ret = JSON.parse(JSON.stringify(img));
+      ret.forEach(e => {
+        if (e.uid === inc) {
+          // 把刚刚正在上传的图片显示出来状态改为 done
+          e.status = status;
+          e.imgID = imgID;
+          e.url = url;
+        }
       });
       const origin = state[model];
       return {
         ...state,
         [model]: {
           ...origin,
-          img,
+          img: ret,
+          inc: inc + 1,
         },
       };
     },
-    deleteUpload(state, { payload }) {
-      const {
-        upload: { img },
-      } = state;
-      const { uid } = payload;
-      img.splice(uid, 1);
+    delete(state, { payload }) {
+      const { uid, model } = payload;
+      const up = state[model];
+      console.log(model, up);
 
+      const res = up.img.filter(e => e.uid !== uid); // 找出不等于 uid 的
       return {
         ...state,
-        upload: {
-          img,
+        [model]: {
+          ...up,
+          img: res,
         },
       };
     },
@@ -100,41 +141,84 @@ export default {
      * url:
      */
     updateMessagePrepare(state, { payload }) {
-      // index 是被点击修改的推荐消息的下标
-      const { index } = payload;
-      const { message } = state;
-      const handle = message[index];
+      const { message: handle, index, side } = payload;
       let update = {};
       // message.img_url.{id, name}
-      const format = [];
-      const old = [];
-      console.log(handle);
-      handle.img_url.forEach((item, i) => {
+      const format = []; // 把原来的图片格式化成 Upload 组件兼容的格式
+      const old = []; // 保存原来图片的 id
+      let inc = 0; // 自增计数器
+      handle.img_url.forEach(item => {
         format.push({
           imgID: item.id,
           url: `${pullImgURL}${item.name}`,
           status: 'done',
-          uid: i,
+          uid: inc,
         });
+        inc += 1;
         old.push(item.id);
       });
       update = {
+        side,
+        index,
         content: handle.content,
         img: format,
         old,
         messageID: handle.id,
+        inc,
       };
-      console.log('uuuupdate', update);
       return {
         ...state,
         update,
       };
     },
+    saveUpdate(state, { payload }) {
+      // 保存修改在本地
+      const { side, index, message } = payload;
+      const { [`${side}Msg`]: arr } = state;
+      const ret = JSON.parse(JSON.stringify(arr));
+      // 🤷‍啊
+      message.comment = message.comment.length;
+      message.thumb = message.thumb_user.length;
+      message.img_url = message.img; // 获取详情的接口和获取列表接口不一样
+      // 🤷‍啊
+
+      ret[index] = message;
+      // TODO: 重新请求这个 message
+
+      return {
+        ...state,
+        [`${side}Msg`]: ret,
+      };
+    },
+    deleteMsg(
+      state,
+      {
+        payload: { side, index },
+      },
+    ) {
+      const { [`${side}Msg`]: arr } = state;
+      const ret = JSON.parse(JSON.stringify(arr));
+      ret.splice(index, 1);
+      return {
+        ...state,
+        [`${side}Msg`]: ret,
+      };
+    },
   },
   effects: {
-    *handleInit(_, { put, call }) {
+    *handleInit(_, { put, call, select }) {
+      yield put({
+        type: 'save',
+        payload: {
+          leftMsg: [],
+          rightMsg: [],
+          page: 0,
+          loadAll: false,
+        },
+      });
       try {
-        const res = yield call(fetchMessage);
+        const { page, limit } = yield select(state => state.message);
+        const res = yield call(fetchMessage, page, limit);
         console.log('请求推荐消息', res);
         if (res.status === 'error') {
           showNotification('error', '拉取失败');
@@ -142,8 +226,14 @@ export default {
           yield put({
             type: 'save',
             payload: {
-              message: res.data.res,
               total: res.data.count,
+              page: page + 1,
+            },
+          });
+          yield put({
+            type: 'waterfall',
+            payload: {
+              message: res.data.res,
             },
           });
         }
@@ -151,15 +241,77 @@ export default {
         showNotification('error', '拉取失败');
       }
     },
+    *handleLoadMore(_, { put, call, select }) {
+      try {
+        const { page, limit } = yield select(state => state.message);
+        const res = yield call(fetchMessage, page, limit);
+        console.log('请求推荐消息', res);
+        if (res.status === 'error') {
+          showNotification('error', '拉取失败');
+        } else {
+          yield put({
+            type: 'save',
+            payload: {
+              total: res.data.count,
+              page: page + 1,
+            },
+          });
+          if (res.data.res.length === 0) {
+            yield put({
+              type: 'save',
+              payload: {
+                loadAll: true,
+              },
+            });
+          } else {
+            yield put({
+              type: 'waterfall',
+              payload: {
+                message: res.data.res,
+              },
+            });
+          }
+        }
+      } catch (e) {
+        showNotification('error', '拉取失败');
+      }
+    },
+    *waterfall({ payload }, { put }) {
+      const { message } = payload;
+      for (let i = 0; i < message.length; i += 1) {
+        yield put({
+          type: 'selectSide',
+          payload: message[i],
+        });
+      }
+    },
+    *selectSide({ payload: message }, { put, call, select }) {
+      const height = yield call(loadImg, formatImgUrl(message.img_url[0].name));
+      const { leftHeight, rightHeight } = yield select(state => state.message);
+      yield put({
+        type: 'sidePush',
+        payload: {
+          side: rightHeight > leftHeight ? 'left' : 'right',
+          message,
+          height,
+        },
+      });
+    },
     *handleDelete({ payload }, { put, call }) {
-      const { id } = payload;
+      const { side, index, message } = payload;
+      const { id } = message;
       try {
         const res = yield call(deleteMessage, [id]); // 对接口变成数组
 
         if (res.status === 'success') {
           showNotification('success', '删除成功');
+          // TODO: handleInit 不能随便调用了
           yield put({
-            type: 'handleInit',
+            type: 'deleteMsg',
+            payload: {
+              index,
+              side,
+            },
           });
         }
       } catch (e) {
@@ -190,7 +342,6 @@ export default {
       const { content, img } = payload;
       try {
         const res = yield call(uploadMessage, content, img);
-        console.log('res', res);
         showNotification(
           res.status,
           res.status === 'success' ? '上传成功' : res.err_msg || '上传失败',
@@ -200,6 +351,7 @@ export default {
           yield put({
             type: 'clear',
           });
+          // 保存上传的
           yield put({
             type: 'handleInit',
           });
@@ -211,26 +363,52 @@ export default {
     *handleUpdateMessage({ payload }, { put, call, select }) {
       const { content, img } = payload;
       const {
-        update: { old, messageID },
+        update: { old, messageID, index, side },
       } = yield select(state => state.message);
       try {
+        // TODO: 提交删除服务器好像有问题
         const res = yield call(updateMessge, messageID, content, img, old);
         showNotification(
           res.status,
           res.status === 'success' ? '修改成功' : res.err_msg || '修改失败',
         );
         if (res.status === 'success') {
-          yield put({
-            type: 'handleInit',
-          });
+          try {
+            const detail = yield call(getDetail, messageID);
+            if (detail.status === 'success') {
+              yield put({
+                type: 'saveUpdate',
+                payload: {
+                  side,
+                  index,
+                  message: detail.data,
+                },
+              });
+            }
+          } catch (e) {
+            showNotification('error', '更新信息失败');
+          }
         }
       } catch (e) {
         showNotification('error', '修改失败');
       }
     },
-    *getDetail({ payload }, { put, call }) {
+    *getMessageDetail(
+      {
+        payload: {
+          message: { id },
+        },
+      },
+      { put, call },
+    ) {
+      yield put({
+        type: 'save',
+        payload: {
+          detail: {},
+        },
+      });
       try {
-        const res = yield call(getDetail, payload);
+        const res = yield call(getDetail, id);
         console.log(res);
         if (res.status === 'success') {
           // 拼接头像 url
@@ -238,12 +416,13 @@ export default {
             item.user.avatar = formatAppAvaUrl(item.user.avatar);
           });
           const { thumb_user: thumbs } = res.data;
-          let thumbInfo;
+          let thumbList = thumbs.length ? '' : '还没有人点赞哦';
           for (let i = 0; i < thumbs.length; i += 1) {
             if (i > 6 || i === thumbs.length - 1) {
-              thumbInfo += `等${thumbs.length}人点赞`;
+              thumbList += `${thumbs[i]}等${thumbs.length}人点赞`;
+              break;
             } else {
-              thumbInfo += i === thumbs.length - 1 ? thumbs[i] : `${thumbs[i]}、`;
+              thumbList += `${thumbs[i]}、`;
             }
           }
           yield put({
@@ -251,7 +430,7 @@ export default {
             payload: {
               detail: {
                 ...res.data,
-                thumbInfo,
+                thumbList,
               },
             },
           });
