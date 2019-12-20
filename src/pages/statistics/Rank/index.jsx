@@ -82,7 +82,7 @@ export default ({ data, type, kind }) => {
             </div>
             <div className={styles.name}>
               <p>
-                {icon} <Tag>{data[2].tag === undefined ? '??' : data[2].tag}</Tag>
+                {icon} <Tag>{data[2].tag === undefined ? data[2].name : data[2].tag}</Tag>
               </p>
             </div>
           </div>

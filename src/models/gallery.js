@@ -181,7 +181,9 @@ const GalleryModels = {
     },
     // 图片刷新
     * imgRefresh(_, { call, select, put }) {
-      const { nowFile, selected } = yield select(state => state.gallery);
+      const gallery = yield select(state => state.gallery);
+      const { nowFile, selected } = gallery;
+      let { files } = gallery;
       yield put({
         type: 'save',
         payload: {
@@ -199,6 +201,21 @@ const GalleryModels = {
           });
           res.data.images[index].choose = flag;
         });
+        if (res.data.images.length > 0) {
+          for (let index = 0; index < files.length; index += 1) {
+            if (files[index].id === nowFile.id) {
+              files[index].imgsName = res.data.images[0].name;
+              break;
+            }
+          }
+        } else {
+          for (let index = 0; index < files.length; index += 1) {
+            if (files[index].id === nowFile.id) {
+              files[index].imgsName = undefined;
+              break;
+            }
+          }
+        }
         yield put({
           type: 'save',
           payload: {

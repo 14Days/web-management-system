@@ -25,7 +25,7 @@ export const changePwdURL = `${userURL}/password`;
 export const loginURL = `${baseURL}/login`;
 
 // 获取统计信息
-export const getRecordURL = 'http://yapi.wghtstudio.cn/mock/21/record';
+export const getRecordURL = `${baseURL}/record`;
 
 // 获取推荐消息
 export const getMessageURL = `${baseURL}/img`;

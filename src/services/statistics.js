@@ -1,8 +1,11 @@
 import request from '@/utils/request';
 import { getRecordURL } from '../utils/url';
 
-export async function getRecord(param) {
-  return request.post(getRecordURL, {
-    data: param,
+export async function getRecord(start, end) {
+  return request.get(getRecordURL, {
+    params: {
+      start,
+      end,
+    },
   });
 }

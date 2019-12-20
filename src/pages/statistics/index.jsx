@@ -28,10 +28,8 @@ class Statistics extends Component {
       numNewrecommend,
       styleLike,
       styleCollect,
-      styleComment,
       designerPost,
       designerFollow,
-      designerComment,
       designerLike,
     } = statistics; // 抽取数据
 
@@ -50,25 +48,6 @@ class Statistics extends Component {
       },
       {
         title: '点赞数',
-        dataIndex: 'num',
-        key: 'num',
-      },
-    ];
-
-    const styleCommentColumns = [
-      {
-        title: '排名',
-        dataIndex: 'key',
-        key: 'rank',
-        render: text => <span>{`# ${text}`}</span>,
-      },
-      {
-        title: '风格',
-        dataIndex: 'tag',
-        key: 'name',
-      },
-      {
-        title: '评论数',
         dataIndex: 'num',
         key: 'num',
       },
@@ -145,25 +124,6 @@ class Statistics extends Component {
       },
       {
         title: '新增被关注数',
-        dataIndex: 'num',
-        key: 'num',
-      },
-    ];
-
-    const designerCommentColumns = [
-      {
-        title: '排名',
-        dataIndex: 'key',
-        key: 'rank',
-        render: text => <span>{`# ${text}`}</span>,
-      },
-      {
-        title: '设计师昵称',
-        dataIndex: 'name',
-        key: 'name',
-      },
-      {
-        title: '新增被评论数',
         dataIndex: 'num',
         key: 'num',
       },
@@ -263,7 +223,7 @@ class Statistics extends Component {
             </Card>
           </Col>
           {/* 每一卡片 Rank展示前三 Table展示后七 */}
-          <Col xl={8} lg={24} md={24} sm={24} xs={24}>
+          <Col xl={12} lg={24} md={24} sm={24} xs={24}>
             <Card
               title="风格点赞排名"
               className={styles.infoCard}
@@ -279,7 +239,7 @@ class Statistics extends Component {
               />
             </Card>
           </Col>
-          <Col xl={8} lg={24} md={24} sm={24} xs={24}>
+          <Col xl={12} lg={24} md={24} sm={24} xs={24}>
             <Card
               title="风格收藏排名"
               className={styles.infoCard}
@@ -296,21 +256,6 @@ class Statistics extends Component {
           </Col>
           <Col xl={8} lg={24} md={24} sm={24} xs={24}>
             <Card
-              title="风格评论排名"
-              className={styles.infoCard}
-              loading={loading}
-              bordered={false}
-            >
-              <Rank type={0} data={styleComment} kind="comment" />
-              <Table
-                columns={styleCommentColumns}
-                dataSource={styleComment.slice(3, 10)}
-                pagination={false}
-              />
-            </Card>
-          </Col>
-          <Col xl={12} lg={24} md={24} sm={24} xs={24}>
-            <Card
               title="设计师点赞排名"
               className={styles.infoCard}
               loading={loading}
@@ -324,7 +269,7 @@ class Statistics extends Component {
               />
             </Card>
           </Col>
-          <Col xl={12} lg={24} md={24} sm={24} xs={24}>
+          <Col xl={8} lg={24} md={24} sm={24} xs={24}>
             <Card
               title="设计师发布排名"
               className={styles.infoCard}
@@ -339,7 +284,7 @@ class Statistics extends Component {
               />
             </Card>
           </Col>
-          <Col xl={12} lg={24} md={24} sm={24} xs={24}>
+          <Col xl={8} lg={24} md={24} sm={24} xs={24}>
             <Card
               title="设计师关注排名"
               className={styles.infoCard}
@@ -350,21 +295,6 @@ class Statistics extends Component {
               <Table
                 columns={designerFollowColumns}
                 dataSource={designerFollow.slice(3, 10)}
-                pagination={false}
-              />
-            </Card>
-          </Col>
-          <Col xl={12} lg={24} md={24} sm={24} xs={24}>
-            <Card
-              title="设计师评论排名"
-              className={styles.infoCard}
-              loading={loading}
-              bordered={false}
-            >
-              <Rank type={1} data={designerComment} kind="comment" />
-              <Table
-                columns={designerCommentColumns}
-                dataSource={designerComment.slice(3, 10)}
                 pagination={false}
               />
             </Card>

@@ -492,7 +492,7 @@ class Notice extends Component {
                 payload: { fileHover: false },
               })}
               style={
-                fileHover ? { height: 120 * (Math.ceil((files.length + 1) / 4)) }
+                fileHover ? { height: 120 * (Math.ceil((files.length + 1) / 4)) + 60 }
                   : { height: 160 }
               }
             >

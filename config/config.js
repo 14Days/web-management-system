@@ -115,14 +115,6 @@ export default {
               authority: '',
             },
             {
-              path: '/gallery/index',
-              name: '图库',
-              icon: 'line-chart',
-              component: './gallery/index',
-              authority: '',
-              authority: ['admin', 'designer'],
-            },
-            {
               path: '/account',
               name: '账户管理',
               icon: 'idcard',
@@ -144,6 +136,13 @@ export default {
                   component: './account/settings',
                 },
               ],
+            },
+            {
+              path: '/gallery/index',
+              name: '图库',
+              icon: 'file-image',
+              component: './gallery/index',
+              authority: ['admin', 'designer'],
             },
             {
               name: '推荐消息管理',

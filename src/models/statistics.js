@@ -10,10 +10,8 @@ const StatisticsModel = {
     numNewrecommend: 1,
     styleLike: [],
     styleCollect: [],
-    styleComment: [],
     designerPost: [],
     designerFollow: [],
-    designerComment: [],
     designerLike: [],
   },
   reducers: {
@@ -35,19 +33,11 @@ const StatisticsModel = {
         ...ele,
         key: index + 1,
       }));
-      const styleComment = payload.styleComment.map((ele, index) => ({
-        ...ele,
-        key: index + 1,
-      }));
       const designerPost = payload.designerPost.map((ele, index) => ({
         ...ele,
         key: index + 1,
       }));
       const designerFollow = payload.designerFollow.map((ele, index) => ({
-        ...ele,
-        key: index + 1,
-      }));
-      const designerComment = payload.designerComment.map((ele, index) => ({
         ...ele,
         key: index + 1,
       }));
@@ -60,10 +50,8 @@ const StatisticsModel = {
         ...payload,
         styleLike,
         styleCollect,
-        styleComment,
         designerPost,
         designerFollow,
-        designerComment,
         designerLike,
       };
     },
@@ -82,11 +70,11 @@ const StatisticsModel = {
       const { interval } = yield select(state => state.statistics);
       const dayStart = new Date();
       dayStart.setDate(dayEnd.getDate() - interval);
+      const strS = `${dayStart.getFullYear()}-${dayStart.getMonth() + 1}-${dayStart.getDate() + 1}`;
+      const strE = `${dayEnd.getFullYear()}-${dayEnd.getMonth() + 1}-${dayEnd.getDate() + 1}`;
       // 调用 api
-      const res = yield call(getRecord, {
-        start_date: dayStart,
-        end_date: dayEnd,
-      });
+      const res = yield call(getRecord, strS, strE);
+      console.log(res);
       if (res.status === 'success') {
         console.log('okk');
       }
@@ -96,14 +84,12 @@ const StatisticsModel = {
         payload: {
           last: dayEnd.toString(),
           loading: false,
-          numNewuser: res.data.register,
-          numNewrecommend: res.data.recommend,
+          numNewuser: res.data.designer.register,
+          numNewrecommend: res.data.designer.recommend,
           styleLike: res.data.style.like,
           styleCollect: res.data.style.collect,
-          styleComment: res.data.style.comment,
           designerPost: res.data.designer.post,
           designerFollow: res.data.designer.follow,
-          designerComment: res.data.designer.comment,
           designerLike: res.data.designer.like,
         },
       });
