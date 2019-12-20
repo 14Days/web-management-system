@@ -112,7 +112,8 @@ const Model = {
     },
     *logout(_, { put }) {
       const { redirect } = getPageQuery(); // redirect
-
+      // 删除 session
+      sessionStorage.clear();
       if (window.location.pathname !== '/user/login' && !redirect) {
         yield put(
           routerRedux.replace({
