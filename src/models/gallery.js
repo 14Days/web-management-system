@@ -305,7 +305,7 @@ const GalleryModels = {
           toDeleteFileState: false,
         },
       });
-      const { toDeleteFile } = yield select(state => state.gallery);
+      const { toDeleteFile, nowFile } = yield select(state => state.gallery);
       const res = yield call(deleteFile, toDeleteFile.id);
       if (res.status === 'success') {
         yield call(showSuccess, '图集删除成功');
@@ -315,6 +315,11 @@ const GalleryModels = {
       yield put({
         type: 'fileRefresh',
       })
+      if (nowFile.id === 0) {
+        yield put({
+          type: 'imgRefresh',
+        });
+      }
     },
     // 移动图片
     * dealMoveImg(_, { call, select, put }) {

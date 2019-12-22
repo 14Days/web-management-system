@@ -22,6 +22,7 @@ class InfoModal extends Component {
       currentNotice,
       deleteLoading,
     } = notice;
+    const selfID = parseInt(sessionStorage.getItem('userID'), 10);
     return (
       <Modal
         zIndex={9900}
@@ -48,7 +49,7 @@ class InfoModal extends Component {
                 ${currentNotice.create_at}
               `}
             </span>
-            <Authorized authority={['admin', 'root']} noMatch={<div></div>}>
+            <Authorized authority={['root']} noMatch={null}>
               <Button
                 onClick={() => {
                   dispatch({
@@ -78,6 +79,41 @@ class InfoModal extends Component {
                   删除
                 </Button>
               </Popconfirm>
+            </Authorized>
+            <Authorized authority={['admin']} noMatch={null}>
+              {currentNotice.user_id === selfID ? (
+                <React.Fragment>
+                  <Button
+                    onClick={() => {
+                      dispatch({
+                        type: 'notice/save',
+                        payload: {
+                          editView: true,
+                          editTitle: currentNotice.title,
+                          editContent: currentNotice.content,
+                          editIsTop: currentNotice.is_top,
+                          currentView: false,
+                        },
+                      });
+                    }}
+                  >
+                    修改
+                  </Button>
+                  <Popconfirm
+                    zIndex={9950}
+                    title="确定要删除这条通知吗？"
+                    onConfirm={() => {
+                      dispatch({
+                        type: 'notice/handleDelete',
+                      });
+                    }}
+                  >
+                    <Button type="danger" loading={deleteLoading}>
+                      删除
+                    </Button>
+                  </Popconfirm>
+                </React.Fragment>
+              ) : null}
             </Authorized>
           </div>,
         ]}

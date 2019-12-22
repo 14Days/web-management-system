@@ -104,6 +104,13 @@ class Notice extends Component {
         />
       </div>
     );
+    const reallyWidth = document.body.clientWidth;
+    let colNum = 4;
+    if (reallyWidth < 743) {
+      colNum = 2;
+    } else if (reallyWidth < 1185) {
+      colNum = 3;
+    }
     return (
       <PageHeaderWrapper
         title="图库"
@@ -492,7 +499,7 @@ class Notice extends Component {
                 payload: { fileHover: false },
               })}
               style={
-                fileHover ? { height: 120 * (Math.ceil((files.length + 1) / 4)) + 60 }
+                fileHover ? { height: 110 * (Math.ceil((files.length + 1) / colNum)) + 90 }
                   : { height: 160 }
               }
             >
