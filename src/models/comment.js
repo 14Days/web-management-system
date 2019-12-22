@@ -1,4 +1,4 @@
-import { getDetail } from '../services/comment';
+import { deleteComment, getDetail } from '../services/comment';
 import { showNotification } from '../utils/common';
 
 export default {
@@ -32,6 +32,20 @@ export default {
         }
       } catch (e) {
         showNotification('error', '获取评论失败');
+      }
+    },
+    *handleDeleteComment({ payload }, { put, call }) {
+      const { level, commentID } = payload;
+      try {
+        const res = yield call(deleteComment, level, commentID);
+        if (res.status === 'success') {
+          showNotification('success', '删除成功');
+          yield put({
+            type: 'handleInit',
+          });
+        }
+      } catch (e) {
+        showNotification('error', '删除评论失败');
       }
     },
   },

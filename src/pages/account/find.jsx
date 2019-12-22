@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Table, Button, Modal, Form, Input, Spin } from 'antd';
+import { Button, Form, Input, Modal, Popconfirm, Spin, Table } from 'antd';
 import { connect } from 'dva';
+import { showNotification } from '../../utils/common';
 
 @connect(({ account }) => ({
   ...account,
@@ -9,7 +10,6 @@ import { connect } from 'dva';
 export default class Find extends Component {
   // 传入所有的 user 信息, 返回符合 Table 格式的数据
   static formatData(data) {
-    console.log(data);
     data.forEach((e, index) => {
       e.key = index;
       e.sex = e.sex === 0 ? '女' : '男';
@@ -22,6 +22,7 @@ export default class Find extends Component {
     this.state = {
       visible: false,
       password: '',
+      passwordConfirm: '',
       index: 0,
       selectID: 0,
     };
@@ -55,12 +56,19 @@ export default class Find extends Component {
   }
 
   handlePopOK() {
+    const { password, passwordConfirm, index, selectID } = this.state;
+    if (password === '') {
+      showNotification('error', '输入为空');
+      return;
+    }
+    if (password !== passwordConfirm) {
+      showNotification('error', '两次输入密码不一致！');
+      this.setState({ passwordConfirm: '' });
+      return;
+    }
     this.setState({
       visible: false,
     });
-
-    const { password, index, selectID } = this.state;
-
     this.props.dispatch({
       type: 'account/handleUpdate',
       payload: {
@@ -122,9 +130,9 @@ export default class Find extends Component {
             >
               修改
             </Button>
-            <Button
-              type="danger"
-              onClick={() => {
+            <Popconfirm
+              title={`确定删除此账户(${item.username})吗？`}
+              onConfirm={() => {
                 this.props.dispatch({
                   type: 'account/handleDelete',
                   payload: {
@@ -134,8 +142,9 @@ export default class Find extends Component {
                 });
               }}
             >
-              删除
-            </Button>
+              <Button type="danger">删除</Button>
+            </Popconfirm>
+            ,
           </div>
         ),
       },
@@ -151,13 +160,24 @@ export default class Find extends Component {
             onCancel={this.handlePopCancel}
           >
             <Form layout="inline">
-              <Form.Item label="密码">
+              <Form.Item label="修改密码">
                 <Input
                   type="password"
                   value={this.state.password}
                   onChange={e => {
                     this.setState({
                       password: e.target.value,
+                    });
+                  }}
+                />
+              </Form.Item>
+              <Form.Item label="确认密码">
+                <Input
+                  type="password"
+                  value={this.state.passwordConfirm}
+                  onChange={e => {
+                    this.setState({
+                      passwordConfirm: e.target.value,
                     });
                   }}
                 />

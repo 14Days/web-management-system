@@ -14,7 +14,8 @@ const loadImg = url =>
     const img = new Image();
     img.src = url;
     img.onload = () => {
-      resolve(img.height);
+      const relaHeight = (300 / img.width) * img.height;
+      resolve(relaHeight);
     };
   });
 
@@ -23,8 +24,9 @@ export default {
   state: {
     total: 0,
     page: 0,
-    limit: 3,
+    limit: 4,
     loadAll: false,
+    loading: false,
     leftMsg: [],
     rightMsg: [],
     leftHeight: 0,
@@ -37,7 +39,7 @@ export default {
     update: {
       index: 0, // sideMsg下标
       side: '', // 左边右边？
-      inc: 0,
+      inc: 0, // 计数器
       content: '',
       img: [],
       imgInfos: [],
@@ -85,6 +87,7 @@ export default {
         uid: inc,
         status: 'uploading',
       });
+      up.inc += 1;
       return {
         ...state,
         [model]: {
@@ -96,13 +99,13 @@ export default {
     // 上传单张图片
     uploadSuccess(state, { payload }) {
       // 用本地 url
-      const { imgID, url, status, model } = payload;
+      const { imgID, url, status, model, uid } = payload;
       const {
-        [model]: { img, inc },
+        [model]: { img },
       } = state;
       const ret = JSON.parse(JSON.stringify(img));
       ret.forEach(e => {
-        if (e.uid === inc) {
+        if (e.uid === uid) {
           // 把刚刚正在上传的图片显示出来状态改为 done
           e.status = status;
           e.imgID = imgID;
@@ -115,15 +118,12 @@ export default {
         [model]: {
           ...origin,
           img: ret,
-          inc: inc + 1,
         },
       };
     },
     delete(state, { payload }) {
       const { uid, model } = payload;
       const up = state[model];
-      console.log(model, up);
-
       const res = up.img.filter(e => e.uid !== uid); // 找出不等于 uid 的
       return {
         ...state,
@@ -214,6 +214,7 @@ export default {
           rightMsg: [],
           page: 0,
           loadAll: false,
+          loading: true,
         },
       });
       try {
@@ -242,10 +243,15 @@ export default {
       }
     },
     *handleLoadMore(_, { put, call, select }) {
+      yield put({
+        type: 'save',
+        payload: {
+          loading: true,
+        },
+      });
       try {
         const { page, limit } = yield select(state => state.message);
         const res = yield call(fetchMessage, page, limit);
-        console.log('请求推荐消息', res);
         if (res.status === 'error') {
           showNotification('error', '拉取失败');
         } else {
@@ -261,6 +267,7 @@ export default {
               type: 'save',
               payload: {
                 loadAll: true,
+                loading: false,
               },
             });
           } else {
@@ -284,6 +291,12 @@ export default {
           payload: message[i],
         });
       }
+      yield put({
+        type: 'save',
+        payload: {
+          loading: false,
+        },
+      });
     },
     *selectSide({ payload: message }, { put, call, select }) {
       const height = yield call(loadImg, formatImgUrl(message.img_url[0].name));
@@ -305,7 +318,6 @@ export default {
 
         if (res.status === 'success') {
           showNotification('success', '删除成功');
-          // TODO: handleInit 不能随便调用了
           yield put({
             type: 'deleteMsg',
             payload: {
@@ -320,7 +332,7 @@ export default {
     },
     // 上传图片
     *handleUpload({ payload }, { put, call }) {
-      const { file, url, model } = payload;
+      const { file, url, model, uid } = payload;
       const img = new FormData();
       img.append('img', file);
       try {
@@ -332,9 +344,20 @@ export default {
             url,
             status: res.status === 'success' ? 'done' : 'error',
             model,
+            uid,
           },
         });
       } catch (e) {
+        yield put({
+          type: 'uploadSuccess',
+          payload: {
+            imgID: undefined,
+            url: undefined,
+            status: 'error',
+            model,
+            uid,
+          },
+        });
         showNotification('error', '图片上传失败');
       }
     },
@@ -366,7 +389,6 @@ export default {
         update: { old, messageID, index, side },
       } = yield select(state => state.message);
       try {
-        // TODO: 提交删除服务器好像有问题
         const res = yield call(updateMessge, messageID, content, img, old);
         showNotification(
           res.status,
