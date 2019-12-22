@@ -8,8 +8,14 @@ import {
 } from '../utils/url';
 import request from '@/utils/request';
 
-export async function fetchMessage() {
-  return request.get(getMessageURL);
+export async function fetchMessage(page, limit) {
+  return request(getMessageURL, {
+    method: 'get',
+    params: {
+      limit,
+      page,
+    },
+  });
 }
 
 export async function deleteMessage(id) {

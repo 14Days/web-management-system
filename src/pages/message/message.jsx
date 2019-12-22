@@ -1,24 +1,11 @@
 import React from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
+import { BackTop, Button, Form, Icon, Input, Modal, Upload } from 'antd';
 import { connect } from 'dva';
-import {
-  Avatar,
-  Button,
-  Carousel,
-  Comment,
-  Drawer,
-  Empty,
-  Form,
-  Icon,
-  Input,
-  List,
-  Modal,
-  Tooltip,
-  Upload,
-} from 'antd';
 import { showNotification } from '../../utils/common';
-import './message.less';
-import { pullImgURL } from '../../utils/url';
+import CardLine from './cardLine/cardLine';
+
+import styles from './message.less';
 
 class Message extends React.Component {
   constructor(props) {
@@ -27,7 +14,6 @@ class Message extends React.Component {
       visible: {
         Upload: false,
         Update: false,
-        Drawer: false,
       },
     };
     this.props.form.setFieldsValue({
@@ -59,42 +45,43 @@ class Message extends React.Component {
     };
   };
 
-  // 抽屉弹出和弹入
-  triggerDrawer = () => {
-    const { visible } = this.state;
-    this.setState({
-      visible: {
-        ...visible,
-        Drawer: !visible.Drawer,
-      },
-    });
-  };
-
   // 上传图片
   handleUpload = action => {
+    const model = this.state.visible.update === true ? 'update' : 'upload';
+    // 先添加一个文件上传中的提示
+    this.props.dispatch({
+      type: 'message/loading',
+      payload: { model },
+    });
     const { file } = action;
     this.getBase64(file);
   };
 
-  // 上传组件变化时触发
-  handleChange = ({ fileList }) => {
+  // 预览图片
+  handlePreview = ({ url }) => {
+    const img = new Image();
+    img.src = url;
+    const newWin = window.open('', '_blank');
+    newWin.document.write(img.outerHTML);
+    newWin.document.title = '预览图';
+    newWin.document.close();
+  };
+
+  // 删除图片
+  handleRemove = ({ uid }) => {
     const model = this.state.visible.update === true ? 'update' : 'upload';
-    if (this.props[model].img.length > fileList.length) {
-      const origin = this.props[model];
-      this.props.dispatch({
-        type: 'message/save',
-        payload: {
-          [model]: {
-            ...origin,
-            img: fileList,
-          },
-        },
-      });
-    }
+    this.props.dispatch({
+      type: 'message/delete',
+      payload: {
+        uid,
+        model,
+      },
+    });
   };
 
   // Modal 取消按钮
   handleCancel = () => {
+    console.log(this.props);
     // 标记打开了哪一个对话框
     const model = this.state.visible.update === true ? 'Update' : 'Upload';
     this.setState({
@@ -123,13 +110,21 @@ class Message extends React.Component {
 
     /**
      * 发送请求
-     * img 是 id
+     * img 是 id 的数组
      */
     const { img: imgs } = this.props[model.toLowerCase()];
     const img = [];
+    let isAllReady = true;
     imgs.forEach(item => {
+      if (item.status === 'uploading') isAllReady = false;
       img.push(item.imgID);
     });
+    if (!isAllReady) {
+      showNotification('error', '请等待所有图片完成上传哦😬');
+      return;
+    }
+    console.log(img);
+    console.log(this.props);
     this.props.dispatch({
       type: `message/handle${model}Message`,
       payload: {
@@ -137,7 +132,7 @@ class Message extends React.Component {
         img,
       },
     });
-
+    console.log(this.props);
     // 隐藏弹出框
     this.setState({ visible: { [model]: false } });
 
@@ -153,7 +148,6 @@ class Message extends React.Component {
         <div className="ant-upload-text">Upload</div>
       </div>
     );
-
     return (
       <PageHeaderWrapper
         content={[
@@ -184,6 +178,10 @@ class Message extends React.Component {
           </Button>,
         ]}
       >
+        <BackTop className={styles.backTop}>
+          <Icon type="up-circle" />
+          <span> 回到顶部</span>
+        </BackTop>
         <Modal
           title="发布推荐消息"
           visible={this.state.visible.upload}
@@ -207,7 +205,9 @@ class Message extends React.Component {
             method="post"
             listType="picture-card"
             fileList={this.props.upload.img}
-            onChange={this.handleChange}
+            onRemove={this.handleRemove}
+            onPreview={this.handlePreview}
+            onDownload={this.handlePreview}
           >
             {uploadButton}
           </Upload>
@@ -236,141 +236,43 @@ class Message extends React.Component {
             method="post"
             listType="picture-card"
             fileList={this.props.update.img}
-            onChange={this.handleChange}
+            onRemove={this.handleRemove}
+            onPreview={this.handlePreview}
+            onDownload={this.handlePreview}
           >
             {uploadButton}
           </Upload>
         </Modal>
-        {/* 抽屉显示评论 */}
-        <Drawer
-          title="一级评论详情"
-          placement="bottom"
-          closable={false}
-          height={600}
-          onClose={this.triggerDrawer}
-          visible={this.state.visible.Drawer}
-          keyboard
-        >
-          {/*
-            comment: [{
-              content,
-              create_at,
-              id,
-              second:[]
-              user:{
-                avatar,
-                id,
-                nickname
-              }
-            }]
-            TODO: 完成评论发表时间，下拉滚动，或者说页面跳转
-          */}
-          {this.props.detail.comment.length === 0 ? (
-            <Empty />
-          ) : (
-            this.props.detail.comment.map(item => (
-              <Comment
-                actions={[<a color="red">删除</a>]}
-                author={item.user.nickname}
-                avatar={<Avatar src={item.user.avatar} />}
-                content={<p>{item.content}</p>}
-              >
-                {item.second.map(ele => (
-                  <Comment
-                    actions={[<a color="red">删除</a>]}
-                    author={ele.user.nickname}
-                    avatar={<Avatar src={ele.user.avatar} />}
-                    content={<p>{ele.content}</p>}
-                  />
-                ))}
-              </Comment>
-            ))
-          )}
-        </Drawer>
-        <List
-          itemLayout="vertical"
-          size="large"
-          dataSource={this.props.message}
-          pagination={{
-            pageSize: 5,
+        <div className={styles.container}>
+          <CardLine
+            side="left"
+            openEditModal={() => {
+              this.setState({
+                visible: { update: true },
+              });
+            }}
+          />
+          <CardLine
+            side="right"
+            openEditModal={() => {
+              this.setState({
+                visible: { update: true },
+              });
+            }}
+          />
+        </div>
+        <Button
+          className={styles.loadMore}
+          onClick={() => {
+            this.props.dispatch({
+              type: 'message/handleLoadMore',
+            });
           }}
-          renderItem={(item, index) => (
-            <List.Item
-              style={{ borderBottomWidth: '2px', borderBottomColor: '#8e8e8e' }}
-              actions={[
-                <Tooltip title={this.props.detail.thumbInfo}>
-                  {/* TODO 提示每次都要重新拉数据 */}
-                  <div>点赞数：{item.thumb}</div>
-                </Tooltip>,
-                <div
-                  onClick={() => {
-                    new Promise(resolve => {
-                      this.props.dispatch({
-                        type: 'message/getDetail',
-                        payload: item.id,
-                      });
-                      resolve();
-                    }).then(() => {
-                      this.triggerDrawer();
-                      console.log(this.props);
-                    });
-                  }}
-                >
-                  评论数：{item.comment}
-                </div>,
-                <Button
-                  type="primary"
-                  onClick={() => {
-                    this.props.dispatch({
-                      type: 'message/updateMessagePrepare',
-                      payload: {
-                        index,
-                      },
-                    });
-                    // const UpdateContent = this.props.update.content;
-                    this.setState({
-                      visible: { update: true },
-                    });
-                  }}
-                  style={{ marginLeft: '20px' }}
-                >
-                  修改
-                </Button>,
-                <Button
-                  type="danger"
-                  onClick={() => {
-                    this.props.dispatch({
-                      type: 'message/handleDelete',
-                      payload: {
-                        id: item.id,
-                      },
-                    });
-                  }}
-                >
-                  {/* TODO 删除时要有提示 */}
-                  删除
-                </Button>,
-              ]}
-              extra={
-                <div>
-                  <Carousel autoplay style={{ width: '400px' }}>
-                    {item.img_url.map(ele => (
-                      <img
-                        src={`${pullImgURL}${ele.name}`}
-                        alt={ele.name}
-                        width={400}
-                        height={300}
-                      />
-                    ))}
-                  </Carousel>
-                </div>
-              }
-            >
-              <List.Item.Meta title={item.id} />
-              {item.content}
-            </List.Item>
-          )}
-        />
+          disabled={this.props.loadAll}
+          type="dashed"
+        >
+          {this.props.loadAll ? '没咯！！' : <Icon type="caret-down" />}
+        </Button>
       </PageHeaderWrapper>
     );
   }
