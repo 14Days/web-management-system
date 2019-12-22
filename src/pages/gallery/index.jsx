@@ -454,7 +454,8 @@ class Notice extends Component {
           {selected.length === 0 ?
             // 未选择任何图片时
             <div>
-              <p style={{
+              <p
+                style={{
                 color: 'rgba(0, 0, 0, 0.45)',
                 fontSize: '16px',
               }}>点击图片即可选中哦~😜</p>
@@ -532,13 +533,12 @@ class Notice extends Component {
                 payload: { fileHover: false },
               })}
               style={
-                fileHover ? { height: 110 * (Math.ceil((files.length + 1) / colNum)) + 90 }
-                  : { height: 160 }
+                fileHover ? { height: 110 * (Math.ceil((files.length + 1) / colNum)) + 40 }
+                  : { height: 100 }
               }
             >
               <Row gutter={[14, 10]} align="top">
                 <Col xl={24} lg={24} md={24} sm={24} xs={24}>
-                  <Divider>图集</Divider>
                 </Col>
                 {/* 当前图集 */}
                 <Col xl={6} lg={8} md={8} sm={12} xs={12}>
@@ -689,7 +689,7 @@ class Notice extends Component {
             <Divider
               orientation="left"
               style={{
-                color: 'rgba(0, 0, 0, 0.35)',
+                color: 'rgba(0, 0, 0, 0.65)',
                 fontWeight: '200',
               }}
             >
