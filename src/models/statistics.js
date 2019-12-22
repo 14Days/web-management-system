@@ -84,8 +84,8 @@ const StatisticsModel = {
         payload: {
           last: dayEnd.toString(),
           loading: false,
-          numNewuser: res.data.designer.register,
-          numNewrecommend: res.data.designer.recommend,
+          numNewuser: res.data.register,
+          numNewrecommend: res.data.recommend,
           styleLike: res.data.style.like,
           styleCollect: res.data.style.collect,
           designerPost: res.data.designer.post,
