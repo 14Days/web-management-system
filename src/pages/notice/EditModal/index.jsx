@@ -31,7 +31,6 @@ class EditModal extends Component {
     }
     return (
       <Modal
-        zIndex={9999}
         title="修改通知"
         width={800}
         visible={editView}
@@ -49,6 +48,9 @@ class EditModal extends Component {
         onOk={() => {
           dispatch({
             type: 'notice/handleChange',
+            payload: {
+              search: false,
+            },
           });
         }}
         confirmLoading={editLoading}
@@ -71,7 +73,7 @@ class EditModal extends Component {
             });
           }}
           style={{ marginBottom: '20px' }}
-        ></Input>
+        />
         <TextArea
           autoSize={{
             minRows: 5,

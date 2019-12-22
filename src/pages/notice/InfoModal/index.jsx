@@ -25,7 +25,6 @@ class InfoModal extends Component {
     const selfID = parseInt(sessionStorage.getItem('userID'), 10);
     return (
       <Modal
-        zIndex={9900}
         visible={currentView}
         centered
         title={[
@@ -72,6 +71,9 @@ class InfoModal extends Component {
                 onConfirm={() => {
                   dispatch({
                     type: 'notice/handleDelete',
+                    payload: {
+                      search: false,
+                    },
                   });
                 }}
               >
@@ -105,6 +107,9 @@ class InfoModal extends Component {
                     onConfirm={() => {
                       dispatch({
                         type: 'notice/handleDelete',
+                        payload: {
+                          search: false,
+                        },
                       });
                     }}
                   >

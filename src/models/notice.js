@@ -1,4 +1,4 @@
-import { Modal } from 'antd';
+import { Modal, message } from 'antd';
 import { getNotice, commitNotice, detailNotice, deleteNotcie, changeNotice, searchNotice } from '../services/notice';
 
 // 用于快速搜索计算延时
@@ -9,10 +9,10 @@ function delayWaiting(ms) {
 }
 
 // 用于成功后在页面上调出成功弹窗提示
-function showSuccess(message) {
+function showSuccess(msg) {
   return new Promise(resolve => {
-    Modal.success({
-      content: message,
+    message.success({
+      content: msg,
       centered: true,
     });
     resolve();
@@ -20,10 +20,10 @@ function showSuccess(message) {
 }
 
 // 用于成功后在页面上调出成功弹窗提示
-function showFail(message) {
+function showFail(msg) {
   return new Promise(resolve => {
-    Modal.error({
-      content: message,
+    message.error({
+      content: msg,
       centered: true,
     });
     resolve();
@@ -68,6 +68,8 @@ const NoticeModels = {
     editIsTop: false, // 正在编辑的是否顶置
     editView: false, // 编辑对话框显示
     editLoading: false, // 编辑发送状态
+    searchCurrentView: false,
+    searchEditView: false,
   },
   reducers: {
     save(prev, { payload }) {
@@ -106,7 +108,7 @@ const NoticeModels = {
       // ****** res 处理 *****
       // 退出发布对话框
       yield put({
-        type: 'notice/exitPost',
+        type: 'exitPost',
       });
       // 弹出成功弹窗
       if (res.status === 'success') {
@@ -116,7 +118,7 @@ const NoticeModels = {
       }
       // 刷新页面（避免旧数据误导）
       yield put({
-        type: 'notice/refresh',
+        type: 'refresh',
       });
     },
     // 初始化通知信息
@@ -138,7 +140,7 @@ const NoticeModels = {
       // 将结果直接替换旧的结果
       if (res.status === 'success') {
         yield put({
-          type: 'notice/save',
+          type: 'save',
           payload: {
             last: Date(),
             loading: false,
@@ -254,15 +256,26 @@ const NoticeModels = {
     },
     // 获取公告详情
     *fetchInfo({ payload }, { call, put }) {
-      const { currentId } = payload;
-      yield put({
-        type: 'save',
-        payload: {
-          currentLoading: true,
-          currentView: true,
-          currentId,
-        },
-      });
+      const { currentId, search } = payload;
+      if (search) {
+        yield put({
+          type: 'save',
+          payload: {
+            currentLoading: true,
+            searchCurrentView: true,
+            currentId,
+          },
+        });
+      } else {
+        yield put({
+          type: 'save',
+          payload: {
+            currentLoading: true,
+            currentView: true,
+            currentId,
+          },
+        });
+      }
       const res = yield call(detailNotice, currentId);
       yield put({
         type: 'save',
@@ -276,7 +289,7 @@ const NoticeModels = {
       }
     },
     // 编辑公告详情
-    *handleChange(_, { call, put, select }) {
+    *handleChange({ payload }, { call, put, select }) {
       yield put({
         type: 'save',
         payload: {
@@ -290,6 +303,7 @@ const NoticeModels = {
         editContent,
         editIsTop,
       } = yield select(state => state.notice);
+      const { search } = payload;
       const res = yield call(
         changeNotice,
         currentId,
@@ -298,13 +312,24 @@ const NoticeModels = {
         currentNotice.type,
         editIsTop,
       );
-      yield put({
-        type: 'save',
-        payload: {
-          editLoading: false,
-          editView: false,
-        },
-      });
+      if (search === true) {
+        yield put({
+          type: 'save',
+          payload: {
+            editLoading: false,
+            searchEditView: false,
+            searchCurrentView: false,
+          },
+        });
+      } else {
+        yield put({
+          type: 'save',
+          payload: {
+            editLoading: false,
+            editView: false,
+          },
+        });
+      }
       if (res.status === 'success') {
         yield call(showSuccess, '通知修改成功！');
       } else {
@@ -318,7 +343,8 @@ const NoticeModels = {
       });
     },
     // 删除公告
-    *handleDelete(_, { call, put, select }) {
+    *handleDelete({ payload }, { call, put, select }) {
+      const { search } = payload;
       yield put({
         type: 'save',
         payload: {
@@ -327,13 +353,23 @@ const NoticeModels = {
       });
       const { currentId } = yield select(state => state.notice);
       const res = yield call(deleteNotcie, currentId);
-      yield put({
-        type: 'save',
-        payload: {
-          deleteLoading: false,
-          currentView: false,
-        },
-      });
+      if (search === true) {
+        yield put({
+          type: 'save',
+          payload: {
+            deleteLoading: false,
+            searchCurrentView: false,
+          },
+        });
+      } else {
+        yield put({
+          type: 'save',
+          payload: {
+            deleteLoading: false,
+            currentView: false,
+          },
+        });
+      }
       if (res.status === 'success') {
         yield call(showSuccess, '通知删除成功！');
       } else {

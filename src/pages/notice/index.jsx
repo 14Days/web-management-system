@@ -185,6 +185,7 @@ class Notice extends Component {
                           type: 'notice/fetchInfo',
                           payload: {
                             currentId: item.id,
+                            payload: false,
                           },
                         });
                       }}
@@ -213,7 +214,7 @@ class Notice extends Component {
                       </div>
                       <div className={styles.noticeTime}>
                         <p>{item.user_type === 1 ? '超管发布' : '管理发布'}</p>
-                        <p>{`${item.user} 发布于 ${item.create_at}`}</p>
+                        <p>{`${item.user}`}</p>
                       </div>
                     </div>
                   </Tooltip>
