@@ -71,6 +71,8 @@ const GalleryModels = {
     uploadState: false, // 上传图片激活状态
     uploadImg: [], // 上传图片表，供 Upload 组件使用
     fileHover: false,
+    bigImg: '',
+    bigImgState: false,
   },
   reducers: {
     save(prev, { payload }) {

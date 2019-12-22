@@ -59,6 +59,8 @@ class Notice extends Component {
       uploadState,
       uploadImg,
       fileHover,
+      bigImg,
+      bigImgState,
     } = gallery;
     const { Option } = Select;
     const { TextArea } = Input;
@@ -287,6 +289,37 @@ class Notice extends Component {
             </div>
           </div>
         </Modal>
+        {/* 查看大图浮框 */}
+        <Modal
+          width="70%"
+          title="查看大图"
+          visible={bigImgState}
+          onCancel={() => {
+            dispatch({
+              type: 'gallery/save',
+              payload: {
+                bigImgState: false,
+              },
+            });
+          }}
+          footer={null}
+        >
+          <div className={styles.moveModal}>
+            {/* 图片显示 */}
+            <div className={styles.showImg}>
+              <img
+                src={`http://pull.wghtstudio.cn/img/${bigImg}`}
+                alt=""
+              />
+            </div>
+            <div style={{ marginTop: '30px' }}>
+                <p style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
+                  <Icon type="exclamation-circle" style={{ margin: 'auto 6px' }}/>
+                  右击图片，选择 [图片另存为...] 即可保存图片到本地。
+                </p>
+            </div>
+          </div>
+        </Modal>
         {/* 推荐消息发布浮框 */}
         <Modal
           width="800px"
@@ -507,104 +540,104 @@ class Notice extends Component {
                 <Col xl={24} lg={24} md={24} sm={24} xs={24}>
                   <Divider>图集</Divider>
                 </Col>
-              {/* 当前图集 */}
-              <Col xl={6} lg={8} md={8} sm={12} xs={12}>
-                <div className={styles.fileBlock}>
-                  {/* 背景 */}
-                  <div className={styles.fileBlockContent}>
-                    {
-                      imgs.length > 0 ?
-                        <img
-                          className={styles.fileImg}
-                          src={`http://pull.wghtstudio.cn/img/${imgs[0].name}`}
-                          alt=""
-                        /> : <img
-                          className={styles.fileImg}
-                          src="https://s2.ax1x.com/2019/12/19/QqoleU.png"
-                          alt=""
-                        />
-                    }
+                {/* 当前图集 */}
+                <Col xl={6} lg={8} md={8} sm={12} xs={12}>
+                  <div className={styles.fileBlock}>
+                    {/* 背景 */}
+                    <div className={styles.fileBlockContent}>
+                      {
+                        imgs.length > 0 ?
+                          <img
+                            className={styles.fileImg}
+                            src={`http://pull.wghtstudio.cn/img/${imgs[0].name}`}
+                            alt=""
+                          /> : <img
+                            className={styles.fileImg}
+                            src="https://s2.ax1x.com/2019/12/19/QqoleU.png"
+                            alt=""
+                          />
+                      }
+                    </div>
+                    {/* 显示 */}
+                    <div className={styles.fileBlockAfter}>
+                      <p>{nowFile.name}{nowFile.id === 0 ? <div/> :
+                        <Icon
+                          type="edit"
+                          style={{
+                            color: 'rgba(255, 255, 255, 0.4)',
+                            fontSize: '16px',
+                            margin: '8px 2%',
+                          }}
+                          onClick={e => {
+                            e.stopPropagation();
+                            dispatch({
+                              type: 'gallery/save',
+                              payload: {
+                                editFile: nowFile,
+                                editFileState: true,
+                              },
+                            })
+                          }}
+                        />}</p>
+                    </div>
                   </div>
-                  {/* 显示 */}
-                  <div className={styles.fileBlockAfter}>
-                    <p>{nowFile.name}{nowFile.id === 0 ? <div/> :
-                      <Icon
-                        type="edit"
-                        style={{
-                          color: 'rgba(255, 255, 255, 0.4)',
-                          fontSize: '16px',
-                          margin: '8px 2%',
-                        }}
-                        onClick={e => {
-                          e.stopPropagation();
-                          dispatch({
-                            type: 'gallery/save',
-                            payload: {
-                              editFile: nowFile,
-                              editFileState: true,
-                            },
-                          })
-                        }}
-                      />}</p>
-                  </div>
-                </div>
-              </Col>
-              {/* 新建图集占位 */}
-              <Col xl={6} lg={8} md={8} sm={12} xs={12}>
-                <div
-                  className={styles.fileNotNow}
-                  onClick={() => {
-                    dispatch({
-                      type: 'gallery/changeNewFile',
-                    })
-                  }}
-                >
-                  <div className={styles.fileBlockContent}>
-                    <img
-                      className={styles.fileImg}
-                      src="https://s2.ax1x.com/2019/12/19/QqoleU.png"
-                      alt=""
-                    />
-                    {/* https://s2.ax1x.com/2019/12/19/QqWayF.jpg */}
-                  </div>
-                  <div className={styles.fileBlockAfter}>
-                    {newFile ? dealNewFile : <p><Icon type="plus"/> 新建图集</p>}
-                  </div>
-                </div>
-              </Col>
-              {/* 非当前图集 */}
-              {files.map(item => (item.id === nowFile.id ? null : (
+                </Col>
+                {/* 新建图集占位 */}
                 <Col xl={6} lg={8} md={8} sm={12} xs={12}>
                   <div
                     className={styles.fileNotNow}
                     onClick={() => {
                       dispatch({
-                        type: 'gallery/save',
-                        payload: {
-                          nowFile: item,
-                        },
-                      });
-                      dispatch({
-                        type: 'gallery/imgRefresh',
-                      });
+                        type: 'gallery/changeNewFile',
+                      })
                     }}
                   >
                     <div className={styles.fileBlockContent}>
-                      {
-                        item.imgsName === undefined ?
-                          <img
-                            className={styles.fileImg}
-                            src="https://s2.ax1x.com/2019/12/19/QqoleU.png"
-                            alt=""
-                          /> : <img
-                            className={styles.fileImg}
-                            src={`http://pull.wghtstudio.cn/img/${item.imgsName}`}
-                            alt=""
-                          />
-                      }
+                      <img
+                        className={styles.fileImg}
+                        src="https://s2.ax1x.com/2019/12/19/QqoleU.png"
+                        alt=""
+                      />
+                      {/* https://s2.ax1x.com/2019/12/19/QqWayF.jpg */}
                     </div>
                     <div className={styles.fileBlockAfter}>
-                      <p>{item.name}{item.id === 0 ? <div/> : <span>
+                      {newFile ? dealNewFile : <p><Icon type="plus"/> 新建图集</p>}
+                    </div>
+                  </div>
+                </Col>
+                {/* 非当前图集 */}
+                {files.map(item => (item.id === nowFile.id ? null : (
+                  <Col xl={6} lg={8} md={8} sm={12} xs={12}>
+                    <div
+                      className={styles.fileNotNow}
+                      onClick={() => {
+                        dispatch({
+                          type: 'gallery/save',
+                          payload: {
+                            nowFile: item,
+                          },
+                        });
+                        dispatch({
+                          type: 'gallery/imgRefresh',
+                        });
+                      }}
+                    >
+                      <div className={styles.fileBlockContent}>
+                        {
+                          item.imgsName === undefined ?
+                            <img
+                              className={styles.fileImg}
+                              src="https://s2.ax1x.com/2019/12/19/QqoleU.png"
+                              alt=""
+                            /> : <img
+                              className={styles.fileImg}
+                              src={`http://pull.wghtstudio.cn/img/${item.imgsName}`}
+                              alt=""
+                            />
+                        }
+                      </div>
+                      <div className={styles.fileBlockAfter}>
+                        <p>{item.name}{item.id === 0 ? <div/> : <span>
                           <Icon
                             type="edit"
                             style={{
@@ -642,11 +675,11 @@ class Notice extends Component {
                             }}
                           />
                               </span>}</p>
+                      </div>
                     </div>
-                  </div>
-                </Col>
-              )))
-              }
+                  </Col>
+                )))
+                }
               </Row>
             </div>
           </Affix>
@@ -692,32 +725,25 @@ class Notice extends Component {
                         }}
                       />
                     </Tooltip>,
-                    <Tooltip title="下载图片">
+                    <Tooltip title="查看大图">
                       <Icon
-                        type="download"
-                        key="download"
+                        type="zoom-in"
+                        key="zoom-in"
                         onClick={e => {
                           e.stopPropagation();
-                          const link = new XMLHttpRequest();
-                          link.open(
-                            'GET',
-                            `http://pull.wghtstudio.cn/img/${item.name}`,
-                            true,
-                          );
-                          link.onload = () => {
-                            const url = window.URL.createObjectURL(link.response);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = item.img_id;
-                            a.click();
-                          };
-                          link.send();
+                          dispatch({
+                            type: 'gallery/save',
+                            payload: {
+                              bigImgState: true,
+                              bigImg: item.name,
+                            },
+                          });
                         }}
                       />
                     </Tooltip>,
                     <Tooltip title={item.count === 0 ? '删除图片' : '被引用的图片无法删除'}>
                       <Icon
-                        type={item.count === 0 ? 'close' : 'exclamation-circle'}
+                        type={item.count === 0 ? 'delete' : 'exclamation-circle'}
                         key="close"
                         onClick={e => {
                           e.stopPropagation();
