@@ -63,6 +63,9 @@ export const updateMessageURL = `${baseURL}/img`;
 // 获取推荐消息详情
 export const getMessageDetailURL = `${baseURL}/img`;
 
+// 删除评论
+export const deleteCommentURL = `${baseURL}/comment`;
+
 // 拉取web头像图片
 export const pullWebAvaURL = 'http://pull.wghtstudio.cn/avatar/web/';
 

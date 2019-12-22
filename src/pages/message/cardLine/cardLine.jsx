@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'dva';
 import { Card, Carousel, Icon, Popconfirm, Popover } from 'antd';
 import router from 'umi/router';
-import { formatImgUrl } from '../../../utils/common';
+import { formatImgUrl, showNotification } from '../../../utils/common';
 
 import styles from './cardLine.less';
 
@@ -37,7 +37,11 @@ const CardLine = props => (
           </div>,
           <div
             onClick={() => {
-              router.push(`/message/comment/${m.id}`);
+              if (m.comment !== 0) {
+                router.push(`/message/comment/${m.id}`);
+              } else {
+                showNotification('warn', '该条推荐消息暂时没有评论！');
+              }
             }}
           >
             <Icon type="message" theme="twoTone" twoToneColor="#836fff" />

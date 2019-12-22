@@ -39,7 +39,6 @@ export default {
       };
     },
     update(state, { payload }) {
-      console.log('update reducers');
       const { userID, username } = payload;
       const { user } = state;
       user[userID].username = username;
@@ -85,8 +84,8 @@ export default {
       const { userID, index } = payload;
       try {
         const res = yield call(commitDelete, [userID]); // 这里用数组包起来是为了对接口
-        showNotification(res.status, res.data || res.err_msg);
         if (res.status === 'success') {
+          showNotification('success', '删除账户成功');
           yield put({
             type: 'delete',
             payload: {
@@ -121,7 +120,8 @@ export default {
     *handleCreate({ payload }, { put, call }) {
       const { username, password } = payload;
       try {
-        yield call(createAccount, username, password);
+        const res = yield call(createAccount, username, password);
+        if (res.status === 'success') showNotification('success', `创建账户成功(${username})`);
       } catch (e) {
         showNotification('error', '创建失败，用户名已存在或服务器错误');
       } finally {
@@ -170,12 +170,10 @@ export default {
           const avaForm = new FormData();
           avaForm.append('avatar', avatarFile);
           avaRes = yield call(uploadAvatar, avaForm);
-          console.log('avaRes', avaRes);
           if (avaRes.status === 'success') {
             other.avatar.new_id = avaRes.data.avatar_id;
           }
         } catch (e) {
-          console.log(e);
           showNotification('error', '头像上传失败');
         }
       } else {
@@ -183,14 +181,12 @@ export default {
       }
 
       if (avaRes) {
-        console.log(other);
         try {
           const putRes = yield call(putSettings, userid, other);
           if (putRes) {
             showNotification('success', '修改成功');
           }
         } catch (e) {
-          console.log(e);
           showNotification('error', '修改失败');
         }
       }

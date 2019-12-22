@@ -65,9 +65,11 @@ const BasicLayout = props => {
    */
 
   useEffect(() => {
+    const userID = sessionStorage.getItem('userID');
     if (dispatch) {
       dispatch({
-        type: 'user/fetchCurrent',
+        type: 'login/fetchUserInfo',
+        payload: userID,
       });
       dispatch({
         type: 'settings/getSetting',
