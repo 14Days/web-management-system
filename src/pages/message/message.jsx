@@ -28,18 +28,20 @@ class Message extends React.Component {
     });
   }
 
-  getBase64 = file => {
+  getBase64 = (file, uid) => {
     const reader = new FileReader();
     const model = this.state.visible.update === true ? 'update' : 'upload';
     reader.readAsDataURL(file);
     // 将表单中的 avatar 设置为 reader 后的 database64，显示在页面上.
     reader.onload = () => {
+      console.log('uid', uid);
       this.props.dispatch({
         type: 'message/handleUpload',
         payload: {
           file,
           url: reader.result,
           model,
+          uid,
         },
       });
     };
@@ -48,13 +50,14 @@ class Message extends React.Component {
   // 上传图片
   handleUpload = action => {
     const model = this.state.visible.update === true ? 'update' : 'upload';
+    const uid = this.props[model].inc;
     // 先添加一个文件上传中的提示
     this.props.dispatch({
       type: 'message/loading',
       payload: { model },
     });
     const { file } = action;
-    this.getBase64(file);
+    this.getBase64(file, uid);
   };
 
   // 预览图片
@@ -98,7 +101,7 @@ class Message extends React.Component {
     // 检查上传的推荐消息是否填写U
     const FieldsValue = this.props.form.getFieldsValue();
     const content = FieldsValue[`${model}Content`];
-    if (content === '') {
+    if (!content) {
       showNotification('error', '没有写推荐内容哦😯');
       return;
     }
@@ -116,10 +119,17 @@ class Message extends React.Component {
     let isAllReady = true;
     imgs.forEach(item => {
       if (item.status === 'uploading') isAllReady = false;
-      img.push(item.imgID);
+      if (item.status === 'done') img.push(item.imgID);
     });
     if (!isAllReady) {
       showNotification('error', '请等待所有图片完成上传哦😬');
+      return;
+    }
+    if (img.length !== imgs.length) {
+      showNotification('warn', '上传失败但是未删除的图片将会被忽略哦');
+    }
+    if (img.length === 0) {
+      showNotification('error', '没有上传成功的图片哦😯');
       return;
     }
     this.props.dispatch({
@@ -207,6 +217,13 @@ class Message extends React.Component {
           >
             {uploadButton}
           </Upload>
+          <Button
+            onClick={() => {
+              console.log(this.props);
+            }}
+          >
+            p
+          </Button>
         </Modal>
         <Modal
           title="修改推荐消息"

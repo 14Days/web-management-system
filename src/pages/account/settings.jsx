@@ -4,6 +4,7 @@ import { Button, Form, Input, Radio, Upload } from 'antd';
 import { connect } from 'dva';
 
 import styles from './settings.less';
+import { showNotification } from '../../utils/common';
 
 class Create extends Component {
   constructor(props) {
@@ -24,25 +25,35 @@ class Create extends Component {
   componentWillMount() {}
 
   commit = () => {
-    //  TODO 上传的时候太慢了，最好带个 loading
-    const commitData = this.props.form.getFieldsValue();
-    // 如果上传了的话，添加这个属性
-    commitData.avatarFile = this.state.file;
-    commitData.avatar = {
-      old_id: this.props.currentUser.avatar.id,
-      new_id: this.props.currentUser.avatar.id,
-    };
+    const valid = this.props.form.validateFields();
+    valid.then(
+      () => {
+        //  TODO 上传的时候太慢了，最好带个 loading
+        const commitData = this.props.form.getFieldsValue();
+        // 如果上传了的话，添加这个属性
+        commitData.avatarFile = this.state.file;
+        commitData.avatar = {
+          old_id: this.props.currentUser.avatar.id,
+          new_id: this.props.currentUser.avatar.id,
+        };
 
-    const { userid } = this.props.currentUser;
-    // 提交所有表单信息 {nickname, sex<number>, email, phone, avatar<File>, old_avatar_id}
-    // avatar 需要判断是否上传了新的头像，其他的不需要
-    this.props.dispatch({
-      type: 'account/handleSettings',
-      payload: {
-        userid,
-        info: commitData,
+        const { userid } = this.props.currentUser;
+        // 提交所有表单信息 {nickname, sex<number>, email, phone, avatar<File>, old_avatar_id}
+        // avatar 需要判断是否上传了新的头像，其他的不需要
+        this.props.dispatch({
+          type: 'account/handleSettings',
+          payload: {
+            userid,
+            info: commitData,
+          },
+        });
       },
-    });
+      err => {
+        Object.keys(err.errors).forEach(prop => {
+          showNotification('error', err.errors[prop].errors[0].message);
+        });
+      },
+    );
   };
 
   /**
@@ -130,6 +141,10 @@ class Create extends Component {
                   required: true,
                   message: '请输入邮箱！',
                 },
+                {
+                  pattern: /^[A-Za-z0-9]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/,
+                  message: '请输入合法的邮箱!',
+                },
               ],
               initialValue: currentUser.email,
             })(<Input />)}
@@ -140,6 +155,10 @@ class Create extends Component {
                 {
                   required: true,
                   message: '手机号不能为空',
+                },
+                {
+                  pattern: /^1[356789]\d{9}$/,
+                  message: '手机号不合法！',
                 },
               ],
               initialValue: currentUser.phone,
