@@ -94,8 +94,8 @@ const Model = {
     *fetchUserInfo({ payload }, { call, put }) {
       try {
         const getInfo = yield call(getUserInfo, payload);
-        console.log('getUserInfo', getInfo);
         getInfo.data.avatar.name = `${pullWebAvaURL}${getInfo.data.avatar.name}`;
+        sessionStorage.setItem('userInfo', JSON.stringify(getInfo.data));
         // 保存个人信息
         yield put({
           type: 'user/saveCurrentUser',

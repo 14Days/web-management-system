@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Button, Form, Input, Radio, Spin, Upload } from 'antd';
+import { Button, Form, Input, Radio, Upload } from 'antd';
 import { connect } from 'dva';
+
+import styles from './settings.less';
 
 class Create extends Component {
   constructor(props) {
@@ -10,14 +12,18 @@ class Create extends Component {
     this.state = {
       file: undefined,
     };
-    this.commit = this.commit.bind(this);
+    const userID = sessionStorage.getItem('userID');
+    if (userID) {
+      this.props.dispatch({
+        type: 'login/fetchUserInfo',
+        payload: userID,
+      });
+    }
   }
 
-  commit = () => {
-    console.log('props', this.props);
-    console.log('state', this.state);
+  componentWillMount() {}
 
-    console.log(this.props.form.getFieldsValue());
+  commit = () => {
     //  TODO 上传的时候太慢了，最好带个 loading
     const commitData = this.props.form.getFieldsValue();
     // 如果上传了的话，添加这个属性
@@ -63,12 +69,14 @@ class Create extends Component {
   };
 
   render() {
+    console.log('render', this.props);
     const { getFieldDecorator } = this.props.form;
-    const { currentUser } = this.props;
+    const currentUser = JSON.parse(sessionStorage.getItem('userInfo'));
+    console.log('currentUser', currentUser);
     return (
       <PageHeaderWrapper title="账号设置" subTitle="设置您的个人信息">
-        <Spin spinning={false}>
-          <Form.Item label="头像(点击上传新头像)">
+        <div className={styles.formContainer}>
+          <Form.Item label="头像(点击上传新头像)" className={styles.item}>
             {getFieldDecorator('avatar', {
               rules: [
                 {
@@ -94,10 +102,10 @@ class Create extends Component {
               </Upload>,
             )}
           </Form.Item>
-          <Form.Item label="用户名">
+          <Form.Item label="用户名" className={styles.item}>
             <Input type="username" placeholder={currentUser.username} disabled />
           </Form.Item>
-          <Form.Item label="姓名">
+          <Form.Item label="姓名" className={styles.item}>
             {getFieldDecorator('nickname', {
               rules: [
                 {
@@ -108,7 +116,7 @@ class Create extends Component {
               initialValue: currentUser.nickname,
             })(<Input />)}
           </Form.Item>
-          <Form.Item label="性别">
+          <Form.Item label="性别" className={styles.item}>
             {getFieldDecorator('sex', {
               initialValue: currentUser.sex,
             })(
@@ -118,7 +126,7 @@ class Create extends Component {
               </Radio.Group>,
             )}
           </Form.Item>
-          <Form.Item label="邮箱">
+          <Form.Item label="邮箱" className={styles.item}>
             {getFieldDecorator('email', {
               rules: [
                 {
@@ -129,7 +137,7 @@ class Create extends Component {
               initialValue: currentUser.email,
             })(<Input />)}
           </Form.Item>
-          <Form.Item label="手机号">
+          <Form.Item label="手机号" className={styles.item}>
             {getFieldDecorator('phone', {
               rules: [
                 {
@@ -141,10 +149,10 @@ class Create extends Component {
             })(<Input />)}
           </Form.Item>
 
-          <Button type="primary" onClick={this.commit}>
+          <Button type="primary" onClick={this.commit} className={styles.btn}>
             确认提交
           </Button>
-        </Spin>
+        </div>
       </PageHeaderWrapper>
     );
   }

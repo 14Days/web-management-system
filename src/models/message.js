@@ -305,7 +305,6 @@ export default {
 
         if (res.status === 'success') {
           showNotification('success', '删除成功');
-          // TODO: handleInit 不能随便调用了
           yield put({
             type: 'deleteMsg',
             payload: {
@@ -366,7 +365,6 @@ export default {
         update: { old, messageID, index, side },
       } = yield select(state => state.message);
       try {
-        // TODO: 提交删除服务器好像有问题
         const res = yield call(updateMessge, messageID, content, img, old);
         showNotification(
           res.status,

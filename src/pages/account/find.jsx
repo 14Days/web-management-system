@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Table, Button, Modal, Form, Input, Spin } from 'antd';
+import { Button, Form, Input, Modal, Popconfirm, Spin, Table } from 'antd';
 import { connect } from 'dva';
 
 @connect(({ account }) => ({
@@ -11,6 +11,7 @@ export default class Find extends Component {
   static formatData(data) {
     console.log(data);
     data.forEach((e, index) => {
+      console.log(e);
       e.key = index;
       e.sex = e.sex === 0 ? '女' : '男';
     });
@@ -122,9 +123,9 @@ export default class Find extends Component {
             >
               修改
             </Button>
-            <Button
-              type="danger"
-              onClick={() => {
+            <Popconfirm
+              title={`确定删除此账户(${item.username})吗？`}
+              onConfirm={() => {
                 this.props.dispatch({
                   type: 'account/handleDelete',
                   payload: {
@@ -134,8 +135,9 @@ export default class Find extends Component {
                 });
               }}
             >
-              删除
-            </Button>
+              <Button type="danger">删除</Button>
+            </Popconfirm>
+            ,
           </div>
         ),
       },
