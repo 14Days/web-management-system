@@ -1,6 +1,6 @@
 import React from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { BackTop, Button, Form, Icon, Input, Modal, Upload } from 'antd';
+import { BackTop, Button, Form, Icon, Input, Modal, Upload, Spin } from 'antd';
 import { connect } from 'dva';
 import { showNotification } from '../../utils/common';
 import CardLine from './cardLine/cardLine';
@@ -217,13 +217,6 @@ class Message extends React.Component {
           >
             {uploadButton}
           </Upload>
-          <Button
-            onClick={() => {
-              console.log(this.props);
-            }}
-          >
-            p
-          </Button>
         </Modal>
         <Modal
           title="修改推荐消息"
@@ -274,6 +267,11 @@ class Message extends React.Component {
             }}
           />
         </div>
+        {this.props.loading ? (
+          <Spin className={styles.spin} />
+        ) : (
+          <Spin className={styles.spinPlace} />
+        )}
         <Button
           className={styles.loadMore}
           onClick={() => {

@@ -14,7 +14,8 @@ const loadImg = url =>
     const img = new Image();
     img.src = url;
     img.onload = () => {
-      resolve(img.height);
+      const relaHeight = (300 / img.width) * img.height;
+      resolve(relaHeight);
     };
   });
 
@@ -25,6 +26,7 @@ export default {
     page: 0,
     limit: 4,
     loadAll: false,
+    loading: false,
     leftMsg: [],
     rightMsg: [],
     leftHeight: 0,
@@ -212,6 +214,7 @@ export default {
           rightMsg: [],
           page: 0,
           loadAll: false,
+          loading: true,
         },
       });
       try {
@@ -240,6 +243,12 @@ export default {
       }
     },
     *handleLoadMore(_, { put, call, select }) {
+      yield put({
+        type: 'save',
+        payload: {
+          loading: true,
+        },
+      });
       try {
         const { page, limit } = yield select(state => state.message);
         const res = yield call(fetchMessage, page, limit);
@@ -258,6 +267,7 @@ export default {
               type: 'save',
               payload: {
                 loadAll: true,
+                loading: false,
               },
             });
           } else {
@@ -281,6 +291,12 @@ export default {
           payload: message[i],
         });
       }
+      yield put({
+        type: 'save',
+        payload: {
+          loading: false,
+        },
+      });
     },
     *selectSide({ payload: message }, { put, call, select }) {
       const height = yield call(loadImg, formatImgUrl(message.img_url[0].name));
