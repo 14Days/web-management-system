@@ -34,7 +34,6 @@ class Create extends Component {
     };
 
     const { userid } = this.props.currentUser;
-    console.log('commitData', commitData);
     // 提交所有表单信息 {nickname, sex<number>, email, phone, avatar<File>, old_avatar_id}
     // avatar 需要判断是否上传了新的头像，其他的不需要
     this.props.dispatch({
@@ -69,10 +68,8 @@ class Create extends Component {
   };
 
   render() {
-    console.log('render', this.props);
     const { getFieldDecorator } = this.props.form;
     const currentUser = JSON.parse(sessionStorage.getItem('userInfo'));
-    console.log('currentUser', currentUser);
     return (
       <PageHeaderWrapper title="账号设置" subTitle="设置您的个人信息">
         <div className={styles.formContainer}>

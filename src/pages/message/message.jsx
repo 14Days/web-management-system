@@ -81,7 +81,6 @@ class Message extends React.Component {
 
   // Modal 取消按钮
   handleCancel = () => {
-    console.log(this.props);
     // 标记打开了哪一个对话框
     const model = this.state.visible.update === true ? 'Update' : 'Upload';
     this.setState({
@@ -123,8 +122,6 @@ class Message extends React.Component {
       showNotification('error', '请等待所有图片完成上传哦😬');
       return;
     }
-    console.log(img);
-    console.log(this.props);
     this.props.dispatch({
       type: `message/handle${model}Message`,
       payload: {
@@ -132,7 +129,6 @@ class Message extends React.Component {
         img,
       },
     });
-    console.log(this.props);
     // 隐藏弹出框
     this.setState({ visible: { [model]: false } });
 

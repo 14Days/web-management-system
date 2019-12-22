@@ -9,9 +9,7 @@ import { connect } from 'dva';
 export default class Find extends Component {
   // 传入所有的 user 信息, 返回符合 Table 格式的数据
   static formatData(data) {
-    console.log(data);
     data.forEach((e, index) => {
-      console.log(e);
       e.key = index;
       e.sex = e.sex === 0 ? '女' : '男';
     });
