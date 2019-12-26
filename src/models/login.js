@@ -14,7 +14,6 @@ const Model = {
   },
   effects: {
     *handleLogin({ payload }, { call, put }) {
-      // const response = yield call(fakeAccountLogin, payload);
       const { username, password } = payload;
 
       try {
@@ -52,27 +51,7 @@ const Model = {
           // 保存登录者信息
           sessionStorage.setItem('userID', userID);
           sessionStorage.setItem('userInfo', JSON.stringify(getInfo.data));
-          // 官方写的跳转
-          const urlParams = new URL(window.location.href);
-          const params = getPageQuery();
-          let { redirect } = params;
-
-          if (redirect) {
-            const redirectUrlParams = new URL(redirect);
-
-            if (redirectUrlParams.origin === urlParams.origin) {
-              redirect = redirect.substr(urlParams.origin.length);
-
-              if (redirect.match(/^\/.*#/)) {
-                redirect = redirect.substr(redirect.indexOf('#') + 1);
-              }
-            } else {
-              window.location.href = '/';
-              return;
-            }
-          }
-          // 跳转到统计信息
-          yield put(routerRedux.replace(redirect || '/'));
+          yield put(routerRedux.replace('/'));
         }
 
         yield put({
@@ -114,6 +93,7 @@ const Model = {
       const { redirect } = getPageQuery(); // redirect
       // 删除 session
       sessionStorage.clear();
+      localStorage.clear();
       if (window.location.pathname !== '/user/login' && !redirect) {
         yield put(
           routerRedux.replace({
