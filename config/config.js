@@ -99,7 +99,7 @@ export default {
         {
           path: '/',
           component: '../layouts/BasicLayout',
-          authority: ['admin', 'user'],
+          authority: ['root', 'admin', 'designer'],
           routes: [
             {
               name: '公告信息管理',
@@ -115,27 +115,18 @@ export default {
               authority: '',
             },
             {
-              path: '/account',
-              name: '账户管理',
-              icon: 'idcard',
+              name: '查找账户',
+              path: '/account/find',
+              icon: 'user',
               authority: ['root', 'admin'],
-              routes: [
-                {
-                  name: '查找账户',
-                  path: './find',
-                  icon: 'user',
-                  component: './account/find',
-                },
-                {
-                  name: '新建账户',
-                  path: './create',
-                  icon: 'user-add',
-                  component: './account/create',
-                },
-                {
-                  component: './account/settings',
-                },
-              ],
+              component: './account/find',
+            },
+            {
+              name: '新建账户',
+              path: '/account/create',
+              icon: 'user-add',
+              authority: ['root', 'admin'],
+              component: './account/create',
             },
             {
               path: '/gallery/index',
@@ -155,6 +146,9 @@ export default {
               path: '/message/comment/:id',
               component: './message/comment/comment',
               hideInMenu: true,
+            },
+            {
+              component: './account/settings',
             },
             {
               component: './404',

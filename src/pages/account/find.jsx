@@ -144,7 +144,6 @@ export default class Find extends Component {
             >
               <Button type="danger">删除</Button>
             </Popconfirm>
-            ,
           </div>
         ),
       },
