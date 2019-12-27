@@ -129,6 +129,12 @@ export default {
               component: './account/create',
             },
             {
+              name: '个人设置',
+              path: '/account/settings',
+              component: './account/settings',
+              hideInMenu: true,
+            },
+            {
               path: '/gallery/index',
               name: '图库',
               icon: 'file-image',
@@ -146,9 +152,6 @@ export default {
               path: '/message/comment/:id',
               component: './message/comment/comment',
               hideInMenu: true,
-            },
-            {
-              component: './account/settings',
             },
             {
               component: './404',
